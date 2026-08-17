@@ -68,4 +68,38 @@ object BandMap {
         if (channel == null) return null
         return entries.firstOrNull { it.rat == rat && channel in it.range }?.operator
     }
+
+    /** Bande 3GPP a cui appartiene il canale, per mostrarle come fa un net monitor. */
+    private val bands = listOf(
+        // LTE (EARFCN downlink)
+        Triple(Rat.LTE, 0..599, "B1"),
+        Triple(Rat.LTE, 1200..1949, "B3"),
+        Triple(Rat.LTE, 2750..3449, "B7"),
+        Triple(Rat.LTE, 3450..3799, "B8"),
+        Triple(Rat.LTE, 6150..6449, "B20"),
+        Triple(Rat.LTE, 9210..9659, "B28"),
+        Triple(Rat.LTE, 9920..10359, "B32"),
+        Triple(Rat.LTE, 37750..38249, "B38"),
+        Triple(Rat.LTE, 38650..39649, "B40"),
+        Triple(Rat.LTE, 41590..43589, "B42"),
+        // 5G NR (NR-ARFCN)
+        Triple(Rat.NR, 151600..160600, "n28"),
+        Triple(Rat.NR, 158200..164200, "n20"),
+        Triple(Rat.NR, 361000..376000, "n3"),
+        Triple(Rat.NR, 384000..396000, "n1"),
+        Triple(Rat.NR, 514000..524000, "n38"),
+        Triple(Rat.NR, 524000..538000, "n7"),
+        Triple(Rat.NR, 620000..653333, "n78"),
+        // UMTS (UARFCN) e GSM (ARFCN)
+        Triple(Rat.WCDMA, 2937..3088, "U900"),
+        Triple(Rat.WCDMA, 10562..10838, "U2100"),
+        Triple(Rat.GSM, 0..124, "G900"),
+        Triple(Rat.GSM, 975..1023, "G900"),
+        Triple(Rat.GSM, 512..885, "G1800"),
+    )
+
+    fun bandOf(rat: Rat, channel: Int?): String? {
+        if (channel == null) return null
+        return bands.firstOrNull { it.first == rat && channel in it.second }?.third
+    }
 }

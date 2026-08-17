@@ -190,16 +190,24 @@ class MainActivity : Activity() {
 
     private fun render(cells: List<CellInfo>) {
         lastRawCellCount = cells.size
-        val current = (SignalReader.readCells(cells) + SignalReader.readServing(this))
-            .distinctBy { keyOf(it) }
+        val fromCells = SignalReader.readCells(cells)
+        // La lettura della rete attiva serve a coprire le tecnologie che l'elenco
+        // celle non riporta (tipicamente la portante NR in 5G NSA, o l'elenco vuoto).
+        val coveredTechs = fromCells.filter { it.registered }.map { it.tech }.toSet()
+        val serving = SignalReader.readServing(this).filterNot { it.tech in coveredTechs }
+        val current = (fromCells + serving).distinctBy { keyOf(it) }
         remember(current)
         updateUi(current)
     }
 
-    /** Chiave stabile di una cella: operatore + tecnologia + canale radio. */
+    /**
+     * Chiave stabile di una cella. Include il PCI: celle diverse sullo stesso
+     * canale si distinguono solo per quello, e senza di esso finirebbero fuse
+     * in una sola riga.
+     */
     private fun keyOf(r: CellReading): String {
         val who = r.operator?.name ?: "${r.mcc ?: "?"}-${r.mnc ?: "?"}"
-        return "$who|${r.tech}|${r.channel ?: "-"}"
+        return "$who|${r.tech}|${r.channel ?: "-"}|${r.pci ?: "-"}"
     }
 
     private fun remember(readings: List<CellReading>) {
@@ -257,21 +265,28 @@ class MainActivity : Activity() {
         if (history.isEmpty()) {
             return if (!isLocationEnabled()) getString(R.string.location_off) else getString(R.string.no_cells)
         }
-        return history.entries
+        val rows = history.entries
             .sortedWith(compareByDescending<Map.Entry<String, Seen>> { it.key in visibleKeys }
                 .thenByDescending { it.value.reading.dbm })
-            .joinToString("\n") { (key, seen) ->
+            .map { (key, seen) ->
                 val r = seen.reading
-                val name = (r.operator?.displayName ?: "${r.mcc ?: "?"}-${r.mnc ?: "?"}") +
-                    if (r.estimated) "*" else ""
-                val ch = r.channel?.let { " ch$it" }.orEmpty()
-                val suffix = when {
-                    key !in visibleKeys -> " (${ageOf(now, seen.timestamp)})"
+                val name = (r.operator?.shortName ?: "?") + if (r.estimated) "*" else ""
+                val marker = when {
+                    key !in visibleKeys -> " ${ageOf(now, seen.timestamp)}"
                     r.registered -> " ●"
                     else -> ""
                 }
-                "%-15s %-7s %4d dBm%s%s".format(Locale.ITALY, name, r.tech, r.dbm, ch, suffix)
+                "%-9s %-5s %5d %-7s %-6s%s".format(
+                    Locale.ITALY,
+                    name,
+                    r.band ?: r.tech,
+                    r.dbm,
+                    r.channel?.let { "ch$it" }.orEmpty(),
+                    r.pci?.let { "p$it" }.orEmpty(),
+                    marker,
+                )
             }
+        return (listOf(getString(R.string.cells_header)) + rows).joinToString("\n")
     }
 
     private fun ageOf(now: Long, timestamp: Long): String {

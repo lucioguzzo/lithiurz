@@ -28,6 +28,10 @@ data class CellReading(
     val registered: Boolean,
     /** Canale radio (EARFCN/NR-ARFCN/UARFCN/ARFCN), se noto. */
     val channel: Int? = null,
+    /** Identificativo fisico della cella: PCI su LTE/NR, PSC su UMTS, BSIC su GSM. */
+    val pci: Int? = null,
+    /** Banda 3GPP ricavata dal canale (B3, n78, …). */
+    val band: String? = null,
     /** true se l'operatore è stato dedotto dalla frequenza anziché dal MCC/MNC. */
     val estimated: Boolean = false,
 )
@@ -90,22 +94,22 @@ object SignalReader {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> {
                 val id = info.cellIdentity as? CellIdentityNr ?: return null
                 build(id.mccString, id.mncString, info.cellSignalStrength.dbm, "5G NR",
-                    info.isRegistered, BandMap.Rat.NR, id.nrarfcn)
+                    info.isRegistered, BandMap.Rat.NR, id.nrarfcn, id.pci)
             }
             info is CellInfoLte -> {
                 val id = info.cellIdentity
                 build(mcc(id.mccStringCompat(), id.mccInt()), id.mncStringCompat(), info.cellSignalStrength.dbm, "4G LTE",
-                    info.isRegistered, BandMap.Rat.LTE, id.earfcn)
+                    info.isRegistered, BandMap.Rat.LTE, id.earfcn, id.pci)
             }
             info is CellInfoWcdma -> {
                 val id = info.cellIdentity
                 build(mcc(id.mccStringCompat(), id.mccInt()), id.mncStringCompat(), info.cellSignalStrength.dbm, "3G UMTS",
-                    info.isRegistered, BandMap.Rat.WCDMA, id.uarfcn)
+                    info.isRegistered, BandMap.Rat.WCDMA, id.uarfcn, id.psc)
             }
             info is CellInfoGsm -> {
                 val id = info.cellIdentity
                 build(mcc(id.mccStringCompat(), id.mccInt()), id.mncStringCompat(), info.cellSignalStrength.dbm, "2G GSM",
-                    info.isRegistered, BandMap.Rat.GSM, id.arfcn)
+                    info.isRegistered, BandMap.Rat.GSM, id.arfcn, id.bsic)
             }
             else -> null
         }
@@ -119,12 +123,16 @@ object SignalReader {
         registered: Boolean,
         rat: BandMap.Rat,
         rawChannel: Int,
+        rawPci: Int,
     ): CellReading {
         val channel = rawChannel.takeIf { it != Int.MAX_VALUE && it >= 0 }
         val fromPlmn = Operator.fromMccMnc(mcc, mnc)
         val operator = fromPlmn ?: BandMap.attribute(rat, channel)
         return CellReading(
-            operator, mcc, mnc, dbm, tech, registered, channel,
+            operator, mcc, mnc, dbm, tech, registered,
+            channel = channel,
+            pci = rawPci.takeIf { it != Int.MAX_VALUE && it >= 0 },
+            band = BandMap.bandOf(rat, channel),
             estimated = fromPlmn == null && operator != null,
         )
     }

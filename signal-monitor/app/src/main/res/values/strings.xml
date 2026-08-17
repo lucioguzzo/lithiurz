@@ -24,6 +24,7 @@
     <string name="scan_hint">La scansione chiede al modem di cercare tutte le reti presenti, non solo la tua: è l\'unico modo per misurare gli altri operatori, ma Android la consente solo alle app di sistema. Provala: se il tuo telefono la permette, i risultati compaiono qui sotto.</string>
     <string name="permission_needed">Concedi i permessi di posizione e telefono per leggere il segnale.</string>
     <string name="detected_cells">Celle rilevate</string>
+    <string name="cells_header">GESTORE  BANDA   dBm CANALE  PCI</string>
     <string name="no_cells">Nessuna cella rilevata (verifica permessi e posizione attiva).</string>
     <string name="location_off">Nessuna cella rilevata: attiva la localizzazione di sistema (GPS) — Android la richiede per leggere le celle vicine.</string>
     <string name="no_signal_dbm">—</string>
