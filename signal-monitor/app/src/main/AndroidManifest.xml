@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <!--
+      Necessario per requestNetworkScan (scansione di tutte le reti). È un
+      permesso di sistema: viene concesso solo se l'app è installata come app di
+      sistema o ha privilegi operatore, altrimenti la chiamata viene rifiutata e
+      l'app lo segnala senza interrompersi.
+    -->
+    <uses-permission android:name="android.permission.MODIFY_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
 
     <application
         android:label="@string/app_name"

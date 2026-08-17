@@ -61,16 +61,18 @@ object SignalReader {
             null
         } ?: listOf(default)
 
-        return managers.mapNotNull { tm ->
+        return managers.flatMap { tm ->
             val op = tm.networkOperator
-            if (op == null || op.length < 5) return@mapNotNull null
+            if (op == null || op.length < 5) return@flatMap emptyList<CellReading>()
             val mcc = op.substring(0, 3)
             val mnc = op.substring(3).padStart(2, '0')
-            val best = tm.signalStrength?.cellSignalStrengths
+            val operator = Operator.fromMccMnc(mcc, mnc)
+            // In 5G NSA il telefono è agganciato contemporaneamente a LTE e NR:
+            // le riportiamo entrambe anziché tenere solo la più forte.
+            tm.signalStrength?.cellSignalStrengths
                 ?.filter { it.dbm in -140..-40 }
-                ?.maxByOrNull { it.dbm }
-                ?: return@mapNotNull null
-            CellReading(Operator.fromMccMnc(mcc, mnc), mcc, mnc, best.dbm, techOf(best), registered = true)
+                ?.map { s -> CellReading(operator, mcc, mnc, s.dbm, techOf(s), registered = true) }
+                .orEmpty()
         }
     }
 

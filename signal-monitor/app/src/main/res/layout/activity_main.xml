@@ -24,6 +24,22 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
+        <Button
+            android:id="@+id/scan_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/scan_start" />
+
+        <TextView
+            android:id="@+id/scan_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/scan_hint"
+            android:textSize="11sp"
+            android:alpha="0.7"
+            android:paddingTop="4dp" />
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

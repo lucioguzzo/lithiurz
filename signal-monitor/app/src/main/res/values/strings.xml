@@ -2,7 +2,26 @@
 <resources>
     <string name="app_name">Monitor Segnale</string>
     <string name="waiting">In attesa di dati…</string>
-    <string name="last_update">Ultimo aggiornamento: %1$s</string>
+    <string name="last_update">Ultimo aggiornamento: %1$s · %2$d celle dal modem</string>
+    <string name="seen_seconds_ago">visto %1$d s fa</string>
+    <string name="seen_minutes_ago">visto %1$d min fa</string>
+    <string name="tech_recalled">%1$s · %2$s</string>
+    <string name="scan_start">Scansione completa reti</string>
+    <string name="scan_stop">Interrompi scansione</string>
+    <string name="scan_running">Scansione in corso… può richiedere fino a 60 s.</string>
+    <string name="scan_found">Scansione: %1$d celle trovate</string>
+    <string name="scan_done">Scansione completata.</string>
+    <string name="scan_stopped">Scansione interrotta.</string>
+    <string name="scan_failed">Scansione non riuscita: %1$s</string>
+    <string name="scan_denied">permesso di sistema negato (MODIFY_PHONE_STATE). Android riserva la scansione di tutte le reti alle app di sistema.</string>
+    <string name="scan_needs_android_9">richiede Android 9 o superiore.</string>
+    <string name="scan_no_telephony">servizio di telefonia non disponibile.</string>
+    <string name="scan_error_modem">errore del modem.</string>
+    <string name="scan_error_unsupported">non supportata dal modem.</string>
+    <string name="scan_error_busy">modem occupato, riprova.</string>
+    <string name="scan_error_interrupted">scansione interrotta.</string>
+    <string name="scan_error_code">codice di errore %1$d.</string>
+    <string name="scan_hint">La scansione chiede al modem di cercare tutte le reti presenti, non solo la tua: è l\'unico modo per misurare gli altri operatori, ma Android la consente solo alle app di sistema. Provala: se il tuo telefono la permette, i risultati compaiono qui sotto.</string>
     <string name="permission_needed">Concedi i permessi di posizione e telefono per leggere il segnale.</string>
     <string name="detected_cells">Celle rilevate</string>
     <string name="no_cells">Nessuna cella rilevata (verifica permessi e posizione attiva).</string>
@@ -16,5 +35,5 @@
     <string name="quality_fair">Discreto</string>
     <string name="quality_weak">Debole</string>
     <string name="quality_absent">Non rilevato</string>
-    <string name="note_visibility">Nota: le celle vicine spesso arrivano senza codice operatore; in quel caso l\'app deduce il gestore dalla frequenza (contrassegno * / "da frequenza"). La posizione di sistema deve essere attiva per vedere le celle vicine. ● = rete a cui sei connesso.</string>
+    <string name="note_visibility">Legenda: ● = rete a cui sei connesso; * = operatore dedotto dalla frequenza (la cella non dichiara il codice operatore); (visto … fa) = cella non più visibile, ultimo valore rilevato. Le celle restano in elenco 5 minuti. La posizione di sistema deve essere attiva.\n\nIl modem riporta alle app quasi solo le celle della rete su cui sei registrato: per questo gli altri operatori spesso restano vuoti.</string>
 </resources>

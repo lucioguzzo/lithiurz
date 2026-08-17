@@ -20,15 +20,39 @@ Per ciascun operatore viene mostrata la cella con il segnale migliore: valore in
 dBm, barra di intensità, qualità (Ottimo/Buono/Discreto/Debole) e tecnologia
 (2G/3G/4G/5G). In fondo c'è l'elenco completo delle celle rilevate.
 
+## Attribuzione per frequenza
+
+Android spesso consegna le celle vicine **senza codice operatore** (MCC/MNC
+vuoti per le celle non registrate). In quel caso l'app deduce il gestore dal
+canale radio (EARFCN/NR-ARFCN/UARFCN/ARFCN): in Italia ogni blocco di frequenze
+è assegnato a un operatore preciso, quindi il canale lo identifica. Esempi in
+banda 800 MHz: WindTre 6200, TIM 6300, Vodafone 6400. La mappa completa è in
+`BandMap.kt`, ricavata dalle assegnazioni di spettro italiane. Queste letture
+sono contrassegnate con `*`.
+
 ## Limitazioni importanti
 
-- **Android mostra con certezza solo la rete della SIM attiva.** Le celle degli
-  altri operatori compaiono solo se il modem le riporta come "celle vicine":
-  dipende dal chipset e dal firmware del telefono. Su molti dispositivi si
-  vedono, su altri no. Con due SIM di operatori diversi si monitorano
-  entrambi in modo affidabile.
+- **Il modem riporta alle app quasi solo le celle della rete su cui il telefono
+  è registrato.** Non è un limite dell'app: `getAllCellInfo` restituisce la
+  cella servente e i suoi vicini, non le reti degli altri operatori. Per questo
+  su molti telefoni TIM/Vodafone/WindTre restano vuoti tranne quello della SIM.
+- L'unica API che esegue una vera ricerca di **tutte** le reti è
+  `TelephonyManager.requestNetworkScan`, che richiede il permesso di sistema
+  `MODIFY_PHONE_STATE`: Android lo riserva alle app di sistema e a quelle con
+  privilegi operatore. L'app include il pulsante **Scansione completa reti** che
+  la tenta comunque e riporta l'esito — funziona se l'app viene installata come
+  app di sistema o su build OEM che lo consentono.
+- Il modo affidabile per monitorare due operatori insieme resta un telefono
+  **dual SIM** con SIM di gestori diversi: l'app legge ogni SIM attiva.
 - Servono i permessi di **posizione** (richiesto da Android per le info di
   rete) e **telefono**; la posizione di sistema deve essere attiva.
+
+## Memoria delle celle
+
+Le celle rilevate restano in elenco per 5 minuti dall'ultimo avvistamento,
+marcate con il tempo trascorso (`visto 2 min fa`) e con la scheda attenuata.
+Questo permette di catturare gli operatori che compaiono solo per pochi istanti
+(ad esempio durante un cambio cella o una ricerca di rete).
 
 ## Compilare l'APK
 
