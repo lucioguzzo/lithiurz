@@ -288,6 +288,15 @@ class MainActivity : Activity() {
         val now = SystemClock.elapsedRealtime()
         readings.forEach { history[keyOf(it)] = Seen(it, now) }
         history.entries.removeAll { now - it.value.timestamp > HISTORY_WINDOW_MS }
+
+        // La lettura della rete attiva non porta canale né PCI: quando la stessa
+        // cella è già presente con quei dettagli, la voce generica è un doppione.
+        val detailed = history.values
+            .filter { it.reading.channel != null }
+            .mapTo(mutableSetOf()) { it.reading.operator to it.reading.tech }
+        history.entries.removeAll { (_, seen) ->
+            seen.reading.channel == null && (seen.reading.operator to seen.reading.tech) in detailed
+        }
     }
 
     // --- Interfaccia ---------------------------------------------------------
@@ -396,7 +405,7 @@ class MainActivity : Activity() {
                 val r = seen.reading
                 val name = (r.operator?.shortName ?: "?") + if (r.estimated) "*" else ""
                 val marker = when {
-                    key !in visibleKeys -> " ${ageOf(now, seen.timestamp)}"
+                    key !in visibleKeys -> " ${compactAge(now, seen.timestamp)}"
                     r.registered -> " ●"
                     else -> ""
                 }
@@ -411,6 +420,12 @@ class MainActivity : Activity() {
                 )
             }
         return (listOf(getString(R.string.cells_header)) + rows).joinToString("\n")
+    }
+
+    /** Età abbreviata, per non mandare a capo le righe dell'elenco. */
+    private fun compactAge(now: Long, timestamp: Long): String {
+        val seconds = ((now - timestamp) / 1000).toInt()
+        return if (seconds < 60) "${seconds}s" else "${seconds / 60}m"
     }
 
     private fun ageOf(now: Long, timestamp: Long): String {
