@@ -10,10 +10,11 @@
     <string name="no_signal_dbm">—</string>
     <string name="dbm_format">%1$d dBm</string>
     <string name="tech_registered">%1$s · rete attiva</string>
+    <string name="tech_estimated">%1$s · da frequenza</string>
     <string name="quality_excellent">Ottimo</string>
     <string name="quality_good">Buono</string>
     <string name="quality_fair">Discreto</string>
     <string name="quality_weak">Debole</string>
     <string name="quality_absent">Non rilevato</string>
-    <string name="note_visibility">Nota: il segnale degli operatori diversi dalla SIM attiva è visibile solo se il modem del telefono riporta le loro celle vicine. La posizione deve essere attiva (richiesta Android per le info di rete).</string>
+    <string name="note_visibility">Nota: le celle vicine spesso arrivano senza codice operatore; in quel caso l\'app deduce il gestore dalla frequenza (contrassegno * / "da frequenza"). La posizione di sistema deve essere attiva per vedere le celle vicine. ● = rete a cui sei connesso.</string>
 </resources>

@@ -156,10 +156,10 @@ class MainActivity : Activity() {
             } else {
                 card.dbmView.text = getString(R.string.dbm_format, reading.dbm)
                 card.qualityView.text = qualityLabel(reading.dbm)
-                card.techView.text = if (reading.registered) {
-                    getString(R.string.tech_registered, reading.tech)
-                } else {
-                    reading.tech
+                card.techView.text = when {
+                    reading.registered -> getString(R.string.tech_registered, reading.tech)
+                    reading.estimated -> getString(R.string.tech_estimated, reading.tech)
+                    else -> reading.tech
                 }
                 card.progressBar.progress = dbmToPercent(reading.dbm)
             }
@@ -176,9 +176,11 @@ class MainActivity : Activity() {
         return readings
             .sortedByDescending { it.dbm }
             .joinToString("\n") { r ->
-                val name = r.operator?.displayName ?: "${r.mcc ?: "?"}-${r.mnc ?: "?"}"
-                val reg = if (r.registered) "  ●" else ""
-                "%-14s %-7s %4d dBm%s".format(Locale.ITALY, name, r.tech, r.dbm, reg)
+                val name = (r.operator?.displayName ?: "${r.mcc ?: "?"}-${r.mnc ?: "?"}") +
+                    if (r.estimated) "*" else ""
+                val reg = if (r.registered) " ●" else ""
+                val ch = r.channel?.let { " ch$it" } ?: ""
+                "%-15s %-7s %4d dBm%s%s".format(Locale.ITALY, name, r.tech, r.dbm, ch, reg)
             }
     }
 
