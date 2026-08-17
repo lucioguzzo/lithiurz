@@ -35,9 +35,18 @@ class MainActivity : Activity() {
 
         /** Le celle viste restano in elenco per questo tempo dopo l'ultimo avvistamento. */
         const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
+        const val HISTORY_WINDOW_DRIVE_MS = 15 * 60 * 1000L
 
-        /** Intervallo minimo tra due richieste di aggiornamento celle al modem. */
-        const val CELL_INFO_REQUEST_INTERVAL_MS = 10_000L
+        /**
+         * Intervallo minimo tra due richieste di aggiornamento celle al modem.
+         * In modalità drive test si campiona al massimo ritmo utile per cogliere
+         * le celle che compaiono solo per pochi istanti.
+         */
+        const val CELL_INFO_REQUEST_INTERVAL_MS = 5_000L
+        const val CELL_INFO_REQUEST_INTERVAL_DRIVE_MS = 2_000L
+
+        /** Tolleranza prima di segnalare che il modem non restituisce celle. */
+        const val NO_CELLS_GRACE_MS = 30_000L
     }
 
     private lateinit var telephonyManager: TelephonyManager
@@ -61,6 +70,8 @@ class MainActivity : Activity() {
     private var scanning = false
     private var lastRawCellCount = 0
     private var lastCellInfoRequest = 0L
+    private var lastCellsSeenAt = 0L
+    private var driveTest = false
     private var telephonyCallback: TelephonyCallback? = null
     private var phoneStateListener: PhoneStateListener? = null
     private var warningAction: (() -> Unit)? = null
@@ -69,6 +80,7 @@ class MainActivity : Activity() {
     private lateinit var detailView: TextView
     private lateinit var scanButton: Button
     private lateinit var scanStatusView: TextView
+    private lateinit var driveTestButton: Button
     private lateinit var warningBox: LinearLayout
     private lateinit var warningText: TextView
     private lateinit var warningButton: Button
@@ -96,6 +108,14 @@ class MainActivity : Activity() {
 
         scanButton.setOnClickListener { if (scanning) stopScan(getString(R.string.scan_stopped)) else startScan() }
         warningButton.setOnClickListener { warningAction?.invoke() }
+
+        driveTestButton = findViewById(R.id.drive_test_button)
+        driveTestButton.setOnClickListener {
+            driveTest = !driveTest
+            lastCellInfoRequest = 0L
+            updateDriveTestButton()
+        }
+        updateDriveTestButton()
 
         val container = findViewById<LinearLayout>(R.id.operators_container)
         val inflater = LayoutInflater.from(this)
@@ -193,9 +213,9 @@ class MainActivity : Activity() {
         // invocata troppo spesso risponde con una lista vuota. Una volta ogni
         // dieci secondi è sotto la soglia su tutti i dispositivi testati.
         val now = SystemClock.elapsedRealtime()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
-            now - lastCellInfoRequest >= CELL_INFO_REQUEST_INTERVAL_MS
-        ) {
+        val interval =
+            if (driveTest) CELL_INFO_REQUEST_INTERVAL_DRIVE_MS else CELL_INFO_REQUEST_INTERVAL_MS
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && now - lastCellInfoRequest >= interval) {
             lastCellInfoRequest = now
             try {
                 telephonyManager.requestCellInfoUpdate(
@@ -264,6 +284,7 @@ class MainActivity : Activity() {
 
     private fun render(cells: List<CellInfo>) {
         lastRawCellCount = cells.size
+        if (cells.isNotEmpty()) lastCellsSeenAt = SystemClock.elapsedRealtime()
         val fromCells = SignalReader.readCells(cells)
         // La lettura della rete attiva serve a coprire le tecnologie che l'elenco
         // celle non riporta (tipicamente la portante NR in 5G NSA, o l'elenco vuoto).
@@ -286,8 +307,9 @@ class MainActivity : Activity() {
 
     private fun remember(readings: List<CellReading>) {
         val now = SystemClock.elapsedRealtime()
+        val window = if (driveTest) HISTORY_WINDOW_DRIVE_MS else HISTORY_WINDOW_MS
         readings.forEach { history[keyOf(it)] = Seen(it, now) }
-        history.entries.removeAll { now - it.value.timestamp > HISTORY_WINDOW_MS }
+        history.entries.removeAll { now - it.value.timestamp > window }
 
         // La lettura della rete attiva non porta canale né PCI: quando la stessa
         // cella è già presente con quei dettagli, la voce generica è un doppione.
@@ -364,7 +386,9 @@ class MainActivity : Activity() {
                 getString(R.string.warn_open_location_settings),
                 ::openLocationSettings,
             )
-            rawCells == 0 -> Triple(
+            // Una singola lettura vuota è normale: segnaliamo solo se il modem
+            // resta muto a lungo.
+            rawCells == 0 && SystemClock.elapsedRealtime() - lastCellsSeenAt > NO_CELLS_GRACE_MS -> Triple(
                 getString(R.string.warn_no_cells),
                 getString(R.string.warn_open_app_settings),
                 ::openAppSettings,
@@ -381,6 +405,12 @@ class MainActivity : Activity() {
         warningText.text = problem.first
         warningButton.text = problem.second
         warningAction = problem.third
+    }
+
+    private fun updateDriveTestButton() {
+        driveTestButton.text = getString(
+            if (driveTest) R.string.drive_test_on else R.string.drive_test_off
+        )
     }
 
     private fun openLocationSettings() {

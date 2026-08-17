@@ -6,6 +6,8 @@
     <string name="seen_seconds_ago">visto %1$d s fa</string>
     <string name="seen_minutes_ago">visto %1$d min fa</string>
     <string name="tech_recalled">%1$s · %2$s</string>
+    <string name="drive_test_off">Modalità drive test: OFF</string>
+    <string name="drive_test_on">Modalità drive test: ON (campionamento rapido, memoria 15 min)</string>
     <string name="scan_start">Scansione completa reti</string>
     <string name="scan_stop">Interrompi scansione</string>
     <string name="scan_running">Scansione in corso… può richiedere fino a 60 s.</string>
