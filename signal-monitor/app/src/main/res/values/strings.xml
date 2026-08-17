@@ -6,8 +6,9 @@
     <string name="seen_seconds_ago">visto %1$d s fa</string>
     <string name="seen_minutes_ago">visto %1$d min fa</string>
     <string name="tech_recalled">%1$s · %2$s</string>
+    <string name="clear_list">Svuota elenco celle</string>
     <string name="drive_test_off">Modalità drive test: OFF</string>
-    <string name="drive_test_on">Modalità drive test: ON (campionamento rapido, memoria 15 min)</string>
+    <string name="drive_test_on">Modalità drive test: ON (campionamento rapido)</string>
     <string name="scan_start">Scansione completa reti</string>
     <string name="scan_stop">Interrompi scansione</string>
     <string name="scan_running">Scansione in corso… può richiedere fino a 60 s.</string>
@@ -43,5 +44,5 @@
     <string name="quality_fair">Discreto</string>
     <string name="quality_weak">Debole</string>
     <string name="quality_absent">Non rilevato</string>
-    <string name="note_visibility">Legenda: ● = rete a cui sei connesso; * = operatore dedotto dalla frequenza (la cella non dichiara il codice operatore); (visto … fa) = cella non più visibile, ultimo valore rilevato. Le celle restano in elenco 5 minuti. La posizione di sistema deve essere attiva.\n\nIl modem riporta alle app quasi solo le celle della rete su cui sei registrato: per questo gli altri operatori spesso restano vuoti.</string>
+    <string name="note_visibility">Legenda: ● = rete a cui sei connesso; * = operatore dedotto dalla frequenza (la cella non dichiara il codice operatore); (visto … fa) = cella non più visibile, ultimo valore rilevato. Le celle restano in elenco finché l\'app è aperta (usa "Svuota elenco celle" per azzerarlo). La posizione di sistema deve essere attiva.\n\nIl modem riporta alle app quasi solo le celle della rete su cui sei registrato: per questo gli altri operatori spesso restano vuoti.</string>
 </resources>

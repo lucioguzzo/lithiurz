@@ -33,9 +33,12 @@ class MainActivity : Activity() {
         const val PERMISSION_REQUEST = 1
         const val UPDATE_INTERVAL_MS = 2000L
 
-        /** Le celle viste restano in elenco per questo tempo dopo l'ultimo avvistamento. */
-        const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
-        const val HISTORY_WINDOW_DRIVE_MS = 15 * 60 * 1000L
+        /**
+         * Le celle restano in elenco finché l'app è aperta: quelle degli altri
+         * operatori compaiono di rado e per pochi istanti, quindi farle scadere
+         * significherebbe perderle. Il pulsante "Svuota elenco" azzera la lista.
+         */
+        const val MAX_HISTORY_ENTRIES = 200
 
         /**
          * Intervallo minimo tra due richieste di aggiornamento celle al modem.
@@ -108,6 +111,11 @@ class MainActivity : Activity() {
 
         scanButton.setOnClickListener { if (scanning) stopScan(getString(R.string.scan_stopped)) else startScan() }
         warningButton.setOnClickListener { warningAction?.invoke() }
+
+        findViewById<Button>(R.id.clear_button).setOnClickListener {
+            history.clear()
+            updateUi(emptyList())
+        }
 
         driveTestButton = findViewById(R.id.drive_test_button)
         driveTestButton.setOnClickListener {
@@ -307,9 +315,11 @@ class MainActivity : Activity() {
 
     private fun remember(readings: List<CellReading>) {
         val now = SystemClock.elapsedRealtime()
-        val window = if (driveTest) HISTORY_WINDOW_DRIVE_MS else HISTORY_WINDOW_MS
         readings.forEach { history[keyOf(it)] = Seen(it, now) }
-        history.entries.removeAll { now - it.value.timestamp > window }
+        while (history.size > MAX_HISTORY_ENTRIES) {
+            val oldest = history.entries.minByOrNull { it.value.timestamp } ?: break
+            history.remove(oldest.key)
+        }
 
         // La lettura della rete attiva non porta canale né PCI: quando la stessa
         // cella è già presente con quei dettagli, la voce generica è un doppione.
