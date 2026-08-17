@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Monitor Segnale</string>
+    <string name="waiting">In attesa di dati…</string>
+    <string name="last_update">Ultimo aggiornamento: %1$s</string>
+    <string name="permission_needed">Concedi i permessi di posizione e telefono per leggere il segnale.</string>
+    <string name="detected_cells">Celle rilevate</string>
+    <string name="no_cells">Nessuna cella rilevata (verifica permessi e posizione attiva).</string>
+    <string name="no_signal_dbm">—</string>
+    <string name="dbm_format">%1$d dBm</string>
+    <string name="tech_registered">%1$s · rete attiva</string>
+    <string name="quality_excellent">Ottimo</string>
+    <string name="quality_good">Buono</string>
+    <string name="quality_fair">Discreto</string>
+    <string name="quality_weak">Debole</string>
+    <string name="quality_absent">Non rilevato</string>
+    <string name="note_visibility">Nota: il segnale degli operatori diversi dalla SIM attiva è visibile solo se il modem del telefono riporta le loro celle vicine. La posizione deve essere attiva (richiesta Android per le info di rete).</string>
+</resources>
