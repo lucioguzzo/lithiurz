@@ -7,7 +7,13 @@ package com.lithiurz.signalmonitor
 enum class Operator(val displayName: String, val shortName: String, val mncs: Set<String>) {
     TIM("TIM", "TIM", setOf("01")),
     VODAFONE("Vodafone", "Vodafone", setOf("10", "06")),
-    WIND("WindTre (Wind)", "WindTre", setOf("88", "99"));
+    WIND("WindTre (Wind)", "WindTre", setOf("88", "99")),
+
+    /**
+     * Non ha una scheda dedicata (l'app monitora i tre gestori richiesti), ma
+     * riconoscerlo evita di lasciare come sconosciute le sue celle in elenco.
+     */
+    ILIAD("Iliad", "Iliad", setOf("50"));
 
     companion object {
         const val ITALY_MCC = "222"

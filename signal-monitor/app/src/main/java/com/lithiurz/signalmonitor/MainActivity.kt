@@ -50,6 +50,9 @@ class MainActivity : Activity() {
 
         /** Tolleranza prima di segnalare che il modem non restituisce celle. */
         const val NO_CELLS_GRACE_MS = 30_000L
+
+        /** Gestori con scheda dedicata; gli altri compaiono solo in elenco. */
+        val CARD_OPERATORS = listOf(Operator.TIM, Operator.VODAFONE, Operator.WIND)
     }
 
     private lateinit var telephonyManager: TelephonyManager
@@ -132,7 +135,7 @@ class MainActivity : Activity() {
             Operator.VODAFONE to getColor(R.color.vodafone),
             Operator.WIND to getColor(R.color.wind),
         )
-        for (op in Operator.entries) {
+        for (op in CARD_OPERATORS) {
             val view = inflater.inflate(R.layout.operator_card, container, false)
             val nameView = view.findViewById<TextView>(R.id.operator_name)
             nameView.text = op.displayName
