@@ -284,11 +284,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun cachedCellInfo(): List<CellInfo> = try {
-        telephonyManager.allCellInfo ?: emptyList()
-    } catch (e: SecurityException) {
-        emptyList()
-    }
+    private fun cachedCellInfo(): List<CellInfo> = SignalReader.readAllCells(this)
 
     private fun render(cells: List<CellInfo>) {
         lastRawCellCount = cells.size

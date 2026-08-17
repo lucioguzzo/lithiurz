@@ -38,9 +38,39 @@ data class CellReading(
 
 object SignalReader {
 
-    /** Converte la lista grezza di [CellInfo] in letture tipizzate, scartando i valori non validi. */
+    /**
+     * Converte la lista grezza di [CellInfo] in letture tipizzate, scartando i
+     * valori non validi. Il modem restituisce spesso celle con tutti i campi
+     * non disponibili (PCI e canale a Integer.MAX_VALUE): senza un solo dato
+     * identificativo sono rumore e non dicono nulla su nessun operatore.
+     */
     fun readCells(cells: List<CellInfo>): List<CellReading> =
-        cells.mapNotNull { toReading(it) }.filter { it.dbm in -140..-40 }
+        cells.mapNotNull { toReading(it) }
+            .filter { it.dbm in -140..-40 }
+            .filter { it.channel != null || it.pci != null || it.operator != null || it.registered }
+
+    /** Elenco celle di tutte le SIM attive, non solo di quella predefinita. */
+    fun readAllCells(context: Context): List<CellInfo> {
+        val default = context.getSystemService(TelephonyManager::class.java) ?: return emptyList()
+        return managersFor(context, default).flatMap { tm ->
+            try {
+                tm.allCellInfo ?: emptyList()
+            } catch (e: SecurityException) {
+                emptyList()
+            }
+        }
+    }
+
+    /** Un [TelephonyManager] per ogni SIM attiva, con ripiego su quello predefinito. */
+    private fun managersFor(context: Context, default: TelephonyManager): List<TelephonyManager> =
+        try {
+            context.getSystemService(SubscriptionManager::class.java)
+                ?.activeSubscriptionInfoList
+                ?.map { default.createForSubscriptionId(it.subscriptionId) }
+                ?.takeIf { it.isNotEmpty() }
+        } catch (e: SecurityException) {
+            null
+        } ?: listOf(default)
 
     /** Per ogni operatore restituisce la cella con il segnale migliore, se visibile. */
     fun bestPerOperator(readings: List<CellReading>): Map<Operator, CellReading?> =
@@ -56,16 +86,7 @@ object SignalReader {
     fun readServing(context: Context): List<CellReading> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return emptyList()
         val default = context.getSystemService(TelephonyManager::class.java) ?: return emptyList()
-        val managers = try {
-            context.getSystemService(SubscriptionManager::class.java)
-                ?.activeSubscriptionInfoList
-                ?.map { default.createForSubscriptionId(it.subscriptionId) }
-                ?.takeIf { it.isNotEmpty() }
-        } catch (e: SecurityException) {
-            null
-        } ?: listOf(default)
-
-        return managers.flatMap { tm ->
+        return managersFor(context, default).flatMap { tm ->
             val op = tm.networkOperator
             if (op == null || op.length < 5) return@flatMap emptyList<CellReading>()
             val mcc = op.substring(0, 3)
@@ -94,12 +115,12 @@ object SignalReader {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && info is CellInfoNr -> {
                 val id = info.cellIdentity as? CellIdentityNr ?: return null
                 build(id.mccString, id.mncString, info.cellSignalStrength.dbm, "5G NR",
-                    info.isRegistered, BandMap.Rat.NR, id.nrarfcn, id.pci)
+                    info.isRegistered, BandMap.Rat.NR, id.nrarfcn, id.pci, bandsOf(id))
             }
             info is CellInfoLte -> {
                 val id = info.cellIdentity
                 build(mcc(id.mccStringCompat(), id.mccInt()), id.mncStringCompat(), info.cellSignalStrength.dbm, "4G LTE",
-                    info.isRegistered, BandMap.Rat.LTE, id.earfcn, id.pci)
+                    info.isRegistered, BandMap.Rat.LTE, id.earfcn, id.pci, bandsOf(id))
             }
             info is CellInfoWcdma -> {
                 val id = info.cellIdentity
@@ -124,6 +145,7 @@ object SignalReader {
         rat: BandMap.Rat,
         rawChannel: Int,
         rawPci: Int,
+        bandFromApi: String? = null,
     ): CellReading {
         val channel = rawChannel.takeIf { it != Int.MAX_VALUE && it >= 0 }
         val fromPlmn = Operator.fromMccMnc(mcc, mnc)
@@ -132,10 +154,27 @@ object SignalReader {
             operator, mcc, mnc, dbm, tech, registered,
             channel = channel,
             pci = rawPci.takeIf { it != Int.MAX_VALUE && it >= 0 },
-            band = BandMap.bandOf(rat, channel),
+            // La banda dedotta dal canale è la più precisa; quella dichiarata
+            // dall'API copre i casi in cui il canale non arriva.
+            band = BandMap.bandOf(rat, channel) ?: bandFromApi,
             estimated = fromPlmn == null && operator != null,
         )
     }
+
+    /** Banda dichiarata direttamente dall'identità di cella (Android 11+). */
+    private fun bandsOf(id: android.telephony.CellIdentityLte): String? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            id.bands.firstOrNull()?.let { "B$it" }
+        } else {
+            null
+        }
+
+    private fun bandsOf(id: CellIdentityNr): String? =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            id.bands.firstOrNull()?.let { "n$it" }
+        } else {
+            null
+        }
 
     private fun mcc(mccString: String?, mccInt: Int?): String? =
         mccString ?: mccInt?.takeIf { it in 0..999 }?.toString()
