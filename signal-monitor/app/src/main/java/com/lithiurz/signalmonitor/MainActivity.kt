@@ -4,13 +4,18 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.content.Intent
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.provider.Settings
 import android.telephony.CellInfo
+import android.telephony.PhoneStateListener
+import android.telephony.TelephonyCallback
 import android.telephony.TelephonyManager
 import android.view.LayoutInflater
 import android.view.View
@@ -30,6 +35,9 @@ class MainActivity : Activity() {
 
         /** Le celle viste restano in elenco per questo tempo dopo l'ultimo avvistamento. */
         const val HISTORY_WINDOW_MS = 5 * 60 * 1000L
+
+        /** Intervallo minimo tra due richieste di aggiornamento celle al modem. */
+        const val CELL_INFO_REQUEST_INTERVAL_MS = 10_000L
     }
 
     private lateinit var telephonyManager: TelephonyManager
@@ -52,11 +60,18 @@ class MainActivity : Activity() {
     private val history = LinkedHashMap<String, Seen>()
     private var scanning = false
     private var lastRawCellCount = 0
+    private var lastCellInfoRequest = 0L
+    private var telephonyCallback: TelephonyCallback? = null
+    private var phoneStateListener: PhoneStateListener? = null
+    private var warningAction: (() -> Unit)? = null
 
     private lateinit var lastUpdateView: TextView
     private lateinit var detailView: TextView
     private lateinit var scanButton: Button
     private lateinit var scanStatusView: TextView
+    private lateinit var warningBox: LinearLayout
+    private lateinit var warningText: TextView
+    private lateinit var warningButton: Button
 
     private val updateRunnable = object : Runnable {
         override fun run() {
@@ -75,8 +90,12 @@ class MainActivity : Activity() {
         detailView = findViewById(R.id.cells_detail)
         scanButton = findViewById(R.id.scan_button)
         scanStatusView = findViewById(R.id.scan_status)
+        warningBox = findViewById(R.id.warning_box)
+        warningText = findViewById(R.id.warning_text)
+        warningButton = findViewById(R.id.warning_button)
 
         scanButton.setOnClickListener { if (scanning) stopScan(getString(R.string.scan_stopped)) else startScan() }
+        warningButton.setOnClickListener { warningAction?.invoke() }
 
         val container = findViewById<LinearLayout>(R.id.operators_container)
         val inflater = LayoutInflater.from(this)
@@ -112,12 +131,15 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        lastCellInfoRequest = 0L
+        startListening()
         handler.post(updateRunnable)
     }
 
     override fun onPause() {
         super.onPause()
         handler.removeCallbacks(updateRunnable)
+        stopListening()
         // Non lasciamo il modem in scansione quando l'app non è in primo piano.
         if (scanning) stopScan(getString(R.string.scan_stopped))
     }
@@ -160,25 +182,77 @@ class MainActivity : Activity() {
     private fun refresh() {
         if (!hasPermissions()) {
             lastUpdateView.text = getString(R.string.permission_needed)
+            updateWarning(rawCells = 0)
             return
         }
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // L'elenco in cache è economico e non soggetto a limitazioni: lo leggiamo
+        // ogni giro.
+        render(cachedCellInfo())
+
+        // requestCellInfoUpdate accende il ricevitore: Android la limita, e se
+        // invocata troppo spesso risponde con una lista vuota. Una volta ogni
+        // dieci secondi è sotto la soglia su tutti i dispositivi testati.
+        val now = SystemClock.elapsedRealtime()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+            now - lastCellInfoRequest >= CELL_INFO_REQUEST_INTERVAL_MS
+        ) {
+            lastCellInfoRequest = now
+            try {
                 telephonyManager.requestCellInfoUpdate(
                     mainExecutor,
                     object : TelephonyManager.CellInfoCallback() {
-                        override fun onCellInfo(cellInfo: MutableList<CellInfo>) =
-                            render(cellInfo.ifEmpty { cachedCellInfo() })
+                        override fun onCellInfo(cellInfo: MutableList<CellInfo>) {
+                            if (cellInfo.isNotEmpty()) render(cellInfo)
+                        }
 
-                        override fun onError(errorCode: Int, detail: Throwable?) =
-                            render(cachedCellInfo())
+                        override fun onError(errorCode: Int, detail: Throwable?) = Unit
                     },
                 )
+            } catch (e: SecurityException) {
+                lastUpdateView.text = getString(R.string.permission_needed)
+            }
+        }
+    }
+
+    /**
+     * Ascolto push degli aggiornamenti di cella: il framework li consegna quando
+     * cambiano, senza dipendere dal nostro polling.
+     */
+    private fun startListening() {
+        if (!hasPermissions()) return
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val callback = object : TelephonyCallback(), TelephonyCallback.CellInfoListener {
+                    override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>) {
+                        if (cellInfo.isNotEmpty()) render(cellInfo)
+                    }
+                }
+                telephonyCallback = callback
+                telephonyManager.registerTelephonyCallback(mainExecutor, callback)
             } else {
-                render(cachedCellInfo())
+                @Suppress("DEPRECATION")
+                val listener = object : PhoneStateListener() {
+                    override fun onCellInfoChanged(cellInfo: MutableList<CellInfo>?) {
+                        if (!cellInfo.isNullOrEmpty()) render(cellInfo)
+                    }
+                }
+                phoneStateListener = listener
+                @Suppress("DEPRECATION")
+                telephonyManager.listen(listener, PhoneStateListener.LISTEN_CELL_INFO)
             }
         } catch (e: SecurityException) {
-            lastUpdateView.text = getString(R.string.permission_needed)
+            // Senza permessi restiamo sul solo polling.
+        }
+    }
+
+    private fun stopListening() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            telephonyCallback?.let { telephonyManager.unregisterTelephonyCallback(it) }
+            telephonyCallback = null
+        } else {
+            @Suppress("DEPRECATION")
+            phoneStateListener?.let { telephonyManager.listen(it, PhoneStateListener.LISTEN_NONE) }
+            phoneStateListener = null
         }
     }
 
@@ -259,6 +333,56 @@ class MainActivity : Activity() {
         lastUpdateView.text =
             getString(R.string.last_update, timeFormat.format(Date()), lastRawCellCount)
         detailView.text = buildDetailText(now, visibleKeys)
+        updateWarning(lastRawCellCount)
+    }
+
+    /**
+     * Se il modem non consegna celle il motivo è quasi sempre uno dei permessi
+     * di posizione: lo diciamo esplicitamente, con la scorciatoia per risolverlo.
+     */
+    private fun updateWarning(rawCells: Int) {
+        val fine = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+
+        val problem: Triple<String, String, () -> Unit>? = when {
+            !fine -> Triple(
+                getString(R.string.warn_precise_location),
+                getString(R.string.warn_open_app_settings),
+                ::openAppSettings,
+            )
+            !isLocationEnabled() -> Triple(
+                getString(R.string.warn_location_off),
+                getString(R.string.warn_open_location_settings),
+                ::openLocationSettings,
+            )
+            rawCells == 0 -> Triple(
+                getString(R.string.warn_no_cells),
+                getString(R.string.warn_open_app_settings),
+                ::openAppSettings,
+            )
+            else -> null
+        }
+
+        if (problem == null) {
+            warningBox.visibility = View.GONE
+            warningAction = null
+            return
+        }
+        warningBox.visibility = View.VISIBLE
+        warningText.text = problem.first
+        warningButton.text = problem.second
+        warningAction = problem.third
+    }
+
+    private fun openLocationSettings() {
+        startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+    }
+
+    private fun openAppSettings() {
+        startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                .setData(Uri.fromParts("package", packageName, null))
+        )
     }
 
     private fun buildDetailText(now: Long, visibleKeys: Set<String>): String {

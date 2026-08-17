@@ -4,4 +4,5 @@
     <color name="vodafone">#FF5C5C</color>
     <color name="wind">#FFA35C</color>
     <color name="card_background">#26262B</color>
+    <color name="warning_background">#4A3218</color>
 </resources>

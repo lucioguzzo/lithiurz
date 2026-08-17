@@ -25,6 +25,11 @@
     <string name="permission_needed">Concedi i permessi di posizione e telefono per leggere il segnale.</string>
     <string name="detected_cells">Celle rilevate</string>
     <string name="cells_header">GESTORE  BANDA   dBm CANALE  PCI</string>
+    <string name="warn_precise_location">Serve la posizione <b>precisa</b>: con quella approssimativa Android non consegna l\'elenco delle celle. Aprila e scegli "Posizione precisa".</string>
+    <string name="warn_location_off">La localizzazione di sistema è spenta: senza di essa Android non fornisce alcuna cella al di fuori della rete attiva. Attivala e torna qui.</string>
+    <string name="warn_no_cells">Il modem non sta restituendo celle. Verifica che la posizione sia attiva e che l\'app non sia limitata dal risparmio energetico (impostala su "Nessuna restrizione").</string>
+    <string name="warn_open_location_settings">Impostazioni posizione</string>
+    <string name="warn_open_app_settings">Impostazioni app</string>
     <string name="no_cells">Nessuna cella rilevata (verifica permessi e posizione attiva).</string>
     <string name="location_off">Nessuna cella rilevata: attiva la localizzazione di sistema (GPS) — Android la richiede per leggere le celle vicine.</string>
     <string name="no_signal_dbm">—</string>
