@@ -48,6 +48,15 @@ object SignalReader {
         cells.mapNotNull { toReading(it) }
             .filter { it.dbm in -140..-40 }
             .filter { it.channel != null || it.pci != null || it.operator != null || it.registered }
+            .filter { it.registered || it.pci != null || it.dbm > NO_SIGNAL_FLOOR_DBM }
+
+    /**
+     * Sotto questa soglia, e senza un identificativo fisico di cella decodificato
+     * (PCI o BSIC), la voce non è una misura: è un canale della lista che la rete
+     * comunica al telefono perché lo tenga d'occhio. In GSM il livello 0 vale
+     * esattamente -113 dBm, ed è così che questi canali si presentano.
+     */
+    private const val NO_SIGNAL_FLOOR_DBM = -113
 
     /** Elenco celle di tutte le SIM attive, non solo di quella predefinita. */
     fun readAllCells(context: Context): List<CellInfo> {
