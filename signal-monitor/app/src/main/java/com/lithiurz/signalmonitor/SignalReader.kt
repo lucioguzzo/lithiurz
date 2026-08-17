@@ -1,5 +1,6 @@
 package com.lithiurz.signalmonitor
 
+import android.content.Context
 import android.os.Build
 import android.telephony.CellIdentityNr
 import android.telephony.CellInfo
@@ -7,6 +8,15 @@ import android.telephony.CellInfoGsm
 import android.telephony.CellInfoLte
 import android.telephony.CellInfoNr
 import android.telephony.CellInfoWcdma
+import android.telephony.CellSignalStrength
+import android.telephony.CellSignalStrengthCdma
+import android.telephony.CellSignalStrengthGsm
+import android.telephony.CellSignalStrengthLte
+import android.telephony.CellSignalStrengthNr
+import android.telephony.CellSignalStrengthTdscdma
+import android.telephony.CellSignalStrengthWcdma
+import android.telephony.SubscriptionManager
+import android.telephony.TelephonyManager
 
 /** Lettura di una singola cella radio. */
 data class CellReading(
@@ -29,6 +39,45 @@ object SignalReader {
         Operator.entries.associateWith { op ->
             readings.filter { it.operator == op }.maxByOrNull { it.dbm }
         }
+
+    /**
+     * Legge il segnale della rete a cui il telefono è registrato (una lettura per SIM attiva),
+     * tramite [TelephonyManager.getSignalStrength]: funziona anche quando il modem non espone
+     * l'elenco delle celle (getAllCellInfo vuoto) e non richiede la localizzazione attiva.
+     */
+    fun readServing(context: Context): List<CellReading> {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return emptyList()
+        val default = context.getSystemService(TelephonyManager::class.java) ?: return emptyList()
+        val managers = try {
+            context.getSystemService(SubscriptionManager::class.java)
+                ?.activeSubscriptionInfoList
+                ?.map { default.createForSubscriptionId(it.subscriptionId) }
+                ?.takeIf { it.isNotEmpty() }
+        } catch (e: SecurityException) {
+            null
+        } ?: listOf(default)
+
+        return managers.mapNotNull { tm ->
+            val op = tm.networkOperator
+            if (op == null || op.length < 5) return@mapNotNull null
+            val mcc = op.substring(0, 3)
+            val mnc = op.substring(3).padStart(2, '0')
+            val best = tm.signalStrength?.cellSignalStrengths
+                ?.filter { it.dbm in -140..-40 }
+                ?.maxByOrNull { it.dbm }
+                ?: return@mapNotNull null
+            CellReading(Operator.fromMccMnc(mcc, mnc), mcc, mnc, best.dbm, techOf(best), registered = true)
+        }
+    }
+
+    private fun techOf(s: CellSignalStrength): String = when (s) {
+        is CellSignalStrengthNr -> "5G NR"
+        is CellSignalStrengthLte -> "4G LTE"
+        is CellSignalStrengthWcdma, is CellSignalStrengthTdscdma -> "3G UMTS"
+        is CellSignalStrengthCdma -> "3G CDMA"
+        is CellSignalStrengthGsm -> "2G GSM"
+        else -> "?"
+    }
 
     private fun toReading(info: CellInfo): CellReading? {
         return when {

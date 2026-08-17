@@ -6,6 +6,7 @@
     <string name="permission_needed">Concedi i permessi di posizione e telefono per leggere il segnale.</string>
     <string name="detected_cells">Celle rilevate</string>
     <string name="no_cells">Nessuna cella rilevata (verifica permessi e posizione attiva).</string>
+    <string name="location_off">Nessuna cella rilevata: attiva la localizzazione di sistema (GPS) — Android la richiede per leggere le celle vicine.</string>
     <string name="no_signal_dbm">—</string>
     <string name="dbm_format">%1$d dBm</string>
     <string name="tech_registered">%1$s · rete attiva</string>

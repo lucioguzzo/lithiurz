@@ -3,6 +3,7 @@ package com.lithiurz.signalmonitor
 import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -116,20 +117,33 @@ class MainActivity : Activity() {
                 telephonyManager.requestCellInfoUpdate(
                     mainExecutor,
                     object : TelephonyManager.CellInfoCallback() {
-                        override fun onCellInfo(cellInfo: MutableList<CellInfo>) = render(cellInfo)
+                        override fun onCellInfo(cellInfo: MutableList<CellInfo>) =
+                            render(cellInfo.ifEmpty { cachedCellInfo() })
+
+                        override fun onError(errorCode: Int, detail: Throwable?) =
+                            render(cachedCellInfo())
                     },
                 )
             } else {
-                @Suppress("DEPRECATION")
-                render(telephonyManager.allCellInfo ?: emptyList())
+                render(cachedCellInfo())
             }
         } catch (e: SecurityException) {
             lastUpdateView.text = getString(R.string.permission_needed)
         }
     }
 
+    private fun cachedCellInfo(): List<CellInfo> = try {
+        telephonyManager.allCellInfo ?: emptyList()
+    } catch (e: SecurityException) {
+        emptyList()
+    }
+
     private fun render(cells: List<CellInfo>) {
-        val readings = SignalReader.readCells(cells)
+        val cellReadings = SignalReader.readCells(cells)
+        val serving = SignalReader.readServing(this)
+        // La lettura della rete attiva integra (senza duplicare) quanto già visto tra le celle.
+        val readings = (cellReadings + serving)
+            .distinctBy { Triple(it.operator ?: "${it.mcc}-${it.mnc}", it.tech, it.registered) }
         val best = SignalReader.bestPerOperator(readings)
 
         for ((op, card) in cards) {
@@ -156,7 +170,9 @@ class MainActivity : Activity() {
     }
 
     private fun buildDetailText(readings: List<CellReading>): String {
-        if (readings.isEmpty()) return getString(R.string.no_cells)
+        if (readings.isEmpty()) {
+            return if (!isLocationEnabled()) getString(R.string.location_off) else getString(R.string.no_cells)
+        }
         return readings
             .sortedByDescending { it.dbm }
             .joinToString("\n") { r ->
@@ -174,6 +190,16 @@ class MainActivity : Activity() {
             else -> R.string.quality_weak
         }
     )
+
+    private fun isLocationEnabled(): Boolean {
+        val lm = getSystemService(LocationManager::class.java) ?: return true
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            lm.isLocationEnabled
+        } else {
+            lm.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }
+    }
 
     /** Mappa il range utile -120..-60 dBm su 0..100%. */
     private fun dbmToPercent(dbm: Int): Int = ((dbm + 120) * 100 / 60).coerceIn(0, 100)
