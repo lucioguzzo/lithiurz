@@ -1,0 +1,496 @@
+{
+  "intro": "Le forme sono la biblioteca del sistema. Non sono coreografie da eseguire: sono il modo in cui il Wing Chun conserva i suoi principi in una sequenza che il corpo può ripetere finché non la capisce. Chi le esegue senza sapere cosa contengono ripete un guscio vuoto.",
+  "lineages": {
+    "ipman": {
+      "label": "Linea Ip Man",
+      "note": "Il curriculum diffuso in Occidente, riorganizzato in tre forme a mani nude più manichino e armi."
+    },
+    "wengchun": {
+      "label": "Weng Chun — Chi Sim",
+      "note": "La linea trasmessa in Italia da SiFu Massimo Fiorentini (IDPA), nella famiglia del Gran Maestro Andreas Hoffmann."
+    },
+    "eternal": {
+      "label": "Eternal Spring",
+      "note": "Le forme ancestrali e interne studiate e trasmesse da SiFu Sergio Iadarola (Eternal Spring Institute)."
+    }
+  },
+  "forms": [
+    {
+      "id": "siu_nim_tau",
+      "name": "Siu Nim Tau",
+      "chinese": "小念頭",
+      "translation": "La piccola idea",
+      "lineage": "ipman",
+      "level": 1,
+      "order": 1,
+      "summary": "La prima forma: si esegue da fermi, e insegna la struttura prima del movimento.",
+      "body": [
+        "Siu Nim Tau si esegue interamente in Yee Ji Kim Yeung Ma, senza mai spostare i piedi. È una scelta didattica precisa: prima di imparare a muoversi bisogna avere qualcosa da muovere.",
+        "La prima sezione si esegue lentissima. Non è una convenzione estetica: la lentezza toglie allo studente la possibilità di usare la forza muscolare, e lo costringe a trovare la struttura. Ciò che si può fare in fretta con i muscoli, piano si può fare solo con l'allineamento.",
+        "Il nome è un avvertimento: 'la piccola idea'. È il seme. Tutto ciò che il sistema svilupperà dopo è già contenuto qui, in una forma che sembra troppo semplice per contenerlo."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Il saluto e l'apertura",
+          "text": "Le mani si incrociano, i pugni si ritirano ai fianchi, la posizione si apre in tre tempi: talloni, punte, affondo."
+        },
+        {
+          "n": 2,
+          "title": "La sezione lenta",
+          "text": "Tan Sau, Huen Sau, Fook Sau ripetuti tre volte per lato. È il cuore della forma e va eseguita al rallentatore, cercando il gomito."
+        },
+        {
+          "n": 3,
+          "title": "La sezione della forza",
+          "text": "Palmi che spingono in tutte le direzioni: si impara a scaricare la forza dalla struttura, non dalla spalla."
+        },
+        {
+          "n": 4,
+          "title": "Le mani in sequenza",
+          "text": "Pak Sau, Gaan Sau, Jam Sau, Bong Sau: il vocabolario di base viene presentato uno per uno, senza applicazione."
+        },
+        {
+          "n": 5,
+          "title": "La catena di pugni",
+          "text": "La forma si chiude con i pugni a catena sulla linea centrale."
+        }
+      ],
+      "develops": [
+        "Struttura in posizione fissa",
+        "Gomito basso e linea centrale",
+        "Rilassamento e allineamento",
+        "Il vocabolario di base delle mani"
+      ],
+      "lessonIds": [
+        "yee_ji_kim_yeung_ma",
+        "tan_sau",
+        "fook_sau",
+        "huen_sau",
+        "wu_sau",
+        "pak_sau",
+        "gaan_sau",
+        "bong_sau",
+        "lin_wan_kuen"
+      ],
+      "videoIds": [
+        "ILFD6TN-JzE",
+        "PDpx5juWHX0"
+      ]
+    },
+    {
+      "id": "chum_kiu",
+      "name": "Chum Kiu",
+      "chinese": "尋橋",
+      "translation": "Cercare il ponte",
+      "lineage": "ipman",
+      "level": 2,
+      "order": 2,
+      "summary": "La seconda forma: la struttura impara a muoversi, girare e collegarsi all'avversario.",
+      "body": [
+        "Se Siu Nim Tau costruisce la struttura da fermi, Chum Kiu la mette in movimento. Compaiono la girata sui talloni, il passo, i calci: il corpo intero entra nell'equazione.",
+        "'Cercare il ponte' significa stabilire il contatto con l'avversario. Finché non c'è contatto si è ciechi; una volta stabilito il ponte, le mani cominciano a leggere.",
+        "È la forma in cui si impara che la potenza del Wing Chun non viene dalle braccia ma dalla rotazione della struttura attorno al proprio asse."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "La girata",
+          "text": "Juen Ma: rotazione sui talloni mantenendo la struttura, con Bong Sau e Wu Sau."
+        },
+        {
+          "n": 2,
+          "title": "Il passo e il calcio",
+          "text": "Compare il passo avanzante (Biu Ma) e il calcio frontale, spesso simultaneo alle mani."
+        },
+        {
+          "n": 3,
+          "title": "Le braccia lunghe",
+          "text": "Movimenti ad ampio raggio che insegnano a mantenere la struttura anche a distanza."
+        }
+      ],
+      "develops": [
+        "Rotazione della struttura",
+        "Passo e spostamento",
+        "Il primo calcio del sistema",
+        "Coordinazione fra corpo e braccia"
+      ],
+      "lessonIds": [
+        "juen_ma",
+        "jing_geuk",
+        "bong_sau",
+        "lap_sau"
+      ],
+      "videoIds": [
+        "P_gUIA7JElw",
+        "_KfP56Il9zQ"
+      ]
+    },
+    {
+      "id": "biu_tze",
+      "name": "Biu Tze",
+      "chinese": "鏢指",
+      "translation": "Le dita che infilzano",
+      "lineage": "ipman",
+      "level": 3,
+      "order": 3,
+      "summary": "La terza forma: cosa fare quando la struttura è già compromessa.",
+      "body": [
+        "Biu Tze è tradizionalmente la forma riservata, insegnata tardi e a pochi. Non per segretezza fine a se stessa: perché contiene le soluzioni di emergenza, e chi le impara prima di avere una struttura solida imparerà solo scorciatoie.",
+        "Le tecniche violano deliberatamente alcuni principi delle prime due forme — il gomito si alza, la linea centrale si abbandona — perché servono a recuperare una situazione già persa.",
+        "Un detto tradizionale dice che Biu Tze non esce dalla porta di casa. Oggi la forma è pubblica, ma il senso resta: è un rimedio, non un metodo."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Le dita e il gomito",
+          "text": "Biu Tze e i colpi di gomito, per attaccare quando lo spazio è troppo poco per un pugno."
+        },
+        {
+          "n": 2,
+          "title": "Il recupero della linea",
+          "text": "Tecniche per rientrare sulla linea centrale dopo averla persa."
+        },
+        {
+          "n": 3,
+          "title": "La forza di emergenza",
+          "text": "Movimenti che generano potenza da posizioni strutturalmente svantaggiate."
+        }
+      ],
+      "develops": [
+        "Recupero da posizioni compromesse",
+        "Colpi di gomito e dita",
+        "Forza generata fuori struttura"
+      ],
+      "lessonIds": [
+        "biu_tze",
+        "gaan_sau",
+        "jut_sau"
+      ],
+      "videoIds": []
+    },
+    {
+      "id": "muk_yan_jong",
+      "name": "Muk Yan Jong",
+      "chinese": "木人樁",
+      "translation": "L'uomo di legno",
+      "lineage": "ipman",
+      "level": 3,
+      "order": 4,
+      "summary": "Il manichino di legno: un avversario che non cede, per correggere angoli e distanza.",
+      "body": [
+        "Il manichino ha tre braccia e una gamba, e soprattutto non collabora. Non arretra, non si sposta, non compensa gli errori: se l'angolo è sbagliato, il legno lo dice subito.",
+        "La forma del manichino — nelle versioni più diffuse 116 movimenti — non insegna tecniche nuove: prende quelle già note e le mette alla prova contro una struttura rigida, correggendo posizione, distanza e angolo di entrata.",
+        "È anche l'unico partner disponibile a qualunque ora e con qualunque intensità, e questo ne ha fatto storicamente lo strumento di raffinamento individuale del sistema."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Sezioni 1-3",
+          "text": "Entrate laterali, Tan e Bong contro il braccio superiore, primi passi attorno al manichino."
+        },
+        {
+          "n": 2,
+          "title": "Sezioni 4-6",
+          "text": "Gestione della linea bassa, Gaan Sau e movimenti circolari."
+        },
+        {
+          "n": 3,
+          "title": "Sezioni 7-8",
+          "text": "Calci al palo del manichino, controllo della gamba avversaria."
+        }
+      ],
+      "develops": [
+        "Precisione dell'angolo",
+        "Distanza e posizionamento",
+        "Applicazione delle tre forme"
+      ],
+      "lessonIds": [
+        "pak_da",
+        "bong_lap_sau",
+        "gaan_sau"
+      ],
+      "videoIds": [
+        "V7ncKiKcPUc"
+      ]
+    },
+    {
+      "id": "luk_dim_boon_kwun",
+      "name": "Luk Dim Boon Kwun",
+      "chinese": "六點半棍",
+      "translation": "Il palo dei sei punti e mezzo",
+      "lineage": "ipman",
+      "level": 3,
+      "order": 5,
+      "summary": "Il palo lungo: sei tecniche e mezza, e una posizione completamente diversa.",
+      "body": [
+        "Il palo lungo (dai tre metri in su) è la prima arma del sistema e ha un vocabolario minimo: sei tecniche e mezza. Poche, perché con un'arma di quel peso non c'è spazio per il superfluo.",
+        "La posizione cambia radicalmente: non più Yee Ji Kim Yeung Ma ma una posizione lunga e bassa, perché il peso dell'arma richiede una base diversa.",
+        "Storicamente il palo non appartiene al nucleo originario del Wing Chun ed è confluito nel sistema da altre linee; questo spiega la differenza di struttura rispetto alle forme a mani nude."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "La posizione del palo",
+          "text": "Posizione lunga, peso arretrato, spalle rilassate nonostante il peso dell'arma."
+        },
+        {
+          "n": 2,
+          "title": "Le sei tecniche e mezza",
+          "text": "Tai, Lan, Dim, Kit, Got, Wun e il mezzo punto finale."
+        }
+      ],
+      "develops": [
+        "Forza connessa a distanza lunga",
+        "Struttura sotto carico",
+        "Le sei forze applicate all'arma"
+      ],
+      "lessonIds": [],
+      "videoIds": [
+        "wg4y_fp-43U"
+      ]
+    },
+    {
+      "id": "bart_cham_dao",
+      "name": "Bart Cham Dao",
+      "chinese": "八斬刀",
+      "translation": "I coltelli degli otto tagli",
+      "lineage": "ipman",
+      "level": 3,
+      "order": 6,
+      "summary": "I coltelli a farfalla: l'ultima forma, che riporta i principi del sistema nelle mani armate.",
+      "body": [
+        "I coltelli a farfalla sono l'ultima forma del curriculum. Si insegnano per ultimi non perché siano le più difficili da eseguire, ma perché richiedono che tutto il resto sia già acquisito.",
+        "Le lame allungano le braccia e cambiano le distanze, ma i principi restano gli stessi: linea centrale, gomito, economia di movimento. È questo che rende la forma una verifica finale.",
+        "Il passo diventa più lungo e mobile, perché con una lama in mano un errore di distanza non si corregge."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Le otto sezioni",
+          "text": "Otto gruppi di tagli, ciascuno associato a un angolo di entrata e a un passo."
+        }
+      ],
+      "develops": [
+        "Estensione dei principi alle armi",
+        "Passo lungo e mobile",
+        "Sintesi di tutto il curriculum"
+      ],
+      "lessonIds": [],
+      "videoIds": []
+    },
+    {
+      "id": "saam_bai_fat",
+      "name": "Saam Bai Fat",
+      "chinese": "三拜佛",
+      "translation": "I tre inchini al Buddha",
+      "lineage": "wengchun",
+      "level": 1,
+      "order": 7,
+      "summary": "La forma centrale del Weng Chun: undici sezioni costruite sull'idea dell'inchino.",
+      "body": [
+        "Saam Bai Fat è considerata la forma più importante del Chi Sim Weng Chun. Il nome descrive il gesto dell'inchino, ripetuto verso il Cielo, la Terra e l'Uomo: tre direzioni che nella pratica diventano tre modi di coprire lo spazio.",
+        "La forma è organizzata in undici sezioni e sviluppa la capacità di moltiplicare la forza attraverso la vita, come nel movimento dell'inchino: il corpo si piega e si raddrizza, e in quel ciclo si genera l'energia.",
+        "È la forma in cui il praticante di Weng Chun impara a coprire tutto lo spazio e tutto il tempo, non solo la linea frontale."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "L'inchino al Cielo",
+          "text": "Movimenti verso l'alto: la forza Tai che solleva e sradica."
+        },
+        {
+          "n": 2,
+          "title": "L'inchino alla Terra",
+          "text": "Movimenti verso il basso: Got, il semicerchio che falcia via il ponte."
+        },
+        {
+          "n": 3,
+          "title": "L'inchino all'Uomo",
+          "text": "La linea orizzontale, il contatto diretto, Lan e Dim."
+        }
+      ],
+      "develops": [
+        "Forza generata dalla vita",
+        "Copertura dello spazio in tutte le direzioni",
+        "Le sei forze del Weng Chun"
+      ],
+      "lessonIds": [
+        "kwan_sau",
+        "jum_sau"
+      ],
+      "videoIds": [
+        "x4kQBVVkUZw",
+        "SKMo1RS00Hc",
+        "nfL67fs7hhY",
+        "8Fv-jWyktRA",
+        "DW36I-LtDMQ"
+      ]
+    },
+    {
+      "id": "jong_kuen",
+      "name": "Jong Kuen",
+      "chinese": "樁拳",
+      "translation": "Il pugno del palo",
+      "lineage": "wengchun",
+      "level": 2,
+      "order": 8,
+      "summary": "Passi agili in tutte le direzioni, con il corpo che si muove come un blocco unico.",
+      "body": [
+        "Jong Kuen combina passi rapidi in ogni direzione con il movimento del corpo intero. È la forma che porta il Weng Chun fuori dalla linea frontale.",
+        "Il set contiene, in forma condensata, i concetti e i principi che compaiono anche nel palo lungo e nel manichino: è un punto di raccolta del sistema."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "I passi",
+          "text": "Spostamenti in otto direzioni mantenendo il collegamento del corpo."
+        }
+      ],
+      "develops": [
+        "Mobilità in tutte le direzioni",
+        "Corpo unico in movimento",
+        "Sintesi dei principi del sistema"
+      ],
+      "lessonIds": [
+        "juen_ma"
+      ],
+      "videoIds": []
+    },
+    {
+      "id": "fa_kuen",
+      "name": "Fa Kuen",
+      "chinese": "花拳",
+      "translation": "Il pugno del fiore",
+      "lineage": "wengchun",
+      "level": 3,
+      "order": 9,
+      "summary": "La forma del cerchio: sviluppa la potenza rotatoria, quella che il Weng Chun chiama tornado.",
+      "body": [
+        "Fa Kuen sviluppa il Principio del Cerchio, e con esso una qualità di potenza rotatoria che nella tradizione viene descritta come la forza del tornado.",
+        "Il movimento circolare non è decorativo: è il modo in cui una forza in arrivo viene raccolta, ruotata e restituita senza mai essere fermata — la forza Wun portata alle sue conseguenze."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Il principio del cerchio",
+          "text": "Rotazioni concatenate che non si interrompono mai: il fluire (Lau) reso visibile."
+        }
+      ],
+      "develops": [
+        "Potenza rotatoria",
+        "Il principio del cerchio",
+        "Continuità senza interruzioni"
+      ],
+      "lessonIds": [
+        "huen_sau",
+        "kwan_sau"
+      ],
+      "videoIds": [
+        "rrgT0oF4j3o"
+      ]
+    },
+    {
+      "id": "siu_lin_tau",
+      "name": "Siu Lin Tau",
+      "chinese": "小練頭",
+      "translation": "La forma unica ancestrale",
+      "lineage": "eternal",
+      "level": 2,
+      "order": 10,
+      "summary": "La forma singola da cui, secondo le fonti ottocentesche, derivano le tre forme moderne.",
+      "body": [
+        "Nella ricerca di SiFu Sergio Iadarola, basata sul manoscritto noto come Wing Chun Secret Note (attribuito al 1890), il Wing Chun delle origini non aveva tre forme ma una sola, chiamata Siu Lin Tau, risalente alla fine del Settecento.",
+        "Solo in seguito quel corpo unico sarebbe stato riorganizzato nella progressione Siu Nim Tau — Chum Kiu — Biu Tze che conosciamo oggi.",
+        "Studiare la forma ancestrale significa vedere il sistema prima della divisione didattica, quando struttura, movimento ed emergenza non erano ancora separati in tre livelli."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Il set unico",
+          "text": "La sequenza integrale, prima della suddivisione in tre forme."
+        }
+      ],
+      "develops": [
+        "Comprensione storica del sistema",
+        "Il motore interno originario",
+        "Collegamento fra le tre forme moderne"
+      ],
+      "lessonIds": [
+        "tan_sau",
+        "bong_sau",
+        "fook_sau"
+      ],
+      "videoIds": [
+        "y6ITzslgFOY",
+        "AxuNXNb2_pQ"
+      ]
+    },
+    {
+      "id": "weng_chun_kuen",
+      "name": "Weng Chun Kuen",
+      "chinese": "永春拳",
+      "translation": "Il pugno dell'Eterna Primavera",
+      "lineage": "eternal",
+      "level": 3,
+      "order": 11,
+      "summary": "La forma della famiglia Tang, nella linea dell'Eterna Primavera del GM Tang Yick.",
+      "body": [
+        "SiFu Sergio ha studiato il sistema Weng Chun della famiglia Tang — la linea Eternal Spring del compianto Gran Maestro Tang Yick — sotto SiFu Tang Chung Pak e SiFu Sunny So, ultimo discepolo di Tang Yick.",
+        "Il curriculum comprende la forma Weng Chun Kuen, il palo Luk Dim Boon Kwun e diversi set a due persone, che sono il tratto distintivo di questa linea: molto del contenuto vive nel lavoro a coppie, non nella forma solitaria."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "La forma e i set a due",
+          "text": "La sequenza individuale e gli esercizi a coppie che ne trasmettono le applicazioni."
+        }
+      ],
+      "develops": [
+        "Lavoro a due della linea Tang",
+        "Ponte e sensibilità",
+        "Forza interna dell'Eterna Primavera"
+      ],
+      "lessonIds": [
+        "kwan_sau",
+        "bong_lap_sau"
+      ],
+      "videoIds": [
+        "_0nmfds0b7s"
+      ]
+    },
+    {
+      "id": "emei_zhe_zhuang",
+      "name": "Emei Zhe Zhuang",
+      "chinese": "峨眉十二樁",
+      "translation": "Le dodici posture di Emei",
+      "lineage": "eternal",
+      "level": 3,
+      "order": 12,
+      "summary": "Le dodici posture del monte Emei, considerate fra gli antenati del sistema.",
+      "body": [
+        "Fra i sistemi antenati studiati nell'Eternal Spring Institute ci sono lo Yong Chun Bai He (la Gru Bianca del Fujian) e le dodici posture di Emei, lo Zhe Zhuang.",
+        "Non sono forme di combattimento ma posture di lavoro interno: si tengono, si respirano, e costruiscono i collegamenti che le forme del Wing Chun poi utilizzano.",
+        "Il loro studio serve a capire da dove viene la qualità interna del sistema, e perché il Wing Chun delle origini viene descritto come un'arte interna."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Le dodici posture",
+          "text": "Posizioni tenute nel tempo, dedicate al collegamento interno e alla respirazione."
+        }
+      ],
+      "develops": [
+        "Lavoro interno di base",
+        "Collegamento e respirazione",
+        "Radici storiche del sistema"
+      ],
+      "lessonIds": [
+        "yee_ji_kim_yeung_ma"
+      ],
+      "videoIds": [
+        "y6ITzslgFOY"
+      ]
+    }
+  ]
+}

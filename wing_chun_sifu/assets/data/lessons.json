@@ -1,0 +1,275 @@
+[
+  {
+    "id": "yee_ji_kim_yeung_ma",
+    "title": "Yee Ji Kim Yeung Ma",
+    "description": "La posizione madre. Dalle gambe unite si aprono i talloni, poi le punte, poi si affonda: le ginocchia si adducono verso la linea centrale e il bacino si retroverte.",
+    "duration": 6.0,
+    "camera": {
+      "theta": 0.0,
+      "phi": 82.0,
+      "radius": 3.1,
+      "targetY": 1.05,
+      "targetZ": 0.0
+    }
+  },
+  {
+    "id": "guardia",
+    "title": "Man Sau / Wu Sau",
+    "description": "La guardia: la mano che interroga davanti, la mano che protegge dietro, entrambe sulla linea centrale.",
+    "duration": 6.0,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "tan_sau",
+    "title": "Tan Sau",
+    "description": "La mano che disperde. L'avambraccio sale dal gomito basso, il palmo guarda in alto, la mano occupa il centro.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "bong_sau",
+    "title": "Bong Sau",
+    "description": "L'ala. Il gomito sale, l'avambraccio scende: la forza scivola via sul piano inclinato invece di essere fermata.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -86.0,
+      "phi": 84.0,
+      "radius": 3.1,
+      "targetY": 1.0,
+      "targetZ": 0.05
+    }
+  },
+  {
+    "id": "fook_sau",
+    "title": "Fook Sau",
+    "description": "La mano che controlla, posata sopra il ponte avversario senza spingere. Il gomito resta basso e vivo.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "wu_sau",
+    "title": "Wu Sau",
+    "description": "La mano che protegge. Palmo verticale sulla linea centrale, pronta a prendere il posto della mano davanti.",
+    "duration": 8.2,
+    "camera": {
+      "theta": 0.0,
+      "phi": 82.0,
+      "radius": 3.1,
+      "targetY": 1.05,
+      "targetZ": 0.0
+    }
+  },
+  {
+    "id": "pak_sau",
+    "title": "Pak Sau",
+    "description": "La mano che schiaffeggia. Taglia la linea centrale con un colpo corto e secco, senza inseguire.",
+    "duration": 8.2,
+    "camera": {
+      "theta": 0.0,
+      "phi": 82.0,
+      "radius": 3.1,
+      "targetY": 1.05,
+      "targetZ": 0.0
+    }
+  },
+  {
+    "id": "gaan_sau",
+    "title": "Gaan Sau",
+    "description": "La mano che divide, in diagonale verso il basso: apre la linea bassa mantenendo la struttura.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "jut_sau",
+    "title": "Jut Sau",
+    "description": "Lo strappo. Un movimento brevissimo verso il basso che rompe l'equilibrio dell'avversario e apre il bersaglio.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "jum_sau",
+    "title": "Jum Sau",
+    "description": "Il gomito che affonda. Chiude la linea dall'alto verso il basso usando il peso, non la forza del braccio.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -86.0,
+      "phi": 84.0,
+      "radius": 3.1,
+      "targetY": 1.0,
+      "targetZ": 0.05
+    }
+  },
+  {
+    "id": "lap_sau",
+    "title": "Lap Sau",
+    "description": "La mano che afferra e tira, portando via l'equilibrio lungo la direzione in cui l'avversario e' gia' sbilanciato.",
+    "duration": 8.2,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "biu_tze",
+    "title": "Biu Tze",
+    "description": "Le dita che infilzano: la linea piu' breve verso il bersaglio. Si usa quando la struttura e' gia' compromessa, per questo si impara per ultimo.",
+    "duration": 5.8,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "huen_sau",
+    "title": "Huen Sau",
+    "description": "La mano che circola. Il polso disegna un cerchio attorno al ponte avversario: il contatto non si perde mai.",
+    "duration": 3.4,
+    "camera": {
+      "theta": -30.0,
+      "phi": 76.0,
+      "radius": 2.0,
+      "targetY": 1.28,
+      "targetZ": 0.2
+    }
+  },
+  {
+    "id": "chung_kuen",
+    "title": "Yat Ji Chung Kuen",
+    "description": "Il pugno verticale. Parte dal centro, arriva al centro: la potenza viene dalla struttura allineata, non dal braccio.",
+    "duration": 2.7,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "lin_wan_kuen",
+    "title": "Lin Wan Kuen",
+    "description": "I pugni a catena. Ogni pugno parte mentre l'altro rientra: la linea centrale non resta mai scoperta.",
+    "duration": 4.48,
+    "camera": {
+      "theta": 0.0,
+      "phi": 82.0,
+      "radius": 3.1,
+      "targetY": 1.05,
+      "targetZ": 0.0
+    }
+  },
+  {
+    "id": "juen_ma",
+    "title": "Juen Ma",
+    "description": "La girata sui talloni. L'asse e' la linea centrale del corpo: girando, la struttura devia la forza invece di opporvisi.",
+    "duration": 7.6,
+    "camera": {
+      "theta": -8.0,
+      "phi": 58.0,
+      "radius": 3.3,
+      "targetY": 0.95,
+      "targetZ": 0.0
+    }
+  },
+  {
+    "id": "jing_geuk",
+    "title": "Jing Geuk",
+    "description": "Il calcio frontale di tallone. Non sale sopra la vita: la gamba resta un'arma bassa che non scopre la struttura.",
+    "duration": 3.1,
+    "camera": {
+      "theta": -86.0,
+      "phi": 84.0,
+      "radius": 3.1,
+      "targetY": 1.0,
+      "targetZ": 0.05
+    }
+  },
+  {
+    "id": "pak_da",
+    "title": "Pak Da",
+    "description": "Deviare e colpire nello stesso tempo (Lin Siu Die Dar). Non c'e' un tempo per difendersi e uno per attaccare: e' un tempo solo.",
+    "duration": 2.9,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "bong_lap_sau",
+    "title": "Bong Lap Sau",
+    "description": "L'esercizio che lega ala e strappo: il Bong cede, il Lap tira, il colpo arriva sulla linea che si e' aperta.",
+    "duration": 4.4,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "kwan_sau",
+    "title": "Kwan Sau",
+    "description": "La rotazione: mentre un braccio diventa Bong, l'altro diventa Tan. Le due mani ruotano attorno allo stesso asse.",
+    "duration": 4.6,
+    "camera": {
+      "theta": -38.0,
+      "phi": 78.0,
+      "radius": 2.9,
+      "targetY": 1.1,
+      "targetZ": 0.1
+    }
+  },
+  {
+    "id": "idle",
+    "title": "In posizione",
+    "description": "Il SiFu attende in Yee Ji Kim Yeung Ma.",
+    "duration": 4.0,
+    "camera": {
+      "theta": 0.0,
+      "phi": 82.0,
+      "radius": 3.1,
+      "targetY": 1.05,
+      "targetZ": 0.0
+    }
+  }
+]

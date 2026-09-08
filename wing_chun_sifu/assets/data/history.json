@@ -1,0 +1,60 @@
+{
+  "status": "provvisorio",
+  "notice": "Questa sezione è predisposta per accogliere la documentazione che verrà fornita. I capitoli qui presenti sono provvisori e ricavati da fonti pubbliche: possono essere sostituiti integralmente sostituendo il file assets/data/history.json, senza toccare il codice dell'app.",
+  "intro": "La storia del Wing Chun è fatta di poche certezze documentali e di molte tradizioni orali che si contraddicono fra loro. Questa sezione tiene distinte le due cose: la leggenda ha valore perché dice cosa il sistema pensa di sé, i documenti dicono cosa possiamo verificare.",
+  "chapters": [
+    {
+      "id": "leggenda",
+      "title": "La leggenda di Ng Mui e Yim Wing Chun",
+      "era": "Tradizione orale",
+      "summary": "Il racconto fondativo: una monaca, una ragazza e un matrimonio da evitare.",
+      "body": [
+        "La versione più diffusa racconta di Ng Mui, monaca del tempio Shaolin sopravvissuta alla sua distruzione, che avrebbe elaborato un metodo capace di battere la forza con la struttura. Lo avrebbe insegnato a Yim Wing Chun, una giovane donna che doveva difendersi da un pretendente violento.",
+        "Il sistema avrebbe poi preso il nome della ragazza: Wing Chun, 'eterna primavera'.",
+        "Come ricostruzione storica il racconto non regge alla verifica documentale. Come dichiarazione di intenti dice però esattamente cosa il sistema vuole essere: un metodo pensato perché chi è più debole possa prevalere sulla forza bruta, in poco tempo di allenamento."
+      ],
+      "sources": []
+    },
+    {
+      "id": "foshan",
+      "title": "Foshan e la trasmissione ottocentesca",
+      "era": "XIX secolo",
+      "summary": "Le prime figure documentabili e il passaggio da tradizione a sistema.",
+      "body": [
+        "Con il XIX secolo compaiono le prime figure di cui si può parlare con qualche appoggio documentale, legate all'area di Foshan e Guangzhou, e le linee cominciano a differenziarsi.",
+        "In questa fase esistevano più rami paralleli — quello che sarebbe diventato il Wing Chun di Ip Man, il Weng Chun, il Gu Lao, la linea Yuen Kay San, il ramo vietnamita — non una linea unica poi ramificata.",
+        "Un manoscritto noto come Wing Chun Secret Note, attribuito al 1890 e studiato da SiFu Sergio Iadarola, colloca la formazione del sistema intorno al 1855, dopo l'incendio della sede della corporazione degli attori d'opera (King Fa Wui Koon)."
+      ],
+      "sources": [
+        "Eternal Spring Institute — ricerca sul Wing Chun Secret Note"
+      ]
+    },
+    {
+      "id": "ipman",
+      "title": "Ip Man e la diffusione a Hong Kong",
+      "era": "1949-1972",
+      "summary": "Il maestro che trasformò un'arte di famiglia in un sistema insegnabile.",
+      "body": [
+        "Il trasferimento di Ip Man a Hong Kong dopo il 1949 segna il passaggio del Wing Chun da trasmissione ristretta a insegnamento aperto. È in questo periodo che il curriculum assume la forma oggi più diffusa: tre forme a mani nude, manichino, palo e coltelli.",
+        "Fra i suoi allievi, la notorietà di Bruce Lee porterà il nome del Wing Chun in tutto il mondo, e con essa una crescita rapidissima e disordinata del numero di scuole.",
+        "La riorganizzazione didattica di quegli anni è ciò che ha reso il sistema trasmissibile su larga scala; è anche, secondo alcune ricerche, il momento in cui parte del contenuto interno più antico è rimasto indietro."
+      ],
+      "sources": []
+    },
+    {
+      "id": "italia",
+      "title": "Il Wing Chun in Italia",
+      "era": "dagli anni '80 a oggi",
+      "summary": "Le linee che hanno portato il sistema in Italia e le due scuole di riferimento di questa app.",
+      "body": [
+        "Il Wing Chun arriva in Italia soprattutto attraverso le grandi organizzazioni europee degli anni Ottanta, e si diversifica rapidamente in linee diverse per metodo e curriculum.",
+        "SiFu Massimo Fiorentini, dopo un percorso che passa per il metodo di William Cheung, per l'EWTO di Leung Ting e per l'IWKA, diventa responsabile italiano del Weng Chun per la famiglia del Gran Maestro Andreas Hoffmann. Il 21 gennaio 2006 fonda a Napoli la IDPA — International Dragon & Phoenix Association, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale.",
+        "SiFu Sergio Pascal Iadarola comincia nel 1987 con Sifu R. Vogel e il GM Wang Kiu, allievo diretto di Ip Man; passa per l'EWTO, diventa allievo privato del GM Leung Ting a Hong Kong, fonda l'IWKA nel 2002 e si trasferisce stabilmente in Asia per studiare le linee ancestrali. Oggi è co-fondatore e Presiding Grandmaster dell'Eternal Spring Institute."
+      ],
+      "sources": [
+        "IDPA — fondata il 21 gennaio 2006, chief instructor SiFu Massimo Fiorentini",
+        "Eternal Spring Institute — biografia di SiFu Sergio Iadarola"
+      ]
+    }
+  ]
+}

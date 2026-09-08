@@ -1,0 +1,155 @@
+{
+  "intro": "Una selezione ragionata di video dai maestri di riferimento. I filmati restano sui canali ufficiali dei rispettivi autori e vengono riprodotti tramite il player di YouTube: l'app non ne ospita copia.",
+  "channels": [
+    {
+      "name": "Sifu Sergio Iadarola's Kung Fu World",
+      "who": "SiFu Sergio Pascal Iadarola",
+      "url": "https://www.youtube.com/@SifuSergioChannel",
+      "note": "Il canale ufficiale di SiFu Sergio: Wing Chun interno, Weng Chun, linee ancestrali."
+    },
+    {
+      "name": "Eternal Spring Institute",
+      "who": "SiFu Sergio Pascal Iadarola",
+      "url": "https://eternalspringinstitute.com/",
+      "note": "Il sito dell'istituto: biografia, sistemi trasmessi, programmi."
+    },
+    {
+      "name": "Sifu Sergio — sito ufficiale",
+      "who": "SiFu Sergio Pascal Iadarola",
+      "url": "https://sifusergio.com/",
+      "note": "Materiali, corsi e pubblicazioni."
+    },
+    {
+      "name": "IDPA Wing Chun Napoli",
+      "who": "SiFu Massimo Fiorentini",
+      "url": "https://www.facebook.com/p/IDPA-Wing-Chun-Napoli-100063759681288/",
+      "note": "La pagina della International Dragon & Phoenix Association, fondata nel 2006."
+    },
+    {
+      "name": "Andreas Hoffmann",
+      "who": "GM Andreas Hoffmann",
+      "url": "https://www.youtube.com/channel/UCODvCwpQdq0v0wzN5YhTTbQ",
+      "note": "Il canale del Gran Maestro della linea Chi Sim Weng Chun a cui appartiene l'IDPA."
+    }
+  ],
+  "categories": [
+    {
+      "id": "interno",
+      "title": "Il Wing Chun interno",
+      "subtitle": "SiFu Sergio Iadarola — Eternal Spring Institute",
+      "videos": [
+        {
+          "id": "y6ITzslgFOY",
+          "title": "1700's Internal Wing Chun — The Six Core Elements",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "Il seminario sul programma dei Six Core Elements: i tipi di forza documentati nei manoscritti del 1890."
+        },
+        {
+          "id": "AxuNXNb2_pQ",
+          "title": "Internal Wing Chun — Snake engine in action",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "Il motore del serpente applicato: la propagazione lungo la colonna invece della spinta del braccio."
+        },
+        {
+          "id": "_0nmfds0b7s",
+          "title": "The Wing Chun Formula — Sifu Sergio Revisited",
+          "author": "THE MARTIAL MAN",
+          "note": "Intervista lunga: la logica del sistema raccontata da chi ha attraversato più linee."
+        }
+      ]
+    },
+    {
+      "id": "sistema",
+      "title": "Il sistema IWKA Wing Tjun",
+      "subtitle": "Curriculum, forme e applicazioni",
+      "videos": [
+        {
+          "id": "P_gUIA7JElw",
+          "title": "IWKA Wing Tjun (Parte 1)",
+          "author": "THE MARTIAL MAN",
+          "note": "Panoramica sul curriculum e sulle linee che vi confluiscono."
+        },
+        {
+          "id": "_KfP56Il9zQ",
+          "title": "IWKA Wing Tjun (Parte 2)",
+          "author": "THE MARTIAL MAN",
+          "note": "Seconda parte: applicazioni e lavoro a due."
+        },
+        {
+          "id": "V7ncKiKcPUc",
+          "title": "Uomo di legno e Chi Sao",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "Applicazioni al manichino e passaggio al Chi Sao."
+        }
+      ]
+    },
+    {
+      "id": "forme",
+      "title": "Le forme",
+      "subtitle": "Siu Nim Tau e linee ancestrali",
+      "videos": [
+        {
+          "id": "ILFD6TN-JzE",
+          "title": "IWKA Wing Tjun — Siu Nim Tau",
+          "author": "Everything Wing Chun",
+          "note": "Anteprima della forma nella versione ricomposta da più linee."
+        },
+        {
+          "id": "PDpx5juWHX0",
+          "title": "Yuen Kay San Siu Nim Tau — Dr. Cheung Yung",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "La forma nella linea Yuen Kay San / Sum Nung: un confronto prezioso con la versione Ip Man."
+        }
+      ]
+    },
+    {
+      "id": "wengchun",
+      "title": "Weng Chun — la linea dell'IDPA",
+      "subtitle": "Chi Sim Weng Chun, GM Andreas Hoffmann",
+      "videos": [
+        {
+          "id": "x4kQBVVkUZw",
+          "title": "Saam Pai Fat — SiFu Andreas Hoffmann",
+          "author": "Andreas Hoffmann",
+          "note": "La forma centrale del Weng Chun eseguita dal Gran Maestro della linea."
+        },
+        {
+          "id": "SKMo1RS00Hc",
+          "title": "Weng Chun Kung Fu — Sam Bai Fat",
+          "author": "Andreas Hoffmann",
+          "note": "La forma appresa dal GM Wai Yan, presentata sezione per sezione."
+        },
+        {
+          "id": "rrgT0oF4j3o",
+          "title": "Fa Kuen — tecniche",
+          "author": "WingTsunSweden",
+          "note": "Il pugno del fiore: il principio del cerchio e la potenza rotatoria."
+        },
+        {
+          "id": "wg4y_fp-43U",
+          "title": "Weng Chun — la forma dei 6 principi e mezzo",
+          "author": "Everything Wing Chun",
+          "note": "Il palo lungo e le sei forze e mezza."
+        },
+        {
+          "id": "nfL67fs7hhY",
+          "title": "Weng Chun — Saam Bai Fut",
+          "author": "Ellis West",
+          "note": "Un'altra esecuzione della forma, utile per il confronto."
+        },
+        {
+          "id": "8Fv-jWyktRA",
+          "title": "Saam Baai Fat — Siu Lam Wing Chun Berlino",
+          "author": "berlin siu lam wing chun pai",
+          "note": "Esecuzione completa della forma."
+        },
+        {
+          "id": "DW36I-LtDMQ",
+          "title": "Saam Bai Fat — Weng Chun",
+          "author": "VanyaCrow",
+          "note": "Ripresa ravvicinata dei passaggi chiave."
+        }
+      ]
+    }
+  ]
+}

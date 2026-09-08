@@ -1,0 +1,505 @@
+{
+  "intro": "Il Wing Chun non è una collezione di tecniche: è un insieme di principi che generano tecniche. Chi impara le tecniche senza i principi ha imparato delle forme vuote; chi impara i principi può ricostruire ogni tecnica da solo.",
+  "groups": [
+    {
+      "id": "struttura",
+      "title": "La struttura",
+      "subtitle": "Prima di ogni tecnica viene il corpo che la regge",
+      "items": [
+        {
+          "id": "linea_centrale",
+          "name": "La linea centrale",
+          "chinese": "中線 · Ji Ng Sin",
+          "summary": "L'asse verticale che divide il corpo in due metà e su cui si trovano i bersagli più fragili.",
+          "body": [
+            "La linea centrale è la verticale che passa dal centro della testa al centro del bacino. Su di essa si trovano gola, plesso solare, basso ventre: i punti dove la struttura umana cede prima.",
+            "Da questo fatto anatomico nasce tutta la logica del sistema. Difendere significa occupare la propria linea centrale; attaccare significa raggiungere quella dell'avversario. Non è una regola stilistica: è la conseguenza di dove si trovano i bersagli.",
+            "Occupare il centro non vuol dire coprirlo con le braccia. Vuol dire esserci prima: se la tua mano è già sulla linea, quella dell'avversario deve girarci intorno, e girare costa tempo."
+          ],
+          "keyPoints": [
+            "Le mani lavorano davanti al corpo, non ai lati",
+            "Chi occupa il centro per primo costringe l'altro a deviare",
+            "Il centro si difende occupandolo, non chiudendolo"
+          ],
+          "lessonId": "guardia"
+        },
+        {
+          "id": "gomito",
+          "name": "Il gomito che affonda",
+          "chinese": "沉肘 · Cham Jarn",
+          "summary": "Il gomito basso e vicino al corpo è ciò che trasforma un braccio in una struttura.",
+          "body": [
+            "In quasi tutte le posizioni del Wing Chun il gomito resta basso, a circa un pugno dal costato. Non è un dettaglio estetico: il gomito basso collega il braccio al tronco, e attraverso il tronco alle gambe e a terra.",
+            "Un braccio con il gomito alto è un braccio isolato: regge solo con la forza del braccio. Un braccio con il gomito affondato scarica la pressione lungo tutto il corpo fino ai piedi, e per spostarlo bisogna spostare l'uomo intero.",
+            "Il gomito è anche la sentinella del centro: finché resta al suo posto, copre il costato e la linea mediana anche quando la mano è impegnata altrove."
+          ],
+          "keyPoints": [
+            "Un pugno di distanza fra gomito e costato",
+            "Il gomito regge la pressione, la mano legge la direzione",
+            "Se il gomito si alza, la struttura si spezza"
+          ],
+          "lessonId": "jum_sau"
+        },
+        {
+          "id": "song",
+          "name": "Il rilassamento",
+          "chinese": "鬆 · Song",
+          "summary": "Non è mollezza: è l'assenza di tensione inutile, che rende il movimento veloce e la percezione acuta.",
+          "body": [
+            "Song non significa essere molli. Significa che nessun muscolo lavora se non è quello che serve. Un braccio contratto è un braccio lento, perché prima di muoversi deve smettere di contrarsi.",
+            "Il rilassamento è anche la condizione della sensibilità: attraverso un braccio teso non si sente nulla, si sente solo la propria tensione. È per questo che il Chi Sau si pratica rilassati — la forza si aggiunge alla fine, e solo per un istante.",
+            "Un principio ricorrente nell'insegnamento di SiFu Sergio Iadarola è che la maggior parte dei praticanti esegue le forme come gusci vuoti; il lavoro interno consiste proprio nel riempirle sostituendo la forza muscolare con il rilascio."
+          ],
+          "keyPoints": [
+            "Il muscolo teso è un muscolo già occupato",
+            "Si sente solo ciò che non si contrasta",
+            "La forza arriva alla fine del movimento, non lo accompagna"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "massime",
+      "title": "Le massime del combattimento",
+      "subtitle": "Kuen Kuit — le formule tramandate che riassumono la strategia",
+      "items": [
+        {
+          "id": "loi_lau_hui_sung",
+          "name": "Accogli ciò che arriva, accompagna ciò che se ne va",
+          "chinese": "來留去送 · Loi Lau Hui Sung",
+          "summary": "Non opporsi alla forza e non trattenerla: cambiarne la direzione.",
+          "body": [
+            "Quando una forza arriva, non la si ferma: la si accoglie e la si devia. Quando si ritira, non la si insegue trattenendola: la si accompagna, aggiungendo il proprio movimento al suo.",
+            "È il principio che rende possibile a una persona minuta di gestire una più forte. Non c'è mai un confronto diretto fra due forze: c'è sempre un angolo, un piano inclinato, una rotazione che manda l'energia altrove.",
+            "Il Bong Sau è l'esempio più chiaro: non blocca, offre una superficie inclinata su cui la spinta scivola via."
+          ],
+          "keyPoints": [
+            "Mai forza contro forza",
+            "Deviare costa meno che fermare",
+            "Il ritiro dell'avversario è un invito ad avanzare"
+          ],
+          "lessonId": "bong_sau"
+        },
+        {
+          "id": "lat_sau_jik_chung",
+          "name": "Perso il contatto, avanza dritto",
+          "chinese": "甩手直衝 · Lat Sau Jik Chung",
+          "summary": "Quando il ponte si interrompe, la risposta non è cercarlo: è colpire lungo la linea più breve.",
+          "body": [
+            "Finché c'è contatto, le mani leggono l'intenzione dell'avversario. Nel momento in cui il contatto si perde, l'informazione sparisce — e con essa il motivo per restare fermi.",
+            "La risposta del sistema è controintuitiva e per questo va allenata fino a diventare riflesso: non si arretra e non si cerca di riagganciare il braccio. Si avanza dritti sulla linea centrale.",
+            "È il principio che dà senso alla catena di pugni: ogni pugno che rientra libera la strada al successivo, e la linea non resta mai scoperta."
+          ],
+          "keyPoints": [
+            "Il vuoto è un'apertura, non un pericolo",
+            "Avanzare è più sicuro che restare a distanza indecisa",
+            "Il riflesso si costruisce nel Chi Sau, non nel ragionamento"
+          ],
+          "lessonId": "lin_wan_kuen"
+        },
+        {
+          "id": "lin_siu_die_dar",
+          "name": "Deviare e colpire nello stesso tempo",
+          "chinese": "連消帶打 · Lin Siu Die Dar",
+          "summary": "Difesa e attacco non sono due momenti: sono lo stesso momento.",
+          "body": [
+            "Nella maggior parte dei sistemi si para e poi si risponde: due tempi. Nel Wing Chun la mano che devia e la mano che colpisce partono insieme, e arrivano insieme.",
+            "Il vantaggio non è estetico, è aritmetico: chi usa due tempi per fare ciò che l'altro fa in uno resta sempre indietro di un tempo, e in un corpo a corpo un tempo è tutto.",
+            "Il Pak Da — schiaffo che devia e pugno che entra — è l'espressione più diretta di questo principio."
+          ],
+          "keyPoints": [
+            "Una mano libera la strada, l'altra la percorre",
+            "Un tempo solo, non due",
+            "Chi para e poi risponde è sempre in ritardo"
+          ],
+          "lessonId": "pak_da"
+        },
+        {
+          "id": "economia",
+          "name": "La linea più breve",
+          "chinese": "以簡制繁 · Yi Gaan Jai Faan",
+          "summary": "Fra due strade verso lo stesso bersaglio, il sistema sceglie sempre la più corta.",
+          "body": [
+            "Il pugno del Wing Chun non carica, non gira, non si prepara: parte da dove si trova e arriva in linea retta. Un movimento che non c'è è un movimento che non può essere letto né intercettato.",
+            "Lo stesso vale per la difesa: si sposta il minimo indispensabile, per il tempo minimo indispensabile. Ogni centimetro in più è tempo regalato all'avversario.",
+            "Questo è anche il motivo per cui il sistema ha poche tecniche: non perché sia povero, ma perché ogni tecnica che si può eliminare senza perdere efficacia è tempo di allenamento risparmiato."
+          ],
+          "keyPoints": [
+            "Nessun caricamento: il colpo parte da dove si trova",
+            "Poche tecniche allenate molto, non molte allenate poco",
+            "Ciò che non serve va tolto"
+          ],
+          "lessonId": "chung_kuen"
+        }
+      ]
+    },
+    {
+      "id": "forze",
+      "title": "Le forze del Weng Chun",
+      "subtitle": "Il vocabolario di forza della linea Chi Sim Weng Chun, tramandato nell'IDPA",
+      "items": [
+        {
+          "id": "sei_forze",
+          "name": "Le sei forze",
+          "chinese": "Tai · Lan · Dim · Kit · Got · Wun",
+          "summary": "Sei modi fondamentali di applicare la forza, che compongono l'intero repertorio del Weng Chun.",
+          "body": [
+            "Il Weng Chun della linea Chi Sim, quella trasmessa in Italia da SiFu Massimo Fiorentini nell'IDPA come parte della famiglia del Gran Maestro Andreas Hoffmann, organizza la forza in sei categorie fondamentali. Non sono tecniche: sono qualità di movimento che ogni tecnica può assumere.",
+            "Tai — sollevare: la forza che porta verso l'alto e stacca la radice dell'avversario.\nLan — sbarrare: la forza che chiude e blocca una linea con l'avambraccio.\nDim — puntare: la forza concentrata in un punto, di urto breve e penetrante.\nKit — aprire: la forza che squarcia e apre la guardia dall'interno.\nGot — falciare: il semicerchio verso il basso che porta via il ponte.\nWun — circolare: la forza che ruota e riconduce, senza inizio né fine.",
+            "Le sei forze non si usano isolate: si combinano e si trasformano l'una nell'altra all'interno dello stesso movimento."
+          ],
+          "keyPoints": [
+            "Sono qualità di forza, non tecniche",
+            "Ogni tecnica può essere eseguita con più di una",
+            "Si trasformano l'una nell'altra durante il movimento"
+          ],
+          "source": "Sistema Chi Sim Weng Chun — GM Andreas Hoffmann / IDPA"
+        },
+        {
+          "id": "lau",
+          "name": "Il fluire",
+          "chinese": "流 · Lau",
+          "summary": "La settima forza, considerata la più importante: la capacità di non interrompersi mai.",
+          "body": [
+            "Sopra le sei forze c'è Lau, il fluire, che nella tradizione Chi Sim Weng Chun è considerato il principio più importante di tutti.",
+            "Lau è ciò che tiene insieme le altre sei. Una forza che si esaurisce lascia un vuoto, e in quel vuoto l'avversario rientra. Una forza che fluisce si trasforma prima di esaurirsi: il Tai diventa Got, il Got diventa Wun, e la pressione non cade mai a zero.",
+            "È la differenza fra una sequenza di tecniche e un movimento unico che cambia forma."
+          ],
+          "keyPoints": [
+            "Nessuna interruzione fra una forza e la successiva",
+            "La pressione non cade mai a zero",
+            "Il movimento cambia forma, non si ferma"
+          ],
+          "source": "Sistema Chi Sim Weng Chun — GM Andreas Hoffmann / IDPA"
+        }
+      ]
+    },
+    {
+      "id": "interno",
+      "title": "Il lavoro interno",
+      "subtitle": "La ricerca sulle radici interne del sistema, nella linea Eternal Spring",
+      "items": [
+        {
+          "id": "motore_interno",
+          "name": "Il motore interno",
+          "chinese": "內功 · Noi Gung",
+          "summary": "La forza che nasce dal collegamento del corpo intero, non dalla contrazione muscolare.",
+          "body": [
+            "La ricerca di SiFu Sergio Iadarola, sviluppata nell'Eternal Spring Institute, parte da una constatazione: il Wing Chun delle origini era un sistema interno, paragonabile per profondità alle arti interne del nord, e molto di quel contenuto si è perso nella trasmissione moderna.",
+            "Il lavoro interno sostituisce la spinta muscolare con il collegamento: il corpo si muove come un'unica struttura elastica, in cui l'impulso nasce dal centro e arriva alle estremità senza essere generato dalle estremità.",
+            "Da qui l'immagine ricorrente del serpente e della gru — Snake e Crane — che descrivono due qualità diverse di movimento: la propagazione ondulatoria lungo la colonna e l'apertura elastica delle strutture esterne."
+          ],
+          "keyPoints": [
+            "L'impulso nasce dal centro, non dal braccio",
+            "Il corpo lavora come una struttura unica ed elastica",
+            "Le forme sono contenitori: vanno riempite"
+          ],
+          "source": "Eternal Spring Institute — SiFu Sergio Iadarola"
+        },
+        {
+          "id": "six_core",
+          "name": "I Six Core Elements",
+          "chinese": "Six Core Elements",
+          "summary": "Un programma che isola i tipi di forza meccanica descritti nei manoscritti del 1890.",
+          "body": [
+            "SiFu Sergio ha formulato un programma didattico chiamato Six Core Elements, costruito a partire dai tipi di forza meccanica documentati nel manoscritto noto come Wing Chun Secret Note, attribuito al 1890.",
+            "L'idea didattica è isolare ciascun elemento e allenarlo separatamente, invece di sperare che emerga da solo dalla pratica delle forme. Ogni elemento viene poi ricomposto negli esercizi a due.",
+            "È un approccio analitico a un contenuto tradizionalmente trasmesso per imitazione, ed è pensato per accorciare i tempi di acquisizione del lavoro interno."
+          ],
+          "keyPoints": [
+            "Isolare ogni componente prima di ricomporla",
+            "Fondato su fonti documentarie del XIX secolo",
+            "Pensato per accelerare l'accesso al lavoro interno"
+          ],
+          "source": "Eternal Spring Institute — SiFu Sergio Iadarola"
+        },
+        {
+          "id": "chi_sau",
+          "name": "Le mani che aderiscono",
+          "chinese": "黐手 · Chi Sau",
+          "summary": "L'esercizio centrale del sistema: imparare a sentire invece che a vedere.",
+          "body": [
+            "Il Chi Sau è l'esercizio in cui due praticanti restano in contatto con gli avambracci e imparano a leggere l'intenzione dell'altro attraverso la pressione, non attraverso la vista.",
+            "Il tatto è molto più rapido della vista: un occhio deve vedere, riconoscere e decidere, mentre la pelle reagisce quasi senza passare dalla decisione. È per questo che il Chi Sau, e non il combattimento libero, è il laboratorio del Wing Chun.",
+            "Non è combattimento e non è una forma: è il luogo dove i principi imparati nelle forme vengono messi alla prova contro una volontà che cambia."
+          ],
+          "keyPoints": [
+            "Si allena la sensibilità, non la vittoria",
+            "Il tatto decide più in fretta della vista",
+            "È il ponte fra le forme e il combattimento"
+          ],
+          "lessonId": "kwan_sau"
+        }
+      ]
+    },
+    {
+      "id": "mani",
+      "title": "Le mani",
+      "subtitle": "Il vocabolario tecnico di base — ogni voce ha la sua lezione con il SiFu 3D",
+      "items": [
+        {
+          "id": "tan_sau",
+          "name": "Tan Sau",
+          "chinese": "攤手 · Tan Sau",
+          "summary": "L'avambraccio sale dal gomito basso con il palmo verso l'alto, occupando la linea centrale.",
+          "body": [
+            "Tan Sau non spinge e non blocca: apre uno spazio. La forza in arrivo trova un avambraccio inclinato e viene deviata di lato, mentre la mano resta al centro.",
+            "L'errore più comune è farlo con la spalla: il Tan Sau nasce dal gomito, che resta basso e a un pugno dal costato. Se il gomito si alza, il Tan diventa una parata e perde la sua funzione."
+          ],
+          "keyPoints": [
+            "Il palmo guarda in alto",
+            "Il gomito resta basso e vicino al corpo",
+            "La mano occupa il centro, non lo copre"
+          ],
+          "lessonId": "tan_sau",
+          "translation": "La mano che disperde"
+        },
+        {
+          "id": "bong_sau",
+          "name": "Bong Sau",
+          "chinese": "膀手 · Bong Sau",
+          "summary": "Il gomito sale, l'avambraccio scende: un piano inclinato su cui la forza scivola via.",
+          "body": [
+            "Bong Sau è la posizione più fraintesa del sistema. Non è una parata alta: è una superficie inclinata che cede alla pressione e la manda altrove.",
+            "È una posizione di passaggio, non di arrivo. Un Bong Sau tenuto è un Bong Sau sbagliato: deve trasformarsi subito in qualcos'altro, di solito in Tan o in un colpo."
+          ],
+          "keyPoints": [
+            "Il gomito è più alto del polso",
+            "Non si oppone alla forza, la accompagna",
+            "È una posizione di passaggio, mai di arrivo"
+          ],
+          "lessonId": "bong_sau",
+          "translation": "L'ala"
+        },
+        {
+          "id": "fook_sau",
+          "name": "Fook Sau",
+          "chinese": "伏手 · Fook Sau",
+          "summary": "Si posa sopra il ponte avversario e ne legge l'intenzione senza spingere.",
+          "body": [
+            "Fook Sau significa 'sottomettere', ma non con la forza: controlla il braccio avversario stando sopra di esso, sentendone la direzione.",
+            "È la posizione in cui si allena più a lungo la sensibilità: nella sezione lenta del Siu Nim Tau il Fook Sau si ripete decine di volte, per imparare a stare in contatto senza premere."
+          ],
+          "keyPoints": [
+            "Si appoggia, non si preme",
+            "Il gomito resta basso e sulla linea",
+            "Serve a sentire, non a bloccare"
+          ],
+          "lessonId": "fook_sau",
+          "translation": "La mano che controlla"
+        },
+        {
+          "id": "wu_sau",
+          "name": "Wu Sau",
+          "chinese": "護手 · Wu Sau",
+          "summary": "Palmo verticale sulla linea centrale, pronta a sostituire la mano davanti.",
+          "body": [
+            "Wu Sau è la mano di riserva. Sta dietro, al centro, e non fa nulla finché la prima mano regge.",
+            "Nel momento in cui la mano avanzata viene superata o impegnata, il Wu Sau prende il suo posto senza che il corpo debba spostarsi."
+          ],
+          "keyPoints": [
+            "Palmo verticale, dita in alto",
+            "Sempre sulla linea centrale",
+            "Non anticipa: sostituisce"
+          ],
+          "lessonId": "wu_sau",
+          "translation": "La mano che protegge"
+        },
+        {
+          "id": "pak_sau",
+          "name": "Pak Sau",
+          "chinese": "拍手 · Pak Sau",
+          "summary": "Un colpo corto e secco che taglia la linea centrale e apre la strada.",
+          "body": [
+            "Pak Sau è breve. Non insegue il braccio avversario: lo sposta di quel tanto che basta e si ferma. Un Pak Sau lungo lascia il corpo scoperto.",
+            "Quasi sempre è accompagnato da un colpo dell'altra mano: da solo non è una difesa, è metà di un movimento."
+          ],
+          "keyPoints": [
+            "Corto: sposta e si ferma",
+            "Non insegue mai",
+            "Va accompagnato da un colpo"
+          ],
+          "lessonId": "pak_sau",
+          "translation": "La mano che schiaffeggia"
+        },
+        {
+          "id": "jut_sau",
+          "name": "Jut Sau",
+          "chinese": "窒手 · Jut Sau",
+          "summary": "Uno strattone brevissimo verso il basso che rompe l'equilibrio e apre il bersaglio.",
+          "body": [
+            "Jut Sau dura un istante. È uno scatto secco verso il basso che tira l'avversario fuori asse e crea l'apertura per il colpo che segue.",
+            "La potenza non viene dal braccio ma dal rilascio: si è rilassati, si scatta, si torna rilassati."
+          ],
+          "keyPoints": [
+            "Brevissimo e secco",
+            "La forza nasce dal rilascio, non dalla trazione",
+            "Prepara sempre qualcosa"
+          ],
+          "lessonId": "jut_sau",
+          "translation": "Lo strappo"
+        },
+        {
+          "id": "gaan_sau",
+          "name": "Gaan Sau",
+          "chinese": "耕手 · Gaan Sau",
+          "summary": "Una diagonale verso il basso che apre la linea bassa senza aprire la struttura.",
+          "body": [
+            "Gaan Sau lavora sulla linea bassa, dove Tan e Bong non arrivano. Il movimento è diagonale, dall'alto verso il basso e verso l'esterno.",
+            "Spesso si esegue a due mani, una alta e una bassa, coprendo due linee con un solo movimento del corpo."
+          ],
+          "keyPoints": [
+            "Diagonale, dall'alto al basso",
+            "Copre la linea bassa",
+            "Spesso a due mani su due linee"
+          ],
+          "lessonId": "gaan_sau",
+          "translation": "La mano che divide"
+        },
+        {
+          "id": "jum_sau",
+          "name": "Jum Sau",
+          "chinese": "沉手 · Jum Sau",
+          "summary": "Chiude la linea dall'alto verso il basso usando il peso, non la spinta.",
+          "body": [
+            "Jum Sau affonda. Il gomito scende e con esso tutta la struttura: quello che ferma la pressione avversaria è il peso del corpo, non la contrazione del braccio.",
+            "È la dimostrazione più diretta del principio del gomito basso: se il gomito è collegato, un movimento minimo regge una spinta molto superiore."
+          ],
+          "keyPoints": [
+            "Scende il gomito, non la mano",
+            "Regge con il peso, non con il muscolo",
+            "Movimento minimo, effetto massimo"
+          ],
+          "lessonId": "jum_sau",
+          "translation": "Il gomito che affonda"
+        },
+        {
+          "id": "lap_sau",
+          "name": "Lap Sau",
+          "chinese": "擸手 · Lap Sau",
+          "summary": "Prende il ponte avversario e lo accompagna nella direzione in cui sta già andando.",
+          "body": [
+            "Lap Sau non strappa contro la forza: aggancia e accompagna nella direzione in cui l'avversario è già sbilanciato.",
+            "È l'applicazione diretta di 'accompagna ciò che se ne va': la trazione riesce perché non incontra resistenza."
+          ],
+          "keyPoints": [
+            "Tira dove l'avversario sta già andando",
+            "Aggancia, non stringe",
+            "Apre sempre una linea per il colpo"
+          ],
+          "lessonId": "lap_sau",
+          "translation": "La mano che afferra e tira"
+        },
+        {
+          "id": "huen_sau",
+          "name": "Huen Sau",
+          "chinese": "圈手 · Huen Sau",
+          "summary": "Il polso disegna un cerchio attorno al ponte avversario senza perdere il contatto.",
+          "body": [
+            "Huen Sau serve a cambiare lato senza staccarsi. Il polso gira attorno al braccio dell'avversario e ciò che era sopra si ritrova sotto.",
+            "È il movimento che permette di passare da una posizione all'altra restando in contatto: senza Huen Sau il Chi Sau si interromperebbe a ogni cambio."
+          ],
+          "keyPoints": [
+            "Gira il polso, non il braccio",
+            "Il contatto non si perde mai",
+            "Cambia lato senza cambiare distanza"
+          ],
+          "lessonId": "huen_sau",
+          "translation": "La mano che circola"
+        },
+        {
+          "id": "biu_tze",
+          "name": "Biu Tze",
+          "chinese": "鏢指 · Biu Tze",
+          "summary": "La linea più breve verso il bersaglio, con la mano aperta e le dita in avanti.",
+          "body": [
+            "Biu Tze allunga il braccio di dieci centimetri e li usa per arrivare dove il pugno non arriva. È veloce e preciso, ma fragile: si usa su bersagli molli.",
+            "Appartiene alla terza forma perché richiede una struttura già solida: usato troppo presto diventa una scorciatoia che nasconde i difetti."
+          ],
+          "keyPoints": [
+            "Il braccio più lungo del sistema",
+            "Solo su bersagli molli",
+            "Richiede una struttura già acquisita"
+          ],
+          "lessonId": "biu_tze",
+          "translation": "Le dita che infilzano"
+        },
+        {
+          "id": "chung_kuen",
+          "name": "Yat Ji Chung Kuen",
+          "chinese": "日字沖拳 · Yat Ji Chung Kuen",
+          "summary": "Il pugno del carattere sole: parte dal centro, arriva al centro, senza caricamento.",
+          "body": [
+            "Il pugno del Wing Chun non gira e non carica. Parte da dove si trova, viaggia in linea retta lungo la linea centrale e colpisce con le tre nocche inferiori, il pugno verticale.",
+            "La potenza non viene dalla rotazione del busto ma dall'allineamento: se polso, gomito, spalla e struttura sono in linea, dietro il pugno c'è tutto il corpo."
+          ],
+          "keyPoints": [
+            "Nessun caricamento: parte da dove si trova",
+            "Pugno verticale, tre nocche inferiori",
+            "La potenza viene dall'allineamento"
+          ],
+          "lessonId": "chung_kuen",
+          "translation": "Il pugno verticale"
+        }
+      ]
+    },
+    {
+      "id": "posizioni",
+      "title": "Posizioni e passi",
+      "subtitle": "Ciò che sta sotto: la base da cui tutto il resto prende forza",
+      "items": [
+        {
+          "id": "yjkym",
+          "name": "Yee Ji Kim Yeung Ma",
+          "chinese": "二字箝羊馬",
+          "summary": "La posizione madre: piedi in dentro, ginocchia addotte, bacino retroverso.",
+          "body": [
+            "Il nome descrive la forma: i piedi disegnano il carattere cinese 'due' (二), le ginocchia adducono come se stringessero qualcosa. È la prima cosa che si impara e l'ultima che si smette di correggere.",
+            "L'adduzione delle ginocchia chiude la linea bassa e mette in tensione elastica la catena delle gambe; la retroversione del bacino allinea la colonna e collega le braccia a terra.",
+            "Non è una posizione di combattimento: è la posizione in cui si costruisce la struttura, per poterla poi portare in movimento."
+          ],
+          "keyPoints": [
+            "Punte dei piedi rivolte verso l'interno",
+            "Ginocchia che si adducono verso la linea centrale",
+            "Bacino retroverso, colonna allineata, peso sui talloni"
+          ],
+          "lessonId": "yee_ji_kim_yeung_ma"
+        },
+        {
+          "id": "juen_ma",
+          "name": "Juen Ma",
+          "chinese": "轉馬",
+          "summary": "La girata: l'asse è la linea centrale del corpo, non il piede.",
+          "body": [
+            "La girata del Chum Kiu ruota il corpo attorno al proprio asse verticale mantenendo la struttura. Il peso si redistribuisce, ma il centro resta dov'è.",
+            "Girando, una spinta frontale diventa tangenziale: la stessa forza che avrebbe sfondato una struttura ferma scivola via su una struttura che ruota.",
+            "È il momento in cui il Wing Chun smette di essere un'arte di braccia e diventa un'arte di corpo intero."
+          ],
+          "keyPoints": [
+            "Si ruota sui talloni, non sulle punte",
+            "L'asse è il corpo, non la gamba",
+            "La potenza viene dalla rotazione, non dalla spinta del braccio"
+          ],
+          "lessonId": "juen_ma"
+        },
+        {
+          "id": "calci",
+          "name": "I calci del sistema",
+          "chinese": "腳法 · Geuk Faat",
+          "summary": "Bassi, diretti, senza slancio: la gamba non deve mai compromettere la struttura.",
+          "body": [
+            "I calci del Wing Chun restano bassi — ginocchio, tibia, basso ventre — e non si caricano. Un calcio alto richiede di spostare il baricentro, e uno spostamento del baricentro è un'apertura.",
+            "Il calcio frontale di tallone (Jing Geuk) sale lungo la linea centrale, come un pugno che parte da terra. Spesso è simultaneo a un'azione delle mani: anche qui, un tempo solo.",
+            "La gamba d'appoggio non è passiva: è la struttura che regge tutto, e resta piegata e viva."
+          ],
+          "keyPoints": [
+            "Mai sopra la vita",
+            "Nessun caricamento, nessuno slancio",
+            "La gamba d'appoggio resta viva e piegata"
+          ],
+          "lessonId": "jing_geuk"
+        }
+      ]
+    }
+  ]
+}
