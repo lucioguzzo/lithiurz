@@ -16,7 +16,7 @@ import math
 # --- proporzioni (metri) ------------------------------------------------
 HEIGHT = 1.75
 HIP_Y = 0.95          # altezza del bacino da terra
-SHOULDER_W = 0.185    # semi-larghezza spalle
+SHOULDER_W = 0.214    # semi-larghezza spalle (0,43 m totali)
 HIP_W = 0.095         # semi-larghezza anche
 
 # Un giunto: (nome, padre, traslazione locale)
@@ -47,6 +47,47 @@ JOINTS = [
     ("foot_R",      "shin_R",    (0.0, -0.415, 0.0)),
     ("toe_R",       "foot_R",    (0.0, -0.065, 0.115)),
 ]
+
+# --- dita ---------------------------------------------------------------
+# Nel Wing Chun la forma della mano fa parte della tecnica: un Biu Tze e'
+# definito dalle dita tese, un Chung Kuen dal pugno chiuso, un Fook Sau dalla
+# mano rilassata. Senza falangi articolate tutte le tecniche avrebbero la
+# stessa mano, e sarebbe la piu' visibile delle imprecisioni.
+FINGERS = ("idx", "mid", "rng", "pnk", "thb")
+
+# radice di ogni dito nel sistema locale della mano
+# (la mano punta lungo -Y, il palmo guarda +Z)
+_FINGER_ROOT = {
+    "idx": (0.034, -0.092, 0.004),
+    "mid": (0.011, -0.099, 0.002),
+    "rng": (-0.012, -0.095, -0.002),
+    "pnk": (-0.033, -0.084, -0.005),
+    "thb": (0.034, -0.028, 0.016),
+}
+_FINGER_LEN = {
+    "idx": (0.042, 0.034), "mid": (0.046, 0.036),
+    "rng": (0.042, 0.033), "pnk": (0.034, 0.027),
+    "thb": (0.036, 0.030),
+}
+
+
+def _finger_joints():
+    out = []
+    for side, sign in (("L", 1.0), ("R", -1.0)):
+        for f in FINGERS:
+            x, y, z = _FINGER_ROOT[f]
+            l1, _ = _FINGER_LEN[f]
+            out.append((f"{f}1_{side}", f"hand_{side}", (x * sign, y, z)))
+            if f == "thb":
+                # il pollice si oppone: esce in diagonale rispetto alle dita
+                out.append((f"{f}2_{side}", f"{f}1_{side}",
+                            (0.010 * sign, -l1 * 0.92, 0.012)))
+            else:
+                out.append((f"{f}2_{side}", f"{f}1_{side}", (0.0, -l1, 0.0)))
+    return out
+
+
+JOINTS = JOINTS + _finger_joints()
 
 JOINT_NAMES = [j[0] for j in JOINTS]
 JOINT_INDEX = {n: i for i, n in enumerate(JOINT_NAMES)}

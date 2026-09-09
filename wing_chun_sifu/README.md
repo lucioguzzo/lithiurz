@@ -59,10 +59,10 @@ progetto.
 
 ```
 tools/
-  rig.py                    scheletro: 21 giunti, proporzioni su 1,74 m
+  rig.py                    scheletro: 41 giunti, dita comprese
   meshgen.py                mesh skinnata: giacca, pantaloni, viso, mani
   kinematics.py             cinematica diretta e inversa
-  poses.py                  le posizioni del Wing Chun
+  poses.py                  le posizioni del Wing Chun e le forme di mano
   animations.py             le 21 lezioni animate
   gltf_export.py            esportatore glTF 2.0 binario
   generate_sifu_model.py    genera assets/models/sifu.glb
@@ -70,6 +70,27 @@ tools/
   render_preview.py         renderer di controllo + miniature
   generate_icon.py          icone Android e iOS
 ```
+
+### Le dita contano
+
+Nel Wing Chun la forma della mano fa parte della tecnica: un Biu Tze e'
+definito dalle dita tese, un Chung Kuen dal pugno chiuso, un Fook Sau dalla
+mano rilassata. Il rig ha quindi cinque dita per mano con due falangi
+ciascuna, e ogni tecnica dichiara la propria forma di mano, che si chiude
+mentre il braccio si muove invece di scattare a fine corsa.
+
+### Il corpo partecipa
+
+Ogni tecnica muove anche la vita, il peso e lo sguardo, non solo il braccio.
+La rotazione della vita e' tenuta separata da quella delle anche: applicarla
+al bacino durante un colpo trascinerebbe le gambe e torcerebbe la posizione.
+Sotto ogni lezione scorre un respiro di meno di due gradi, perche' nessun
+fotogramma sia mai identico al precedente: una figura perfettamente immobile
+fra due tecniche legge come un manichino anche quando la posizione e' esatta.
+
+Le tecniche partono dal pugno in camera al fianco, come nel Siu Nim Tau, non
+dalla guardia: dalla guardia un Tan Sau e un Man Sau finirebbero quasi nello
+stesso posto e la tecnica non si leggerebbe.
 
 ### Perché la cinematica inversa
 
@@ -85,17 +106,25 @@ stile, non la sua conseguenza.
 
 ### La verifica
 
-`tools/verify_poses.py` esegue 66 controlli che traducono i criteri strutturali
-del sistema in asserzioni: il gomito del Tan Sau sotto il polso, quello del Bong
-Sau sopra, la mano sulla linea centrale, il ginocchio addotto in Yee Ji Kim
-Yeung Ma, il calcio non oltre la vita, nessun braccio in iperestensione, le
-normali della mesh rivolte all'esterno.
+`tools/verify_poses.py` esegue 128 controlli che traducono i criteri
+strutturali del sistema in asserzioni: il gomito del Tan Sau sotto il polso,
+quello del Bong Sau sopra, la mano sulla linea centrale, il ginocchio addotto
+in Yee Ji Kim Yeung Ma, il calcio non oltre la vita, le normali della mesh
+rivolte all'esterno.
+
+Il controllo più importante è sulla **traiettoria**, non sulle posizioni
+chiave: l'angolo del gomito viene misurato lungo tutta l'animazione, non solo
+all'inizio e alla fine. Due posizioni corrette possono essere collegate da un
+percorso sbagliato, e il braccio che si distende a metà strada è esattamente
+ciò che fa sembrare scoordinato un movimento altrimenti giusto. Il limite è
+diverso per i colpi (che arrivano quasi distesi) e per le deviazioni (che se
+si distendono hanno già perso la struttura).
 
 Serve perché un modello 3D può essere formalmente valido e mostrare comunque
 posizioni sbagliate — e per un'app che insegna quello è il difetto peggiore.
 
 ```bash
-python3 tools/verify_poses.py       # 66 verifiche
+python3 tools/verify_poses.py       # 128 verifiche
 python3 tools/generate_sifu_model.py # rigenera sifu.glb + lessons.json
 ```
 

@@ -147,13 +147,26 @@ def export(mesh, clips, path, ground_offset=0.0):
     animations = []
     for clip in clips:
         times, channels, root_translations = clip.bake()
-        acc_time = w.accessor(np.array(times, dtype=np.float32).reshape(-1, 1),
-                              COMP_FLOAT, "SCALAR", minmax=True)
+
+        # Ogni canale porta i propri tempi: quelli costanti ne hanno solo due,
+        # e riusare l'asse completo darebbe un campionatore incoerente.
+        time_cache = {}
+
+        def time_accessor(ts):
+            key = (len(ts), round(ts[0], 6), round(ts[-1], 6))
+            if key not in time_cache:
+                time_cache[key] = w.accessor(
+                    np.array(ts, dtype=np.float32).reshape(-1, 1),
+                    COMP_FLOAT, "SCALAR", minmax=True)
+            return time_cache[key]
+
+        acc_time = time_accessor(times)
         samplers, chans = [], []
-        for joint, (_, quats) in channels.items():
+        for joint, (ch_times, quats) in channels.items():
+            acc_time_ch = time_accessor(ch_times)
             arr = np.array([q for q in quats], dtype=np.float32)
             acc_rot = w.accessor(arr, COMP_FLOAT, "VEC4")
-            samplers.append({"input": acc_time, "output": acc_rot,
+            samplers.append({"input": acc_time_ch, "output": acc_rot,
                              "interpolation": "LINEAR"})
             chans.append({"sampler": len(samplers) - 1,
                           "target": {"node": JOINT_BASE + JOINT_INDEX[joint],

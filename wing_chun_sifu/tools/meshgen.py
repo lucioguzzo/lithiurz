@@ -251,12 +251,12 @@ def build_sifu():
         {"center": np.array([0.0, 0.930, 0.0]), "rx": 0.166, "rz": 0.120, **JW},
         {"center": hips + np.array([0, 0.055, 0]), "rx": 0.158, "rz": 0.114, **JW},
         {"center": spine + np.array([0, 0.010, 0]), "rx": 0.156, "rz": 0.112, **JW},
-        {"center": lerp(spine, chest, 0.55), "rx": 0.168, "rz": 0.118, **JW},
-        {"center": chest, "rx": 0.180, "rz": 0.124, **JW},
-        {"center": lerp(chest, neck, 0.45), "rx": 0.184, "rz": 0.126, **JW},
-        {"center": lerp(chest, neck, 0.66), "rx": 0.181, "rz": 0.123, **JW},
-        {"center": lerp(chest, neck, 0.84), "rx": 0.166, "rz": 0.114, **JW},
-        {"center": lerp(chest, neck, 0.97), "rx": 0.126, "rz": 0.098, **JW},
+        {"center": lerp(spine, chest, 0.55), "rx": 0.176, "rz": 0.120, **JW},
+        {"center": chest, "rx": 0.196, "rz": 0.128, **JW},
+        {"center": lerp(chest, neck, 0.45), "rx": 0.208, "rz": 0.132, **JW},
+        {"center": lerp(chest, neck, 0.66), "rx": 0.206, "rz": 0.130, **JW},
+        {"center": lerp(chest, neck, 0.84), "rx": 0.188, "rz": 0.120, **JW},
+        {"center": lerp(chest, neck, 0.97), "rx": 0.134, "rz": 0.102, **JW},
         {"center": neck + np.array([0, 0.020, 0]), "rx": 0.088, "rz": 0.083,
          "dir": (0, 1, 0), **JW},
     ], "jacket", sides=22, cap_start=True, cap_end=False)
@@ -372,28 +372,7 @@ def build_sifu():
              "weights": _w((fj, 0.8), (hj, 0.2))},
         ], "skin", sides=12, cap_start=False, cap_end=False)
 
-        palm_dir = (hd - fa) / np.linalg.norm(hd - fa)
-        mb.loft([
-            {"center": hd, "rx": 0.031, "rz": 0.029,
-             "weights": _w((fj, 0.35), (hj, 0.65)), "dir": tuple(palm_dir)},
-            {"center": hd + palm_dir * 0.045, "rx": 0.042, "rz": 0.021,
-             "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
-            {"center": hd + palm_dir * 0.105, "rx": 0.043, "rz": 0.019,
-             "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
-            {"center": hd + palm_dir * 0.170, "rx": 0.038, "rz": 0.016,
-             "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
-            {"center": hd + palm_dir * 0.188, "rx": 0.024, "rz": 0.012,
-             "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
-        ], "skin", sides=12)
-        thumb = hd + palm_dir * 0.055 + np.array([sign * 0.036, 0.0, 0.012])
-        mb.loft([
-            {"center": hd + palm_dir * 0.045 + np.array([sign * 0.014, 0, 0.006]),
-             "rx": 0.019, "rz": 0.017, "weights": _w((hj, 1.0)),
-             "dir": tuple(np.array([sign * 0.7, -0.5, 0.4]))},
-            {"center": thumb, "rx": 0.015, "rz": 0.014, "weights": _w((hj, 1.0))},
-            {"center": thumb + np.array([sign * 0.012, -0.030, 0.014]),
-             "rx": 0.011, "rz": 0.011, "weights": _w((hj, 1.0))},
-        ], "skin", sides=8)
+        _build_hand(mb, P, side, sign)
 
     # --- PANTALONI E SCARPE ----------------------------------------------
     for side in ("L", "R"):
@@ -434,3 +413,60 @@ def build_sifu():
 
     mb.compute_normals()
     return mb
+
+
+def _build_hand(mb, P, side, sign):
+    """Palmo e cinque dita, ciascuna legata alle proprie due falangi.
+
+    Le dita non sono decorazione: reggono le forme di mano che distinguono
+    una tecnica dall'altra. Ogni falange e' pesata sul proprio giunto, con
+    una fascia di transizione sulla nocca perche' la piega non si spezzi.
+    """
+    from rig import _FINGER_LEN, FINGERS
+
+    def p(name):
+        return np.array(P[name], dtype=np.float64)
+
+    hd, fa = p(f"hand_{side}"), p(f"forearm_{side}")
+    hj, fj = f"hand_{side}", f"forearm_{side}"
+    palm_dir = (hd - fa) / np.linalg.norm(hd - fa)
+    across = np.cross(np.array([0.0, 0.0, 1.0]), palm_dir)
+    n = np.linalg.norm(across)
+    across = across / n if n > 1e-6 else np.array([1.0, 0.0, 0.0])
+
+    # palmo: sezione ovale schiacciata, piu' largo verso le nocche
+    mb.loft([
+        {"center": hd, "rx": 0.034, "rz": 0.030,
+         "weights": _w((fj, 0.35), (hj, 0.65)), "dir": tuple(palm_dir)},
+        {"center": hd + palm_dir * 0.038, "rx": 0.044, "rz": 0.023,
+         "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
+        {"center": hd + palm_dir * 0.078, "rx": 0.047, "rz": 0.021,
+         "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
+        {"center": hd + palm_dir * 0.098, "rx": 0.046, "rz": 0.020,
+         "weights": _w((hj, 1.0)), "dir": tuple(palm_dir)},
+    ], "skin", sides=16, cap_start=True, cap_end=True)
+
+    RADIUS = {"idx": 0.0115, "mid": 0.0120, "rng": 0.0110,
+              "pnk": 0.0098, "thb": 0.0140}
+    for f in FINGERS:
+        j1, j2 = f"{f}1_{side}", f"{f}2_{side}"
+        a, b = p(j1), p(j2)
+        l2 = _FINGER_LEN[f][1]
+        d = b - a
+        d /= np.linalg.norm(d) or 1.0
+        tip = b + d * l2
+        r = RADIUS[f]
+        mb.loft([
+            {"center": a - d * 0.012, "rx": r * 1.10, "rz": r * 1.06,
+             "weights": _w((hj, 0.65), (j1, 0.35)), "dir": tuple(d)},
+            {"center": a + d * 0.010, "rx": r, "rz": r * 0.97,
+             "weights": _w((hj, 0.15), (j1, 0.85)), "dir": tuple(d)},
+            {"center": b - d * 0.009, "rx": r * 0.92, "rz": r * 0.90,
+             "weights": _w((j1, 0.80), (j2, 0.20))},
+            {"center": b + d * 0.008, "rx": r * 0.88, "rz": r * 0.86,
+             "weights": _w((j1, 0.20), (j2, 0.80))},
+            {"center": tip - d * 0.010, "rx": r * 0.80, "rz": r * 0.78,
+             "weights": _w((j2, 1.0))},
+            {"center": tip, "rx": r * 0.52, "rz": r * 0.50,
+             "weights": _w((j2, 1.0))},
+        ], "skin", sides=9, cap_start=False, cap_end=True)

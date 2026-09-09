@@ -20,6 +20,7 @@ import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import kinematics as K  # noqa: E402
 import meshgen  # noqa: E402
 import poses  # noqa: E402
 
@@ -46,6 +47,55 @@ class Checks:
 
 def w(skel, joint):
     return skel.world_pos(joint)
+
+
+def elbow_angle(skel, side):
+    """Angolo interno del gomito in gradi. 180 = braccio bloccato disteso.
+
+    E' il numero che dice se una posizione e' Wing Chun o no. Il sistema
+    tiene il gomito piegato e vivo: un braccio teso non regge pressione,
+    non sente nulla e non ha piu' niente da dare.
+    """
+    a = w(skel, f'upperarm_{side}') - w(skel, f'forearm_{side}')
+    b = w(skel, f'hand_{side}') - w(skel, f'forearm_{side}')
+    a = a / (np.linalg.norm(a) or 1.0)
+    b = b / (np.linalg.norm(b) or 1.0)
+    return float(np.degrees(np.arccos(max(-1.0, min(1.0, float(np.dot(a, b)))))))
+
+
+# Intervallo dell'angolo del gomito ammesso per ogni tecnica.
+# Il limite superiore e' il vero vincolo: oltre i 150 gradi il braccio e'
+# praticamente disteso e la struttura non regge piu' nulla.
+ELBOW_RANGE = {
+    'guardia': (100.0, 140.0), 'tan_sau': (100.0, 140.0),
+    'fook_sau': (95.0, 140.0), 'bong_sau': (55.0, 130.0),
+    'wu_sau': (65.0, 125.0), 'pak_sau': (75.0, 140.0),
+    'biu_tze': (95.0, 155.0), 'chung_kuen': (100.0, 155.0),
+    'jum_sau': (75.0, 140.0), 'gaan_sau': (85.0, 150.0),
+}
+
+
+def verify_elbows(c):
+    c.group('Angolo del gomito (il braccio non si distende mai del tutto)')
+    cases = [
+        ('guardia', lambda s: poses.guardia(avanti=s), True),
+        ('tan_sau', poses.tan_sau, False),
+        ('fook_sau', poses.fook_sau, False),
+        ('bong_sau', poses.bong_sau, False),
+        ('wu_sau', poses.wu_sau, False),
+        ('pak_sau', poses.pak_sau, False),
+        ('jum_sau', poses.jum_sau, False),
+        ('gaan_sau', poses.gaan_sau, False),
+        ('biu_tze', poses.biu_tze, False),
+        ('chung_kuen', poses.chung_kuen, False),
+    ]
+    for name, fn, is_guard in cases:
+        lo, hi = ELBOW_RANGE[name]
+        for side in ('L', 'R'):
+            skel = fn(side).skel
+            ang = elbow_angle(skel, side)
+            c.check(name, f'{name} ({side}): gomito piegato',
+                    lo <= ang <= hi, f'{ang:.0f} gradi, atteso {lo:.0f}-{hi:.0f}')
 
 
 def verify_hand_techniques(c):
@@ -151,6 +201,68 @@ def verify_stance_and_kick(c):
                 standing[1] < FLOOR)
 
 
+def verify_animations(c):
+    """Il gomito deve restare piegato *durante* il movimento, non solo alla fine.
+
+    E' il controllo che conta di piu': due posizioni chiave corrette possono
+    essere collegate da una traiettoria sbagliata, e il braccio che si
+    distende a meta' strada e' esattamente cio' che fa sembrare scoordinato
+    un movimento altrimenti giusto. L'unico caso in cui il braccio puo'
+    essere disteso e' quando pende lungo il fianco.
+    """
+    import animations
+    from kinematics import Skeleton
+
+    # Un colpo arriva quasi disteso: e' cosi' che deve essere. Una
+    # deviazione no - se il braccio si distende ha gia' perso la struttura.
+    # Un limite unico per entrambi sarebbe sbagliato in un senso o nell'altro.
+    STRIKES = {"chung_kuen", "lin_wan_kuen", "pak_da", "bong_lap_sau",
+               "biu_tze"}
+
+    def at(ch_times, quats, t):
+        """Valore di un canale al tempo t.
+
+        Dopo la semplificazione ogni canale ha i propri tempi: indicizzarli
+        per numero di fotogramma confronterebbe istanti diversi fra loro.
+        """
+        if t <= ch_times[0]:
+            return quats[0]
+        if t >= ch_times[-1]:
+            return quats[-1]
+        i = int(np.searchsorted(ch_times, t)) - 1
+        i = max(0, min(i, len(ch_times) - 2))
+        span = ch_times[i + 1] - ch_times[i]
+        u = 0.0 if span <= 0 else (t - ch_times[i]) / span
+        return K.slerp(quats[i], quats[i + 1], u)
+
+    c.group('Traiettoria del gomito lungo le animazioni')
+    for clip in animations.build_clips():
+        times, channels, _ = clip.bake()
+        worst = {'L': (0.0, 0.0), 'R': (0.0, 0.0)}
+        # campiona a passo fisso, indipendente dai tempi dei singoli canali
+        steps = max(24, int(clip.duration * 20))
+        for k in range(steps + 1):
+            t = clip.duration * k / steps
+            skel = Skeleton()
+            for j, (ch_times, quats) in channels.items():
+                skel.set(j, at(ch_times, quats, t))
+            for side in ('L', 'R'):
+                ang = elbow_angle(skel, side)
+                hand_y = float(w(skel, f'hand_{side}')[1])
+                hip_y = float(w(skel, 'root')[1])
+                # braccio disteso ammesso solo se pende sotto il bacino
+                if hand_y < hip_y and ang > 150.0:
+                    continue
+                if ang > worst[side][0]:
+                    worst[side] = (ang, t)
+        limit = 158.0 if clip.name in STRIKES else 150.0
+        for side in ('L', 'R'):
+            ang, when = worst[side]
+            c.check(clip.name, f'{clip.name} ({side}): gomito mai bloccato',
+                    ang <= limit,
+                    f'{ang:.0f} gradi a {when:.2f}s, limite {limit:.0f}')
+
+
 def verify_mesh(c):
     """La mesh: normali verso l'esterno e figura di dimensioni umane."""
     c.group('Mesh')
@@ -175,8 +287,10 @@ def verify_mesh(c):
 
 def main():
     c = Checks()
+    verify_elbows(c)
     verify_hand_techniques(c)
     verify_stance_and_kick(c)
+    verify_animations(c)
     verify_mesh(c)
 
     print(f'\n{"-" * 62}')
