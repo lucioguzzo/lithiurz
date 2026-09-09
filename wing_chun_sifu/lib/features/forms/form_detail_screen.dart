@@ -100,6 +100,21 @@ class FormDetailScreen extends StatelessWidget {
                             ),
                           ],
                         ),
+                        if (form.teacher.isNotEmpty) ...[
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              const Icon(Icons.school_outlined,
+                                  size: 14, color: accent),
+                              const SizedBox(width: 7),
+                              Expanded(
+                                child: Text('Trasmessa da ${form.teacher}',
+                                    style: t.bodySmall
+                                        ?.copyWith(color: AppColors.text)),
+                              ),
+                            ],
+                          ),
+                        ],
                         const SizedBox(height: 18),
                         Text(form.summary,
                             style: t.bodyLarge?.copyWith(

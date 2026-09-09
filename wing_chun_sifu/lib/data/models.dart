@@ -95,6 +95,7 @@ class WingChunForm {
     required this.develops,
     required this.lessonIds,
     required this.videoIds,
+    required this.teacher,
   });
 
   final String id;
@@ -110,6 +111,11 @@ class WingChunForm {
   final List<String> develops;
   final List<String> lessonIds;
   final List<String> videoIds;
+
+  /// Il Maestro da cui la forma e' trasmessa nella scuola. Dentro uno stesso
+  /// sistema possono convivere forme di provenienza diversa, e dirlo sulla
+  /// singola forma e' piu' preciso che dirlo una volta sul lignaggio.
+  final String teacher;
 
   factory WingChunForm.fromJson(Map<String, dynamic> j) => WingChunForm(
         id: j['id'] as String,
@@ -127,6 +133,7 @@ class WingChunForm {
         develops: (j['develops'] as List? ?? const []).cast<String>(),
         lessonIds: (j['lessonIds'] as List? ?? const []).cast<String>(),
         videoIds: (j['videoIds'] as List? ?? const []).cast<String>(),
+        teacher: j['teacher'] as String? ?? '',
       );
 }
 
@@ -336,6 +343,8 @@ class School {
     required this.seniors,
     required this.lineageTitle,
     required this.lineageBody,
+    required this.academyTitle,
+    required this.academyBody,
     required this.links,
   });
 
@@ -352,12 +361,15 @@ class School {
   final List<String> seniors;
   final String lineageTitle;
   final List<String> lineageBody;
+  final String academyTitle;
+  final List<String> academyBody;
   final List<SchoolLink> links;
 
   factory School.fromJson(Map<String, dynamic> j) {
     final sifu = j['sifu'] as Map<String, dynamic>;
     final seniors = j['seniors'] as Map<String, dynamic>;
     final lineage = j['lineage'] as Map<String, dynamic>;
+    final academy = j['academy'] as Map<String, dynamic>? ?? const {};
     return School(
       name: j['name'] as String,
       fullName: j['fullName'] as String,
@@ -372,6 +384,8 @@ class School {
       seniors: (seniors['names'] as List? ?? const []).cast<String>(),
       lineageTitle: lineage['title'] as String? ?? '',
       lineageBody: (lineage['body'] as List? ?? const []).cast<String>(),
+      academyTitle: academy['title'] as String? ?? '',
+      academyBody: (academy['body'] as List? ?? const []).cast<String>(),
       links: (j['links'] as List? ?? const [])
           .map((e) => SchoolLink.fromJson(e as Map<String, dynamic>))
           .toList(growable: false),

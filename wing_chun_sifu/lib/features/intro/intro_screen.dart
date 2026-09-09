@@ -164,7 +164,7 @@ class _IntroScreenState extends State<IntroScreen>
                         Opacity(
                           opacity: a4 * 0.85,
                           child: Text(
-                            'IDPA · International Dragon and Phoenix\n'
+                            'IDPA · International Dragon Phoenix Association\n'
                             'la scuola di SiFu Massimo Fiorentini',
                             textAlign: TextAlign.center,
                             style: t.bodySmall?.copyWith(

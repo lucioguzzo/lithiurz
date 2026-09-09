@@ -1,6 +1,6 @@
 {
   "name": "IDPA",
-  "fullName": "International Dragon and Phoenix Academy",
+  "fullName": "International Dragon Phoenix Association",
   "founded": "Napoli, 21 gennaio 2006",
   "tagline": "La scuola di riferimento di questa app",
   "intro": "Questa app nasce dentro l'IDPA e dal lavoro di SiFu Massimo Fiorentini. Nella scuola si praticano due sistemi imparentati ma distinti, ciascuno con la propria linea di trasmissione: il Wing Chun nella linea di SiFu Sergio Iadarola e il Weng Chun nella linea di SiFu Sunny So.",
@@ -9,16 +9,17 @@
     "role": "Fondatore e Chief Instructor dell'IDPA",
     "body": [
       "SiFu Massimo Fiorentini comincia a praticare arti marziali nel 1986, con il Wu Shu e con il Wing Chun del metodo del Gran Maestro Cheung Chuk Hing, noto in Occidente come William Cheung. Prosegue poi con il metodo di Leung Ting all'interno dell'organizzazione europea EWTO, e in seguito nell'IWKA.",
-      "Il 21 gennaio 2006 fonda a Napoli l'International Dragon and Phoenix, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno. E' da quel momento che la scuola prende la fisionomia attuale, con i due sistemi che vi convivono.",
+      "Il 21 gennaio 2006 fonda a Napoli l'International Dragon Phoenix Association, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno. E' da quel momento che la scuola prende la fisionomia attuale, con i due sistemi che vi convivono.",
       "Sul piano didattico il suo approccio e' costruito sulla progressione: percorsi diversi a seconda dell'eta' e della predisposizione, con un lavoro ludico per i piu' piccoli che diventa struttura formale intorno ai dieci anni. In una intervista del 2007 individua nel metodo di insegnamento - la costruzione del programma e la tecnica didattica - l'elemento piu' determinante di tutti, piu' del talento e piu' del tempo dedicato.",
-      "Dal 2026 porta avanti l'IDPA Academy Podcast, un ciclo di episodi dedicati alla storia, alla cultura e ai principi del Wing Chun: i Kuen Kuit, i lignaggi, la virtu' marziale, la trasmissione. Molti dei contenuti storici di questa app vengono da li'."
+      "Dal 2026 porta avanti i podcast dell'IDPA Academy, il progetto di divulgazione dell'associazione: cicli di episodi dedicati alla storia, alla cultura e ai principi del Wing Chun - i Kuen Kuit, i lignaggi, la virtu' marziale, la trasmissione. Molti dei contenuti storici di questa app vengono da li'."
     ]
   },
   "seniors": {
     "title": "Gli allievi anziani",
-    "note": "I gradi piu' alti della scuola.",
+    "note": "I gradi piu' alti della scuola, in ordine di anzianita'.",
     "names": [
       "Antonio Casucci",
+      "Pasquale Santoro",
       "Emilio Andreozzi",
       "Lucio Guzzo"
     ]
@@ -67,5 +68,11 @@
       "primary": true,
       "note": "Il profilo personale del Maestro."
     }
-  ]
+  ],
+  "academy": {
+    "title": "L'IDPA Academy",
+    "body": [
+      "L'IDPA Academy e' il progetto di divulgazione portato avanti dall'associazione: e' li' che escono i podcast e i video sulla storia, la cultura e i principi del sistema."
+    ]
+  }
 }

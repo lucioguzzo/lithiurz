@@ -4,7 +4,7 @@ publish_to: 'none'
 # Il numero dopo il "+" e' il versionCode di Android: deve crescere a ogni
 # APK consegnato, altrimenti il sistema rifiuta l'aggiornamento e mostra
 # soltanto "App non installata", senza spiegare perche'.
-version: 1.0.3+4
+version: 1.0.4+5
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

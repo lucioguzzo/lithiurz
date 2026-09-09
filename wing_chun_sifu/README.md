@@ -29,7 +29,7 @@ contengono, dalla forma ai video che la documentano.
 
 ## La scuola e le fonti
 
-L'app nasce dentro l'**IDPA — International Dragon and Phoenix** e dal lavoro di
+L'app nasce dentro l'**IDPA — International Dragon Phoenix Association** e dal lavoro di
 **SiFu Massimo Fiorentini**, che ne è fondatore e Chief Instructor. Non è un
 credito di cortesia: l'app segue una linea di trasmissione precisa, e dire quale
 è un'informazione tecnica. Per questo la scuola compare in testa al menu, ha una
@@ -46,8 +46,14 @@ diverse, vocabolario di forza diverso, storia diversa.
 - **Weng Chun — la linea di SiFu Sunny So.** La famiglia Tang, l'Eterna
   Primavera del Gran Maestro Tang Yik, di cui SiFu Sunny So è l'ultimo discepolo
   diretto: la forma Weng Chun Kuen, il palo Luk Dim Poon Kwan con le sue sei
-  forze e mezza (Tai, Lan, Dim, Kit, Got, Wun), i set a due.
-- **IDPA Academy Podcast.** SiFu Fiorentini pubblica cicli di episodi su storia,
+  forze e mezza (Tai, Lan, Dim, Kit, Got, Wun), i set a due. La **Fa Kuen** è
+  trasmessa direttamente da SiFu Massimo Fiorentini.
+
+Ogni forma dichiara il Maestro da cui è trasmessa (campo `teacher`): dentro uno
+stesso sistema possono convivere forme di provenienza diversa, e dirlo sulla
+singola forma è più preciso che dirlo una volta sul lignaggio.
+- **IDPA Academy Podcast.** L'Academy è il progetto di divulgazione portato
+  avanti dall'associazione. SiFu Fiorentini vi pubblica cicli di episodi su storia,
   cultura e principi del Wing Chun: *La Trasmissione*, *I Kuen Kuit*, *Il
   Silenzio*, *Il Tempo*. È la fonte principale della sezione Storia, e ogni
   capitolo rimanda all'episodio da cui viene.

@@ -119,6 +119,40 @@ void main() {
         reason: 'il Weng Chun della scuola e\' quello della famiglia Tang');
   });
 
+  test('ogni forma dichiara da quale Maestro e\' trasmessa', () {
+    final forms = jsonDecode(File('assets/data/forms.json').readAsStringSync())
+        as Map<String, dynamic>;
+    const maestri = {
+      'SiFu Sunny So',
+      'SiFu Sergio Iadarola',
+      'SiFu Massimo Fiorentini',
+    };
+    for (final f in forms['forms'] as List) {
+      final m = f as Map<String, dynamic>;
+      final t = m['teacher'] as String? ?? '';
+      expect(t, isNotEmpty, reason: '${m['id']} non dice da chi e\' trasmessa');
+      expect(maestri, contains(t),
+          reason: '${m['id']}: Maestro non riconducibile alla scuola ($t)');
+    }
+    final faKuen = (forms['forms'] as List).firstWhere(
+        (f) => (f as Map<String, dynamic>)['id'] == 'fa_kuen') as Map<String, dynamic>;
+    expect(faKuen['teacher'], 'SiFu Massimo Fiorentini');
+  });
+
+  test('la denominazione e\' quella dell\'associazione', () {
+    final school =
+        jsonDecode(File('assets/data/school.json').readAsStringSync())
+            as Map<String, dynamic>;
+    expect(school['fullName'], 'International Dragon Phoenix Association');
+    // l'Academy e' il progetto di divulgazione, non il nome dell'associazione
+    expect(school['fullName'].toString().contains('Academy'), isFalse);
+    expect(school['academy'], isNotNull);
+
+    final ordine = (school['seniors']['names'] as List).cast<String>();
+    expect(ordine.indexOf('Antonio Casucci'), 0);
+    expect(ordine.indexOf('Pasquale Santoro'), 1);
+  });
+
   test('la maggior parte dei video viene dai canali della scuola', () {
     final videos = jsonDecode(File('assets/data/videos.json').readAsStringSync())
         as Map<String, dynamic>;

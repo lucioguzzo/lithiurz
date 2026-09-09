@@ -1,6 +1,6 @@
 {
   "status": "provvisorio",
-  "notice": "Questi capitoli sono una sintesi dei podcast dell'IDPA Academy, in cui SiFu Massimo Fiorentini tratta storia, cultura e principi del Wing Chun. Ogni capitolo rimanda all'episodio da cui viene: la fonte e' li', questa e' solo una traccia. Sara' sostituita dalla documentazione definitiva riscrivendo assets/data/history.json.",
+  "notice": "Questi capitoli sono una sintesi dei podcast dell'IDPA Academy - il progetto di divulgazione dell'associazione - in cui SiFu Massimo Fiorentini tratta storia, cultura e principi del Wing Chun. Ogni capitolo rimanda all'episodio da cui viene: la fonte e' li', questa e' solo una traccia. Sara' sostituita dalla documentazione definitiva riscrivendo assets/data/history.json.",
   "intro": "La storia del Wing Chun ha poche certezze documentali e molte tradizioni orali che si contraddicono. Non e' un difetto della ricerca: e' una conseguenza di come l'arte e' stata trasmessa, dentro societa' segrete e per via orale, in secoli in cui mettere per iscritto significava lasciare una prova. Questa sezione segue il filo che SiFu Massimo Fiorentini ricostruisce nei podcast dell'IDPA Academy.",
   "chapters": [
     {
@@ -71,7 +71,7 @@
       "body": [
         "飲水思源 — quando bevi l'acqua, pensa alla sorgente. E' il proverbio che apre l'episodio dedicato ai lignaggi: quelle catene invisibili di Maestri e allievi che attraversano i secoli e che sono, in un'arte trasmessa a voce, l'unica garanzia di autenticita' disponibile.",
         "L'episodio non idealizza la catena: parla delle falle aperte dall'ego e dall'opportunismo, di chi si attribuisce una discendenza che non ha, e di chi invece la custodisce davvero.",
-        "E' anche il luogo in cui viene presentato il codice etico dell'International Dragon and Phoenix Academy, il Dragone e la Fenice che danno il nome alla scuola."
+        "E' anche il luogo in cui viene presentato il codice etico dell'International Dragon Phoenix Association, il Dragone e la Fenice che danno il nome alla scuola."
       ],
       "sources": [
         "IDPA Academy — La Trasmissione, Episodio 2: I Lignaggi"
@@ -99,7 +99,7 @@
       "body": [
         "Il Wing Chun arriva in Italia soprattutto attraverso le grandi organizzazioni europee degli anni Ottanta, e si diversifica rapidamente in linee diverse per metodo e curriculum.",
         "SiFu Massimo Fiorentini comincia nel 1986 con il Wu Shu e con il Wing Chun del metodo di William Cheung, e prosegue attraversando il metodo di Leung Ting e l'esperienza IWKA.",
-        "Il 21 gennaio 2006 fonda a Napoli l'International Dragon and Phoenix, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno. E' la scuola da cui nasce questa app.",
+        "Il 21 gennaio 2006 fonda a Napoli l'International Dragon Phoenix Association, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno. E' la scuola da cui nasce questa app.",
         "Nella scuola convivono oggi due sistemi con due trasmissioni distinte: il Wing Chun nella linea di SiFu Sergio Iadarola e il Weng Chun della famiglia Tang, l'Eterna Primavera del Gran Maestro Tang Yik, trasmesso da SiFu Sunny So."
       ],
       "sources": [

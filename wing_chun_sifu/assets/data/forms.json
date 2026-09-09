@@ -7,7 +7,7 @@
     },
     "wengchun": {
       "label": "Weng Chun — la linea di SiFu Sunny So",
-      "note": "La famiglia Tang, l'Eterna Primavera del Gran Maestro Tang Yik. SiFu Sunny So ne e' l'ultimo discepolo diretto. Vocabolario di forza, palo e set a due la distinguono nettamente dal Wing Chun."
+      "note": "La famiglia Tang, l'Eterna Primavera del Gran Maestro Tang Yik. SiFu Sunny So ne e' l'ultimo discepolo diretto. Alcune forme sono trasmesse direttamente da SiFu Massimo Fiorentini, e in quel caso il nome del Maestro e' indicato sulla forma."
     }
   },
   "forms": [
@@ -41,7 +41,8 @@
         "kwan_sau",
         "bong_lap_sau"
       ],
-      "videoIds": []
+      "videoIds": [],
+      "teacher": "SiFu Sunny So"
     },
     {
       "id": "luk_dim_poon_kwan",
@@ -70,7 +71,8 @@
         "Forza connessa a distanza lunga"
       ],
       "lessonIds": [],
-      "videoIds": []
+      "videoIds": [],
+      "teacher": "SiFu Sunny So"
     },
     {
       "id": "set_a_due",
@@ -105,7 +107,41 @@
       ],
       "videoIds": [
         "V7ncKiKcPUc"
-      ]
+      ],
+      "teacher": "SiFu Sunny So"
+    },
+    {
+      "id": "fa_kuen",
+      "name": "Fa Kuen",
+      "chinese": "花拳",
+      "translation": "Il pugno del fiore",
+      "lineage": "wengchun",
+      "level": 3,
+      "order": 4,
+      "teacher": "SiFu Massimo Fiorentini",
+      "summary": "La forma del cerchio: sviluppa la potenza rotatoria, quella che nel Weng Chun viene descritta come la forza del tornado.",
+      "body": [
+        "Fa Kuen sviluppa il Principio del Cerchio, e con esso una qualita' di potenza rotatoria che nella tradizione viene descritta come la forza del tornado.",
+        "Il movimento circolare non e' decorativo: e' il modo in cui una forza in arrivo viene raccolta, ruotata e restituita senza mai essere fermata. E' la forza Wun portata alle sue conseguenze, e il fluire (Lau) reso visibile in una sequenza.",
+        "Nell'IDPA questa forma e' trasmessa direttamente da SiFu Massimo Fiorentini."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Il principio del cerchio",
+          "text": "Rotazioni concatenate che non si interrompono mai: la pressione non cade a zero."
+        }
+      ],
+      "develops": [
+        "Potenza rotatoria",
+        "Il principio del cerchio",
+        "Continuita' senza interruzioni"
+      ],
+      "lessonIds": [
+        "huen_sau",
+        "kwan_sau"
+      ],
+      "videoIds": []
     },
     {
       "id": "siu_nim_tau",
@@ -114,7 +150,7 @@
       "translation": "La piccola idea",
       "lineage": "wingchun",
       "level": 1,
-      "order": 4,
+      "order": 5,
       "summary": "La prima forma: si esegue da fermi, e insegna la struttura prima del movimento.",
       "body": [
         "Siu Nim Tau si esegue interamente in Yee Ji Kim Yeung Ma, senza mai spostare i piedi. È una scelta didattica precisa: prima di imparare a muoversi bisogna avere qualcosa da muovere.",
@@ -168,7 +204,8 @@
       "videoIds": [
         "ILFD6TN-JzE",
         "5wAiHd0FkhU"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "chum_kiu",
@@ -177,7 +214,7 @@
       "translation": "Cercare il ponte",
       "lineage": "wingchun",
       "level": 2,
-      "order": 5,
+      "order": 6,
       "summary": "La seconda forma: la struttura impara a muoversi, girare e collegarsi all'avversario.",
       "body": [
         "Se Siu Nim Tau costruisce la struttura da fermi, Chum Kiu la mette in movimento. Compaiono la girata sui talloni, il passo, i calci: il corpo intero entra nell'equazione.",
@@ -216,7 +253,8 @@
       "videoIds": [
         "P_gUIA7JElw",
         "jXq2INOt6ls"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "biu_tze",
@@ -225,7 +263,7 @@
       "translation": "Le dita che infilzano",
       "lineage": "wingchun",
       "level": 3,
-      "order": 6,
+      "order": 7,
       "summary": "La terza forma: cosa fare quando la struttura è già compromessa.",
       "body": [
         "Biu Tze è tradizionalmente la forma riservata, insegnata tardi e a pochi. Non per segretezza fine a se stessa: perché contiene le soluzioni di emergenza, e chi le impara prima di avere una struttura solida imparerà solo scorciatoie.",
@@ -261,7 +299,8 @@
       ],
       "videoIds": [
         "_KfP56Il9zQ"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "muk_yan_jong",
@@ -270,7 +309,7 @@
       "translation": "L'uomo di legno",
       "lineage": "wingchun",
       "level": 3,
-      "order": 7,
+      "order": 8,
       "summary": "Il manichino di legno: un avversario che non cede, per correggere angoli e distanza.",
       "body": [
         "Il manichino ha tre braccia e una gamba, e soprattutto non collabora. Non arretra, non si sposta, non compensa gli errori: se l'angolo è sbagliato, il legno lo dice subito.",
@@ -306,7 +345,8 @@
       ],
       "videoIds": [
         "V7ncKiKcPUc"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "luk_dim_boon_kwun",
@@ -315,7 +355,7 @@
       "translation": "Il palo dei sei punti e mezzo",
       "lineage": "wingchun",
       "level": 3,
-      "order": 8,
+      "order": 9,
       "summary": "Il palo lungo: sei tecniche e mezza, e una posizione completamente diversa.",
       "body": [
         "Il palo lungo (dai tre metri in su) è la prima arma del sistema e ha un vocabolario minimo: sei tecniche e mezza. Poche, perché con un'arma di quel peso non c'è spazio per il superfluo.",
@@ -340,7 +380,8 @@
         "Le sei forze applicate all'arma"
       ],
       "lessonIds": [],
-      "videoIds": []
+      "videoIds": [],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "bart_cham_dao",
@@ -349,7 +390,7 @@
       "translation": "I coltelli degli otto tagli",
       "lineage": "wingchun",
       "level": 3,
-      "order": 9,
+      "order": 10,
       "summary": "I coltelli a farfalla: l'ultima forma, che riporta i principi del sistema nelle mani armate.",
       "body": [
         "I coltelli a farfalla sono l'ultima forma del curriculum. Si insegnano per ultimi non perché siano le più difficili da eseguire, ma perché richiedono che tutto il resto sia già acquisito.",
@@ -369,7 +410,8 @@
         "Sintesi di tutto il curriculum"
       ],
       "lessonIds": [],
-      "videoIds": []
+      "videoIds": [],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "siu_lin_tau",
@@ -378,7 +420,7 @@
       "translation": "La forma unica ancestrale",
       "lineage": "wingchun",
       "level": 2,
-      "order": 10,
+      "order": 11,
       "summary": "La forma singola da cui, secondo le fonti ottocentesche, derivano le tre forme moderne.",
       "body": [
         "Nella ricerca di SiFu Sergio Iadarola, basata sul manoscritto noto come Wing Chun Secret Note (attribuito al 1890), il Wing Chun delle origini non aveva tre forme ma una sola, chiamata Siu Lin Tau, risalente alla fine del Settecento.",
@@ -405,7 +447,8 @@
       "videoIds": [
         "y6ITzslgFOY",
         "AxuNXNb2_pQ"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     },
     {
       "id": "emei_zhe_zhuang",
@@ -414,7 +457,7 @@
       "translation": "Le dodici posture di Emei",
       "lineage": "wingchun",
       "level": 3,
-      "order": 11,
+      "order": 12,
       "summary": "Le dodici posture del monte Emei, considerate fra gli antenati del sistema.",
       "body": [
         "Fra i sistemi antenati studiati nell'Eternal Spring Institute ci sono lo Yong Chun Bai He (la Gru Bianca del Fujian) e le dodici posture di Emei, lo Zhe Zhuang.",
@@ -438,7 +481,8 @@
       ],
       "videoIds": [
         "y6ITzslgFOY"
-      ]
+      ],
+      "teacher": "SiFu Sergio Iadarola"
     }
   ]
 }

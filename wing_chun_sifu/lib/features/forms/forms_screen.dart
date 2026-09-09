@@ -165,7 +165,13 @@ class _FormTile extends StatelessWidget {
                         fontSize: 12, fontStyle: FontStyle.italic)),
                 const SizedBox(height: 8),
                 Text(form.summary, style: t.bodySmall?.copyWith(height: 1.5)),
-                const SizedBox(height: 11),
+                const SizedBox(height: 10),
+                if (form.teacher.isNotEmpty) ...[
+                  Text(form.teacher,
+                      style: t.bodySmall?.copyWith(
+                          fontSize: 11.5, color: FormsScreen.accent)),
+                  const SizedBox(height: 8),
+                ],
                 Row(
                   children: [
                     LevelDots(level: form.level),

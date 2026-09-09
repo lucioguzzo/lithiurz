@@ -74,9 +74,23 @@ class SchoolScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (s.academyBody.isNotEmpty) ...[
+                    const SizedBox(height: 22),
+                    Reveal(
+                      index: 5,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Eyebrow(s.academyTitle),
+                          const SizedBox(height: 10),
+                          Paragraphs(s.academyBody),
+                        ],
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 22),
                   Reveal(
-                    index: 5,
+                    index: 6,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
