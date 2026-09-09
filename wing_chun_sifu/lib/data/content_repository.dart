@@ -31,6 +31,8 @@ class ContentRepository {
   late final String historyNotice;
   late final List<HistoryChapter> historyChapters;
 
+  late final School school;
+
   bool _loaded = false;
 
   Future<void> load() async {
@@ -78,6 +80,8 @@ class ContentRepository {
     historyChapters = (h['chapters'] as List)
         .map((e) => HistoryChapter.fromJson(e as Map<String, dynamic>))
         .toList(growable: false);
+
+    school = School.fromJson(await obj('assets/data/school.json'));
 
     _loaded = true;
   }

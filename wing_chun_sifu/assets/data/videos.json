@@ -1,123 +1,203 @@
 {
-  "intro": "Una selezione ragionata di video dai maestri di riferimento. I filmati restano sui canali ufficiali dei rispettivi autori e vengono riprodotti tramite il player di YouTube: l'app non ne ospita copia.",
+  "intro": "La selezione parte dai canali dell'IDPA: gli episodi in cui SiFu Massimo Fiorentini tratta storia, cultura e principi del Wing Chun sono la fonte principale di questa app. Seguono i riferimenti tecnici della linea Weng Chun e alcuni materiali di confronto. I filmati restano sui canali dei rispettivi autori e vengono riprodotti tramite il player ufficiale di YouTube: l'app non ne ospita copia.",
   "channels": [
     {
-      "name": "Sifu Sergio Iadarola's Kung Fu World",
-      "who": "SiFu Sergio Pascal Iadarola",
-      "url": "https://www.youtube.com/@SifuSergioChannel",
-      "note": "Il canale ufficiale di SiFu Sergio: Wing Chun interno, Weng Chun, linee ancestrali."
-    },
-    {
-      "name": "Eternal Spring Institute",
-      "who": "SiFu Sergio Pascal Iadarola",
-      "url": "https://eternalspringinstitute.com/",
-      "note": "Il sito dell'istituto: biografia, sistemi trasmessi, programmi."
-    },
-    {
-      "name": "Sifu Sergio — sito ufficiale",
-      "who": "SiFu Sergio Pascal Iadarola",
-      "url": "https://sifusergio.com/",
-      "note": "Materiali, corsi e pubblicazioni."
-    },
-    {
-      "name": "IDPA Wing Chun Napoli",
+      "name": "IDPA Academy — podcast e video",
       "who": "SiFu Massimo Fiorentini",
-      "url": "https://www.facebook.com/p/IDPA-Wing-Chun-Napoli-100063759681288/",
-      "note": "La pagina della International Dragon & Phoenix Association, fondata nel 2006."
+      "url": "https://youtube.com/@idpakombat8358",
+      "note": "Il canale dell'IDPA: storia, cultura e principi del Wing Chun raccontati da SiFu Fiorentini. E' la fonte principale dei contenuti di questa app."
+    },
+    {
+      "name": "IDPA Kombat — canale storico",
+      "who": "IDPA",
+      "url": "https://youtube.com/@idpatube",
+      "note": "L'archivio dell'associazione: gare, dimostrazioni, i Piccoli Guerrieri."
+    },
+    {
+      "name": "IDPA Kombat su Facebook",
+      "who": "IDPA",
+      "url": "https://www.facebook.com/IDPAKOMBAT/",
+      "note": "La pagina ufficiale dell'associazione."
+    },
+    {
+      "name": "IDPA Kombat su Instagram",
+      "who": "IDPA",
+      "url": "https://www.instagram.com/idpakombat/",
+      "note": "Foto e aggiornamenti dalla scuola."
+    },
+    {
+      "name": "SiFu Massimo Fiorentini",
+      "who": "Profilo personale",
+      "url": "https://www.facebook.com/100057520717123/?locale=it_IT",
+      "note": "Il profilo del fondatore e Chief Instructor dell'IDPA."
     },
     {
       "name": "Andreas Hoffmann",
       "who": "GM Andreas Hoffmann",
       "url": "https://www.youtube.com/channel/UCODvCwpQdq0v0wzN5YhTTbQ",
-      "note": "Il canale del Gran Maestro della linea Chi Sim Weng Chun a cui appartiene l'IDPA."
+      "note": "Il Gran Maestro della linea Chi Sim Weng Chun a cui appartiene l'IDPA."
+    },
+    {
+      "name": "Eternal Spring Institute",
+      "who": "SiFu Sergio Iadarola",
+      "url": "https://eternalspringinstitute.com/",
+      "note": "Riferimento di confronto sulla ricerca nelle radici interne del sistema."
     }
   ],
   "categories": [
     {
-      "id": "interno",
-      "title": "Il Wing Chun interno",
-      "subtitle": "SiFu Sergio Iadarola — Eternal Spring Institute",
+      "id": "trasmissione",
+      "title": "La Trasmissione",
+      "subtitle": "IDPA Academy Podcast — SiFu Massimo Fiorentini",
       "videos": [
         {
-          "id": "y6ITzslgFOY",
-          "title": "1700's Internal Wing Chun — The Six Core Elements",
-          "author": "Sifu Sergio Iadarola's Kung Fu World",
-          "note": "Il seminario sul programma dei Six Core Elements: i tipi di forza documentati nei manoscritti del 1890."
+          "id": "yPjXOIwxgys",
+          "title": "Episodio 0 — La Soglia",
+          "author": "IDPA Academy",
+          "note": "Apre il ciclo piu' ampio del podcast: i lignaggi del Wing Chun, i Kuen Kuit, la virtu' marziale (Wu De), gli stratagemmi e i tradimenti."
         },
         {
-          "id": "AxuNXNb2_pQ",
-          "title": "Internal Wing Chun — Snake engine in action",
-          "author": "Sifu Sergio Iadarola's Kung Fu World",
-          "note": "Il motore del serpente applicato: la propagazione lungo la colonna invece della spinta del braccio."
+          "id": "c6GUBpqoUig",
+          "title": "Episodio 1 — Il Dono Invisibile",
+          "author": "IDPA Academy",
+          "note": "Cio' che si trasmette oltre la tecnica, oltre la forma e oltre le parole: il rapporto con i Maestri e la ricerca dell'allievo giusto."
         },
         {
-          "id": "_0nmfds0b7s",
-          "title": "The Wing Chun Formula — Sifu Sergio Revisited",
-          "author": "THE MARTIAL MAN",
-          "note": "Intervista lunga: la logica del sistema raccontata da chi ha attraversato più linee."
+          "id": "frCR-B2tS3M",
+          "title": "Episodio 2 — I Lignaggi",
+          "author": "IDPA Academy",
+          "note": "Le catene di Maestri e allievi che attraversano i secoli, le falle aperte dall'ego e dall'opportunismo, e il codice etico dell'IDPA."
+        },
+        {
+          "id": "jXq2INOt6ls",
+          "title": "Episodio 3 — Il Passaggio",
+          "author": "IDPA Academy",
+          "note": "La soglia fra capire e trasformarsi: ogni principio va vissuto e verificato, non soltanto compreso."
+        },
+        {
+          "id": "oLqH4-c-1MQ",
+          "title": "Episodio 4 — La Forma della Trasmissione",
+          "author": "IDPA Academy",
+          "note": "Come conservare un insegnamento senza irrigidirlo: l'equilibrio fra continuita' e trasformazione."
         }
       ]
     },
     {
-      "id": "sistema",
-      "title": "Il sistema IWKA Wing Tjun",
-      "subtitle": "Curriculum, forme e applicazioni",
+      "id": "kuen_kuit",
+      "title": "I Kuen Kuit",
+      "subtitle": "Le formule del pugno — come sono sopravvissute",
       "videos": [
         {
-          "id": "P_gUIA7JElw",
-          "title": "IWKA Wing Tjun (Parte 1)",
-          "author": "THE MARTIAL MAN",
-          "note": "Panoramica sul curriculum e sulle linee che vi confluiscono."
+          "id": "5wAiHd0FkhU",
+          "title": "Episodio 1 — Le Radici",
+          "author": "IDPA Academy",
+          "note": "I Kuen Kuit (拳詣), le formule del pugno: il linguaggio della tradizione, i chengyu, la Yi e il Qi."
         },
         {
-          "id": "_KfP56Il9zQ",
-          "title": "IWKA Wing Tjun (Parte 2)",
-          "author": "THE MARTIAL MAN",
-          "note": "Seconda parte: applicazioni e lavoro a due."
+          "id": "5-kzi9d2Fgg",
+          "title": "Episodio 2 — Il Silenzio della Storia",
+          "author": "IDPA Academy",
+          "note": "Come hanno fatto i Kuen Kuit a sopravvivere: le societa' segrete Tiandihui e Hung Mun e le rivoluzioni che tentarono di cancellare secoli di trasmissione."
         },
         {
-          "id": "V7ncKiKcPUc",
-          "title": "Uomo di legno e Chi Sao",
-          "author": "Sifu Sergio Iadarola's Kung Fu World",
-          "note": "Applicazioni al manichino e passaggio al Chi Sao."
+          "id": "5_A9y5jb1GA",
+          "title": "Episodio 3 — Il Filo Ritrovato: Il Manoscritto",
+          "author": "IDPA Academy",
+          "note": "La famiglia Law, custode per generazioni dello Snake Crane Wing Chun trasmesso in segreto dentro le Hung Mun, e la trasmissione che rischio' di spezzarsi."
+        },
+        {
+          "id": "CbcSEQtLndg",
+          "title": "Episodio 4 — Il Filo Ritrovato: La Ricerca",
+          "author": "IDPA Academy",
+          "note": "SiFu Fiorentini racconta i sedici anni di ricerca sul campo che hanno riportato alla luce gli aspetti di arte interna del Wing Chun."
         }
       ]
     },
     {
-      "id": "forme",
-      "title": "Le forme",
-      "subtitle": "Siu Nim Tau e linee ancestrali",
+      "id": "silenzio",
+      "title": "Il Silenzio",
+      "subtitle": "Tre episodi sull'ascolto e sul controllo di se'",
       "videos": [
         {
-          "id": "ILFD6TN-JzE",
-          "title": "IWKA Wing Tjun — Siu Nim Tau",
-          "author": "Everything Wing Chun",
-          "note": "Anteprima della forma nella versione ricomposta da più linee."
+          "id": "hu7vPnsmKX4",
+          "title": "Episodio 1 — Il Silenzio che Ascolta",
+          "author": "IDPA Academy",
+          "note": "Il silenzio come pratica interiore, e il principio del Poon Sao: ascolta la forza, non le parole."
         },
         {
-          "id": "PDpx5juWHX0",
-          "title": "Yuen Kay San Siu Nim Tau — Dr. Cheung Yung",
-          "author": "Sifu Sergio Iadarola's Kung Fu World",
-          "note": "La forma nella linea Yuen Kay San / Sum Nung: un confronto prezioso con la versione Ip Man."
+          "id": "T2uoRXX7TUQ",
+          "title": "Episodio 2 — Il Silenzio che Parla",
+          "author": "IDPA Academy",
+          "note": "Il corpo che insegna con un tocco, lo sguardo che vale una lezione, e il silenzio come scelta etica."
+        },
+        {
+          "id": "SWnZkKEv6P8",
+          "title": "Episodio 3 — Il Silenzio che Trasforma",
+          "author": "IDPA Academy",
+          "note": "Cio' che accade nel Kwoon vuoto, quando non c'e' nessuno: dubbi, crisi e il coraggio di aspettare."
+        }
+      ]
+    },
+    {
+      "id": "tempo",
+      "title": "Il Tempo",
+      "subtitle": "Sulla durata della pratica",
+      "videos": [
+        {
+          "id": "z1gDJxbG-k8",
+          "title": "Episodio 2 — Il Tempo che Rivela",
+          "author": "IDPA Academy",
+          "note": "Cosa il tempo di pratica mostra, e cosa non si puo' accelerare."
+        },
+        {
+          "id": "emxRa91XtbI",
+          "title": "Episodio 3 — Il Tempo che Resta",
+          "author": "IDPA Academy",
+          "note": "Cio' che rimane di un'arte quando passano gli anni."
+        },
+        {
+          "id": "ws6rYp9RWUc",
+          "title": "Bilancio e nuovi orizzonti",
+          "author": "IDPA Academy",
+          "note": "Il punto sul percorso del canale e sui cicli di episodi realizzati."
+        }
+      ]
+    },
+    {
+      "id": "scuola",
+      "title": "La scuola",
+      "subtitle": "Dall'archivio dell'IDPA",
+      "videos": [
+        {
+          "id": "vbqOlB05-4w",
+          "title": "Piccoli Guerrieri — trailer",
+          "author": "IDPA Kombat",
+          "note": "Il lavoro con i bambini, che nell'insegnamento di SiFu Fiorentini parte dal gioco e diventa struttura intorno ai dieci anni."
+        },
+        {
+          "id": "IsqBg8_2wmo",
+          "title": "Emilio Andreozzi in gara",
+          "author": "IDPA Kombat",
+          "note": "Dall'archivio dell'associazione: uno degli allievi anziani della scuola."
         }
       ]
     },
     {
       "id": "wengchun",
-      "title": "Weng Chun — la linea dell'IDPA",
+      "title": "Weng Chun — la linea tecnica dell'IDPA",
       "subtitle": "Chi Sim Weng Chun, GM Andreas Hoffmann",
       "videos": [
         {
           "id": "x4kQBVVkUZw",
-          "title": "Saam Pai Fat — SiFu Andreas Hoffmann",
+          "title": "Saam Pai Fat — GM Andreas Hoffmann",
           "author": "Andreas Hoffmann",
-          "note": "La forma centrale del Weng Chun eseguita dal Gran Maestro della linea."
+          "note": "La forma centrale del Weng Chun eseguita dal Gran Maestro della linea a cui appartiene l'IDPA."
         },
         {
           "id": "SKMo1RS00Hc",
           "title": "Weng Chun Kung Fu — Sam Bai Fat",
           "author": "Andreas Hoffmann",
-          "note": "La forma appresa dal GM Wai Yan, presentata sezione per sezione."
+          "note": "La forma presentata sezione per sezione."
         },
         {
           "id": "rrgT0oF4j3o",
@@ -127,13 +207,13 @@
         },
         {
           "id": "wg4y_fp-43U",
-          "title": "Weng Chun — la forma dei 6 principi e mezzo",
+          "title": "La forma dei 6 principi e mezzo",
           "author": "Everything Wing Chun",
           "note": "Il palo lungo e le sei forze e mezza."
         },
         {
           "id": "nfL67fs7hhY",
-          "title": "Weng Chun — Saam Bai Fut",
+          "title": "Saam Bai Fut",
           "author": "Ellis West",
           "note": "Un'altra esecuzione della forma, utile per il confronto."
         },
@@ -148,6 +228,43 @@
           "title": "Saam Bai Fat — Weng Chun",
           "author": "VanyaCrow",
           "note": "Ripresa ravvicinata dei passaggi chiave."
+        }
+      ]
+    },
+    {
+      "id": "confronto",
+      "title": "Materiali di confronto",
+      "subtitle": "Altre linee, per vedere il sistema da un altro lato",
+      "videos": [
+        {
+          "id": "PDpx5juWHX0",
+          "title": "Yuen Kay San Siu Nim Tau — Dr. Cheung Yung",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "La prima forma in una linea diversa da quella di Ip Man: un confronto prezioso."
+        },
+        {
+          "id": "y6ITzslgFOY",
+          "title": "Il Wing Chun interno del Settecento",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "La ricerca sulle radici interne del sistema, quella di cui SiFu Fiorentini parla nel quarto episodio dei Kuen Kuit."
+        },
+        {
+          "id": "AxuNXNb2_pQ",
+          "title": "Il motore del serpente in azione",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "La propagazione lungo la colonna invece della spinta del braccio."
+        },
+        {
+          "id": "V7ncKiKcPUc",
+          "title": "Uomo di legno e Chi Sao",
+          "author": "Sifu Sergio Iadarola's Kung Fu World",
+          "note": "Applicazioni al manichino e passaggio al lavoro a due."
+        },
+        {
+          "id": "_0nmfds0b7s",
+          "title": "The Wing Chun Formula",
+          "author": "THE MARTIAL MAN",
+          "note": "Intervista lunga sulla logica del sistema."
         }
       ]
     }

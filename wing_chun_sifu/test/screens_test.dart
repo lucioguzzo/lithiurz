@@ -60,7 +60,9 @@ void main() {
     final repo = ContentRepository.instance;
     expect(find.text(repo.historyChapters.first.title), findsOneWidget);
     if (repo.historyStatus == 'provvisorio') {
-      expect(find.textContaining('provvisori'), findsWidgets);
+      // l'avviso viene dai dati: verifichiamo che sia mostrato, non che
+      // contenga una parola in particolare
+      expect(find.text(repo.historyNotice), findsOneWidget);
     }
   });
 
@@ -76,8 +78,11 @@ void main() {
     await tester.pumpWidget(_wrap(const FormsScreen()));
     await tester.pump(const Duration(seconds: 2));
 
+    final repo = ContentRepository.instance;
     expect(find.text('Siu Nim Tau'), findsOneWidget);
-    expect(find.text('Linea Ip Man'), findsOneWidget);
+    // il primo lignaggio elencato e' quello della scuola
+    expect(find.text(repo.lineages[repo.forms.first.lineage]!.label),
+        findsOneWidget);
   });
 
   testWidgets('la selezione video mostra categorie e canali ufficiali',
@@ -85,8 +90,9 @@ void main() {
     await tester.pumpWidget(_wrap(const VideosScreen()));
     await tester.pump(const Duration(seconds: 2));
 
-    expect(find.text('Il Wing Chun interno'), findsOneWidget);
-    expect(find.textContaining('Eternal Spring Institute'), findsWidgets);
+    final repo = ContentRepository.instance;
+    expect(find.text(repo.videoCategories.first.title), findsOneWidget);
+    expect(find.textContaining('IDPA'), findsWidgets);
   });
 
   testWidgets('segnare una voce come studiata aggiorna il percorso',

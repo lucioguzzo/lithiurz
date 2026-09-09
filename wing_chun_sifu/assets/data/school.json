@@ -1,0 +1,70 @@
+{
+  "name": "IDPA",
+  "fullName": "International Dragon and Phoenix Academy",
+  "founded": "Napoli, 21 gennaio 2006",
+  "tagline": "La scuola di riferimento di questa app",
+  "intro": "Questa app nasce dentro l'IDPA e dal lavoro di SiFu Massimo Fiorentini. I contenuti tecnici e storici seguono la sua linea di trasmissione; le altre fonti citate sono riferimenti di confronto, non alternative.",
+  "sifu": {
+    "name": "SiFu Massimo Fiorentini",
+    "role": "Fondatore e Chief Instructor dell'IDPA",
+    "body": [
+      "SiFu Massimo Fiorentini comincia a praticare arti marziali nel 1986, con il Wu Shu e con il Wing Chun del metodo del Gran Maestro Cheung Chuk Hing, noto in Occidente come William Cheung. Prosegue poi con il metodo di Leung Ting all'interno dell'organizzazione europea EWTO, e in seguito nell'IWKA.",
+      "Diventa responsabile italiano del Weng Chun per la famiglia del Gran Maestro Andreas Hoffmann, la linea Chi Sim che ancora oggi costituisce il riferimento tecnico dell'IDPA. Il 21 gennaio 2006 fonda a Napoli l'International Dragon and Phoenix, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno.",
+      "Sul piano didattico il suo approccio e' costruito sulla progressione: percorsi diversi a seconda dell'eta' e della predisposizione, con un lavoro ludico per i piu' piccoli che diventa struttura formale intorno ai dieci anni. In una intervista del 2007 individua nel metodo di insegnamento - la costruzione del programma e la tecnica didattica - l'elemento piu' determinante di tutti, piu' del talento e piu' del tempo dedicato.",
+      "Dal 2026 porta avanti l'IDPA Academy Podcast, un ciclo di episodi dedicati alla storia, alla cultura e ai principi del Wing Chun: i Kuen Kuit, i lignaggi, la virtu' marziale, la trasmissione. Molti dei contenuti storici di questa app vengono da li'."
+    ]
+  },
+  "seniors": {
+    "title": "Gli allievi anziani",
+    "note": "I gradi piu' alti della scuola.",
+    "names": [
+      "Antonio Casucci",
+      "Emilio Andreozzi",
+      "Lucio Guzzo"
+    ]
+  },
+  "lineage": {
+    "title": "La linea tecnica",
+    "body": [
+      "L'IDPA appartiene alla famiglia del Chi Sim Weng Chun del Gran Maestro Andreas Hoffmann. Da questa linea vengono le sei forze - Tai, Lan, Dim, Kit, Got, Wun - il principio del fluire (Lau) e le forme Saam Bai Fat, Jong Kuen e Fa Kuen.",
+      "Il percorso personale di SiFu Fiorentini attraversa pero' anche il Wing Chun di William Cheung, quello di Leung Ting e l'esperienza IWKA: e' un patrimonio che l'IDPA porta con se' e che spiega perche' nella scuola si guardi al sistema da piu' di un lato."
+    ]
+  },
+  "links": [
+    {
+      "label": "IDPA Academy — podcast e video",
+      "url": "https://youtube.com/@idpakombat8358",
+      "kind": "youtube",
+      "primary": true,
+      "note": "Il canale dove SiFu Fiorentini pubblica gli episodi su storia, cultura e principi del Wing Chun."
+    },
+    {
+      "label": "IDPA Kombat — canale storico",
+      "url": "https://youtube.com/@idpatube",
+      "kind": "youtube",
+      "primary": true,
+      "note": "L'archivio video dell'associazione: gare, dimostrazioni, i Piccoli Guerrieri."
+    },
+    {
+      "label": "IDPA Kombat su Facebook",
+      "url": "https://www.facebook.com/IDPAKOMBAT/",
+      "kind": "facebook",
+      "primary": true,
+      "note": "La pagina ufficiale dell'associazione."
+    },
+    {
+      "label": "IDPA Kombat su Instagram",
+      "url": "https://www.instagram.com/idpakombat/",
+      "kind": "instagram",
+      "primary": true,
+      "note": "Foto e aggiornamenti dalla scuola."
+    },
+    {
+      "label": "SiFu Massimo Fiorentini su Facebook",
+      "url": "https://www.facebook.com/100057520717123/?locale=it_IT",
+      "kind": "facebook",
+      "primary": true,
+      "note": "Il profilo personale del Maestro."
+    }
+  ]
+}

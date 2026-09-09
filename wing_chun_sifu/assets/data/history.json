@@ -1,60 +1,110 @@
 {
   "status": "provvisorio",
-  "notice": "Questa sezione è predisposta per accogliere la documentazione che verrà fornita. I capitoli qui presenti sono provvisori e ricavati da fonti pubbliche: possono essere sostituiti integralmente sostituendo il file assets/data/history.json, senza toccare il codice dell'app.",
-  "intro": "La storia del Wing Chun è fatta di poche certezze documentali e di molte tradizioni orali che si contraddicono fra loro. Questa sezione tiene distinte le due cose: la leggenda ha valore perché dice cosa il sistema pensa di sé, i documenti dicono cosa possiamo verificare.",
+  "notice": "Questi capitoli sono una sintesi dei podcast dell'IDPA Academy, in cui SiFu Massimo Fiorentini tratta storia, cultura e principi del Wing Chun. Ogni capitolo rimanda all'episodio da cui viene: la fonte e' li', questa e' solo una traccia. Sara' sostituita dalla documentazione definitiva riscrivendo assets/data/history.json.",
+  "intro": "La storia del Wing Chun ha poche certezze documentali e molte tradizioni orali che si contraddicono. Non e' un difetto della ricerca: e' una conseguenza di come l'arte e' stata trasmessa, dentro societa' segrete e per via orale, in secoli in cui mettere per iscritto significava lasciare una prova. Questa sezione segue il filo che SiFu Massimo Fiorentini ricostruisce nei podcast dell'IDPA Academy.",
   "chapters": [
+    {
+      "id": "kuen_kuit",
+      "title": "I Kuen Kuit, il cuore del pugno",
+      "era": "Le radici",
+      "summary": "Le formule del pugno: il modo in cui l'arte ha conservato se stessa quando non poteva essere scritta.",
+      "body": [
+        "I Kuen Kuit (拳詣) sono le formule del pugno delle arti marziali cinesi: frasi brevi, spesso in forma poetica, che condensano un principio in poche parole perche' possa essere ricordato e ripetuto.",
+        "Non sono massime decorative. In una tradizione che non affidava alla carta il proprio sapere, la formula era il supporto: si impara a memoria, si tramanda a voce, e il significato si apre man mano che il corpo la capisce.",
+        "Nel primo episodio del ciclo dedicato ai Kuen Kuit, SiFu Fiorentini ne esplora le radici attraverso il linguaggio della tradizione — i chengyu (成語), la Yi (意) e il Qi (氣) — e le metafore che attraversano i secoli. La formula che apre l'episodio dice: i Kuen Kuit sono il cuore del pugno."
+      ],
+      "sources": [
+        "IDPA Academy — Kuen Kuit, Episodio 1: Le Radici"
+      ],
+      "videoId": "5wAiHd0FkhU"
+    },
+    {
+      "id": "silenzio_storia",
+      "title": "Il silenzio della storia",
+      "era": "Le societa' segrete",
+      "summary": "Perche' mancano i documenti, e come la trasmissione e' sopravvissuta lo stesso.",
+      "body": [
+        "«Cio' che non puo' essere scritto non puo' essere bruciato.» La frase che apre il secondo episodio spiega meglio di qualunque ricostruzione perche' la storia del Wing Chun sia cosi' povera di carte.",
+        "La trasmissione passo' attraverso le societa' segrete cinesi — le Tiandihui (天地會) e le Hung Mun (洪門) — in secoli attraversati da rivolte e repressioni che tentarono ripetutamente di cancellare cio' che quelle reti custodivano.",
+        "La conseguenza e' la frammentazione: rami che si separano, versioni che divergono, pezzi che si perdono e riaffiorano altrove. Chi cerca una linea unica e continua sta cercando qualcosa che la storia non ha prodotto."
+      ],
+      "sources": [
+        "IDPA Academy — Kuen Kuit, Episodio 2: Il Silenzio della Storia"
+      ],
+      "videoId": "5-kzi9d2Fgg"
+    },
+    {
+      "id": "manoscritto",
+      "title": "Il filo ritrovato: il manoscritto",
+      "era": "La famiglia Law",
+      "summary": "Uno stile antico custodito per generazioni dentro le Hung Mun, e la trasmissione che rischio' di interrompersi.",
+      "body": [
+        "Il terzo episodio racconta la storia della famiglia Law, custode per generazioni dello Snake Crane Wing Chun: uno stile antico trasmesso in segreto all'interno delle Hung Mun, di padre in figlio e per linea maschile.",
+        "Una regola di trasmissione cosi' stretta protegge finche' la catena regge, e diventa una condanna quando si assottiglia. Quella trasmissione rischio' di spezzarsi, e a salvarla fu una scelta che rompeva la regola.",
+        "E' il punto in cui la storia del Wing Chun smette di essere leggenda e diventa una vicenda di persone, decisioni e documenti."
+      ],
+      "sources": [
+        "IDPA Academy — Kuen Kuit, Episodio 3: Il Filo Ritrovato, Il Manoscritto"
+      ],
+      "videoId": "5_A9y5jb1GA"
+    },
+    {
+      "id": "ricerca",
+      "title": "Il filo ritrovato: la ricerca",
+      "era": "Il lavoro sul campo",
+      "summary": "Sedici anni fra gli archivi di Foshan, i Maestri di Hong Kong e i lignaggi del sud della Cina.",
+      "body": [
+        "«La perla non si trova sulla riva: bisogna immergersi in acque profonde.» Con questa immagine SiFu Fiorentini apre il quarto episodio, dedicato alla ricerca che ha riportato alla luce gli aspetti di arte interna del Wing Chun.",
+        "E' il racconto di sedici anni di lavoro sul campo di SiFu Sergio Pascal Iadarola: gli archivi di Foshan, i Maestri di Hong Kong, i lignaggi del sud della Cina. Una ricerca che ha ottenuto tre riconoscimenti istituzionali.",
+        "Che questo racconto arrivi dall'IDPA e non dall'interessato dice qualcosa sul metodo della scuola: le fonti si citano da dove vengono, anche quando vengono da fuori."
+      ],
+      "sources": [
+        "IDPA Academy — Kuen Kuit, Episodio 4: Il Filo Ritrovato, La Ricerca"
+      ],
+      "videoId": "CbcSEQtLndg"
+    },
+    {
+      "id": "lignaggi",
+      "title": "I lignaggi",
+      "era": "La trasmissione",
+      "summary": "Le catene di Maestri e allievi, le falle aperte dall'ego, e chi tiene insieme il filo.",
+      "body": [
+        "飲水思源 — quando bevi l'acqua, pensa alla sorgente. E' il proverbio che apre l'episodio dedicato ai lignaggi: quelle catene invisibili di Maestri e allievi che attraversano i secoli e che sono, in un'arte trasmessa a voce, l'unica garanzia di autenticita' disponibile.",
+        "L'episodio non idealizza la catena: parla delle falle aperte dall'ego e dall'opportunismo, di chi si attribuisce una discendenza che non ha, e di chi invece la custodisce davvero.",
+        "E' anche il luogo in cui viene presentato il codice etico dell'International Dragon and Phoenix Academy, il Dragone e la Fenice che danno il nome alla scuola."
+      ],
+      "sources": [
+        "IDPA Academy — La Trasmissione, Episodio 2: I Lignaggi"
+      ],
+      "videoId": "frCR-B2tS3M"
+    },
     {
       "id": "leggenda",
       "title": "La leggenda di Ng Mui e Yim Wing Chun",
       "era": "Tradizione orale",
       "summary": "Il racconto fondativo: una monaca, una ragazza e un matrimonio da evitare.",
       "body": [
-        "La versione più diffusa racconta di Ng Mui, monaca del tempio Shaolin sopravvissuta alla sua distruzione, che avrebbe elaborato un metodo capace di battere la forza con la struttura. Lo avrebbe insegnato a Yim Wing Chun, una giovane donna che doveva difendersi da un pretendente violento.",
-        "Il sistema avrebbe poi preso il nome della ragazza: Wing Chun, 'eterna primavera'.",
-        "Come ricostruzione storica il racconto non regge alla verifica documentale. Come dichiarazione di intenti dice però esattamente cosa il sistema vuole essere: un metodo pensato perché chi è più debole possa prevalere sulla forza bruta, in poco tempo di allenamento."
+        "La versione piu' diffusa racconta di Ng Mui, monaca sopravvissuta alla distruzione del tempio Shaolin, che avrebbe elaborato un metodo capace di battere la forza con la struttura, e lo avrebbe insegnato a Yim Wing Chun, una giovane donna che doveva difendersi da un pretendente violento. Il sistema avrebbe poi preso il nome della ragazza.",
+        "Come ricostruzione storica il racconto non regge alla verifica documentale. Come dichiarazione di intenti dice pero' esattamente cosa il sistema vuole essere: un metodo perche' chi e' piu' debole possa prevalere sulla forza bruta, in poco tempo di allenamento.",
+        "Tenere distinte le due cose - cio' che e' documentato e cio' che l'arte racconta di se' - e' il primo esercizio di onesta' che questa sezione chiede."
       ],
-      "sources": []
+      "sources": [],
+      "videoId": null
     },
     {
-      "id": "foshan",
-      "title": "Foshan e la trasmissione ottocentesca",
-      "era": "XIX secolo",
-      "summary": "Le prime figure documentabili e il passaggio da tradizione a sistema.",
-      "body": [
-        "Con il XIX secolo compaiono le prime figure di cui si può parlare con qualche appoggio documentale, legate all'area di Foshan e Guangzhou, e le linee cominciano a differenziarsi.",
-        "In questa fase esistevano più rami paralleli — quello che sarebbe diventato il Wing Chun di Ip Man, il Weng Chun, il Gu Lao, la linea Yuen Kay San, il ramo vietnamita — non una linea unica poi ramificata.",
-        "Un manoscritto noto come Wing Chun Secret Note, attribuito al 1890 e studiato da SiFu Sergio Iadarola, colloca la formazione del sistema intorno al 1855, dopo l'incendio della sede della corporazione degli attori d'opera (King Fa Wui Koon)."
-      ],
-      "sources": [
-        "Eternal Spring Institute — ricerca sul Wing Chun Secret Note"
-      ]
-    },
-    {
-      "id": "ipman",
-      "title": "Ip Man e la diffusione a Hong Kong",
-      "era": "1949-1972",
-      "summary": "Il maestro che trasformò un'arte di famiglia in un sistema insegnabile.",
-      "body": [
-        "Il trasferimento di Ip Man a Hong Kong dopo il 1949 segna il passaggio del Wing Chun da trasmissione ristretta a insegnamento aperto. È in questo periodo che il curriculum assume la forma oggi più diffusa: tre forme a mani nude, manichino, palo e coltelli.",
-        "Fra i suoi allievi, la notorietà di Bruce Lee porterà il nome del Wing Chun in tutto il mondo, e con essa una crescita rapidissima e disordinata del numero di scuole.",
-        "La riorganizzazione didattica di quegli anni è ciò che ha reso il sistema trasmissibile su larga scala; è anche, secondo alcune ricerche, il momento in cui parte del contenuto interno più antico è rimasto indietro."
-      ],
-      "sources": []
-    },
-    {
-      "id": "italia",
-      "title": "Il Wing Chun in Italia",
+      "id": "idpa",
+      "title": "Il Wing Chun in Italia e la nascita dell'IDPA",
       "era": "dagli anni '80 a oggi",
-      "summary": "Le linee che hanno portato il sistema in Italia e le due scuole di riferimento di questa app.",
+      "summary": "Il percorso di SiFu Massimo Fiorentini e la fondazione della scuola.",
       "body": [
         "Il Wing Chun arriva in Italia soprattutto attraverso le grandi organizzazioni europee degli anni Ottanta, e si diversifica rapidamente in linee diverse per metodo e curriculum.",
-        "SiFu Massimo Fiorentini, dopo un percorso che passa per il metodo di William Cheung, per l'EWTO di Leung Ting e per l'IWKA, diventa responsabile italiano del Weng Chun per la famiglia del Gran Maestro Andreas Hoffmann. Il 21 gennaio 2006 fonda a Napoli la IDPA — International Dragon & Phoenix Association, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale.",
-        "SiFu Sergio Pascal Iadarola comincia nel 1987 con Sifu R. Vogel e il GM Wang Kiu, allievo diretto di Ip Man; passa per l'EWTO, diventa allievo privato del GM Leung Ting a Hong Kong, fonda l'IWKA nel 2002 e si trasferisce stabilmente in Asia per studiare le linee ancestrali. Oggi è co-fondatore e Presiding Grandmaster dell'Eternal Spring Institute."
+        "SiFu Massimo Fiorentini comincia nel 1986 con il Wu Shu e con il Wing Chun del metodo di William Cheung, prosegue con il metodo di Leung Ting nell'EWTO e poi nell'IWKA, e diventa responsabile italiano del Weng Chun per la famiglia del Gran Maestro Andreas Hoffmann.",
+        "Il 21 gennaio 2006 fonda a Napoli l'International Dragon and Phoenix, con l'obiettivo di diffondere le arti marziali attraverso lo scambio culturale fra le discipline praticate al suo interno. E' la scuola da cui nasce questa app."
       ],
       "sources": [
-        "IDPA — fondata il 21 gennaio 2006, chief instructor SiFu Massimo Fiorentini",
-        "Eternal Spring Institute — biografia di SiFu Sergio Iadarola"
-      ]
+        "IDPA — fondata il 21 gennaio 2006, Chief Instructor SiFu Massimo Fiorentini"
+      ],
+      "videoId": null
     }
   ]
 }

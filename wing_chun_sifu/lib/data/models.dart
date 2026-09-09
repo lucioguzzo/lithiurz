@@ -270,6 +270,7 @@ class HistoryChapter {
     required this.summary,
     required this.body,
     required this.sources,
+    this.videoId,
   });
 
   final String id;
@@ -279,6 +280,9 @@ class HistoryChapter {
   final List<String> body;
   final List<String> sources;
 
+  /// L'episodio del podcast da cui viene il capitolo, se c'e'.
+  final String? videoId;
+
   factory HistoryChapter.fromJson(Map<String, dynamic> j) => HistoryChapter(
         id: j['id'] as String,
         title: j['title'] as String,
@@ -286,5 +290,91 @@ class HistoryChapter {
         summary: j['summary'] as String? ?? '',
         body: (j['body'] as List? ?? const []).cast<String>(),
         sources: (j['sources'] as List? ?? const []).cast<String>(),
+        videoId: j['videoId'] as String?,
       );
+}
+
+/// La scuola da cui nasce l'app: l'IDPA e SiFu Massimo Fiorentini.
+@immutable
+class SchoolLink {
+  const SchoolLink({
+    required this.label,
+    required this.url,
+    required this.kind,
+    required this.note,
+    required this.primary,
+  });
+
+  final String label;
+  final String url;
+  final String kind;
+  final String note;
+  final bool primary;
+
+  factory SchoolLink.fromJson(Map<String, dynamic> j) => SchoolLink(
+        label: j['label'] as String,
+        url: j['url'] as String,
+        kind: j['kind'] as String? ?? 'web',
+        note: j['note'] as String? ?? '',
+        primary: j['primary'] as bool? ?? false,
+      );
+}
+
+@immutable
+class School {
+  const School({
+    required this.name,
+    required this.fullName,
+    required this.founded,
+    required this.tagline,
+    required this.intro,
+    required this.sifuName,
+    required this.sifuRole,
+    required this.sifuBody,
+    required this.seniorsTitle,
+    required this.seniorsNote,
+    required this.seniors,
+    required this.lineageTitle,
+    required this.lineageBody,
+    required this.links,
+  });
+
+  final String name;
+  final String fullName;
+  final String founded;
+  final String tagline;
+  final String intro;
+  final String sifuName;
+  final String sifuRole;
+  final List<String> sifuBody;
+  final String seniorsTitle;
+  final String seniorsNote;
+  final List<String> seniors;
+  final String lineageTitle;
+  final List<String> lineageBody;
+  final List<SchoolLink> links;
+
+  factory School.fromJson(Map<String, dynamic> j) {
+    final sifu = j['sifu'] as Map<String, dynamic>;
+    final seniors = j['seniors'] as Map<String, dynamic>;
+    final lineage = j['lineage'] as Map<String, dynamic>;
+    return School(
+      name: j['name'] as String,
+      fullName: j['fullName'] as String,
+      founded: j['founded'] as String? ?? '',
+      tagline: j['tagline'] as String? ?? '',
+      intro: j['intro'] as String? ?? '',
+      sifuName: sifu['name'] as String,
+      sifuRole: sifu['role'] as String? ?? '',
+      sifuBody: (sifu['body'] as List? ?? const []).cast<String>(),
+      seniorsTitle: seniors['title'] as String? ?? '',
+      seniorsNote: seniors['note'] as String? ?? '',
+      seniors: (seniors['names'] as List? ?? const []).cast<String>(),
+      lineageTitle: lineage['title'] as String? ?? '',
+      lineageBody: (lineage['body'] as List? ?? const []).cast<String>(),
+      links: (j['links'] as List? ?? const [])
+          .map((e) => SchoolLink.fromJson(e as Map<String, dynamic>))
+          .toList(growable: false),
+    );
+  }
 }

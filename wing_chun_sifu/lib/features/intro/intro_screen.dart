@@ -160,7 +160,18 @@ class _IntroScreenState extends State<IntroScreen>
                             child: _EnterButton(onTap: _enter),
                           ),
                         ),
-                        const SizedBox(height: 34),
+                        const SizedBox(height: 18),
+                        Opacity(
+                          opacity: a4 * 0.85,
+                          child: Text(
+                            'IDPA · International Dragon and Phoenix\n'
+                            'la scuola di SiFu Massimo Fiorentini',
+                            textAlign: TextAlign.center,
+                            style: t.bodySmall?.copyWith(
+                                fontSize: 11.5, height: 1.5),
+                          ),
+                        ),
+                        const SizedBox(height: 26),
                       ],
                     ),
                   );

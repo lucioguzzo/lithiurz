@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme.dart';
 import '../../core/widgets/common.dart';
@@ -130,6 +131,10 @@ class _Chapter extends StatelessWidget {
                   Text(chapter.title, style: t.headlineSmall),
                   const SizedBox(height: 10),
                   Paragraphs(chapter.body),
+                  if (chapter.videoId != null) ...[
+                    const SizedBox(height: 14),
+                    _EpisodeLink(videoId: chapter.videoId!),
+                  ],
                   if (chapter.sources.isNotEmpty) ...[
                     const SizedBox(height: 14),
                     for (final s in chapter.sources)
@@ -150,6 +155,50 @@ class _Chapter extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Rimando all'episodio del podcast da cui viene il capitolo.
+///
+/// La fonte e' quella: questa sezione ne e' una traccia, e dirlo con un
+/// collegamento vale piu' che dirlo con una nota a pie' di pagina.
+class _EpisodeLink extends StatelessWidget {
+  const _EpisodeLink({required this.videoId});
+
+  final String videoId;
+
+  @override
+  Widget build(BuildContext context) {
+    final video = ContentRepository.instance.video(videoId);
+    if (video == null) return const SizedBox.shrink();
+    final t = Theme.of(context).textTheme;
+    return Panel(
+      accent: HistoryScreen.accent,
+      padding: const EdgeInsets.fromLTRB(13, 11, 10, 11),
+      onTap: () => context.push('/video/$videoId'),
+      child: Row(
+        children: [
+          const Icon(Icons.headphones_outlined,
+              size: 16, color: HistoryScreen.accent),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Ascolta l\'episodio',
+                    style: t.bodySmall?.copyWith(fontSize: 11)),
+                Text(video.title,
+                    style: t.titleMedium?.copyWith(fontSize: 14),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right_rounded,
+              size: 18, color: AppColors.textFaint),
         ],
       ),
     );

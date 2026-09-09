@@ -9,6 +9,7 @@ import '../features/home/home_screen.dart';
 import '../features/intro/intro_screen.dart';
 import '../features/principles/principle_detail_screen.dart';
 import '../features/principles/principles_screen.dart';
+import '../features/school/school_screen.dart';
 import '../features/sifu3d/lesson_screen.dart';
 import '../features/sifu3d/lessons_screen.dart';
 import '../features/videos/video_screen.dart';
@@ -45,6 +46,10 @@ GoRouter buildRouter() => GoRouter(
         GoRoute(
           path: '/menu',
           pageBuilder: (c, s) => _fade(const HomeScreen(), s),
+        ),
+        GoRoute(
+          path: '/scuola',
+          pageBuilder: (c, s) => _fade(const SchoolScreen(), s),
         ),
         GoRoute(
           path: '/storia',

@@ -6,6 +6,7 @@ import '../../core/theme.dart';
 import '../../core/widgets/common.dart';
 import '../../data/content_repository.dart';
 import '../../data/progress_service.dart';
+import '../school/school_screen.dart';
 
 /// Il menu principale: cinque sezioni, piu' la ripresa dell'ultima lezione.
 class HomeScreen extends StatelessWidget {
@@ -130,11 +131,17 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24, 18, 24, 0),
+                  child: Reveal(index: 1, child: _SchoolBanner()),
+                ),
+              ),
               if (last != null)
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
-                    child: Reveal(index: 1, child: _ResumeCard(lessonId: last.id)),
+                    child: Reveal(index: 2, child: _ResumeCard(lessonId: last.id)),
                   ),
                 ),
               SliverPadding(
@@ -143,11 +150,86 @@ class HomeScreen extends StatelessWidget {
                   itemCount: sections.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 12),
                   itemBuilder: (context, i) => Reveal(
-                    index: i + 2,
+                    index: i + 3,
                     child: _SectionCard(section: sections[i]),
                   ),
                 ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// La scuola da cui nasce l'app, in testa al menu: non e' un credito da
+/// mettere in fondo, e' il riferimento che spiega da dove vengono i contenuti.
+class _SchoolBanner extends StatelessWidget {
+  const _SchoolBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = ContentRepository.instance.school;
+    final t = Theme.of(context).textTheme;
+    const c = SchoolScreen.accent;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => context.push('/scuola'),
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(16, 14, 12, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: c.withValues(alpha: 0.45)),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [
+                Color.alphaBlend(c.withValues(alpha: 0.17), AppColors.surface),
+                AppColors.surface,
+              ],
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: c.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: c.withValues(alpha: 0.38)),
+                ),
+                child: const Text('龍鳳',
+                    style: TextStyle(
+                        fontFamily: AppText.cjk,
+                        fontSize: 15,
+                        height: 1.1,
+                        color: c)),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Eyebrow('La scuola', color: c),
+                    const SizedBox(height: 3),
+                    Text('${s.name} · ${s.sifuName}',
+                        style: t.titleLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 2),
+                    Text(s.fullName,
+                        style: t.bodySmall?.copyWith(fontSize: 11.5),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right_rounded, color: c, size: 22),
             ],
           ),
         ),

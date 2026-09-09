@@ -1,5 +1,5 @@
 {
-  "intro": "Il Wing Chun non è una collezione di tecniche: è un insieme di principi che generano tecniche. Chi impara le tecniche senza i principi ha imparato delle forme vuote; chi impara i principi può ricostruire ogni tecnica da solo.",
+  "intro": "Il Wing Chun non e' una collezione di tecniche: e' un insieme di principi che generano tecniche. Chi impara le tecniche senza i principi ha imparato delle forme vuote; chi impara i principi puo' ricostruire ogni tecnica da solo. I contenuti di questa sezione seguono la linea dell'IDPA e l'insegnamento di SiFu Massimo Fiorentini.",
   "groups": [
     {
       "id": "struttura",
@@ -136,7 +136,7 @@
     {
       "id": "forze",
       "title": "Le forze del Weng Chun",
-      "subtitle": "Il vocabolario di forza della linea Chi Sim Weng Chun, tramandato nell'IDPA",
+      "subtitle": "Il vocabolario tecnico della linea dell'IDPA",
       "items": [
         {
           "id": "sei_forze",
@@ -171,48 +171,48 @@
             "Il movimento cambia forma, non si ferma"
           ],
           "source": "Sistema Chi Sim Weng Chun — GM Andreas Hoffmann / IDPA"
+        },
+        {
+          "id": "kuen_kuit",
+          "name": "I Kuen Kuit",
+          "chinese": "拳詣 · Kuen Kuit",
+          "summary": "Le formule del pugno: il modo in cui l'arte ha conservato se stessa senza affidarsi alla carta.",
+          "body": [
+            "I Kuen Kuit sono frasi brevi, spesso poetiche, che condensano un principio in poche parole perche' possa essere ricordato, ripetuto e tramandato a voce.",
+            "Non sono massime decorative: in una tradizione che non metteva per iscritto il proprio sapere, la formula era il supporto. Si impara a memoria prima di capirla, e il significato si apre man mano che il corpo la raggiunge.",
+            "SiFu Massimo Fiorentini vi dedica un ciclo di episodi dell'IDPA Academy, dalle radici linguistiche - i chengyu, la Yi, il Qi - fino a come quelle formule siano sopravvissute alle rivoluzioni passando dentro le societa' segrete."
+          ],
+          "keyPoints": [
+            "Si imparano a memoria prima di capirle",
+            "Sono il supporto della trasmissione orale, non un ornamento",
+            "Il significato si apre con la pratica, non con la spiegazione"
+          ],
+          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann"
+        },
+        {
+          "id": "wu_de",
+          "name": "Wu De, la virtu' marziale",
+          "chinese": "武德 · Wu De",
+          "summary": "Il codice di comportamento senza il quale la tecnica e' solo una capacita' di fare del male.",
+          "body": [
+            "Wu De e' la virtu' marziale: il complesso di rispetto, misura e responsabilita' che nella tradizione cinese accompagna l'insegnamento di un'arte da combattimento.",
+            "Non e' una cornice morale aggiunta alla fine. Determina a chi si insegna, cosa si insegna e quando: una parte del sistema resta chiusa finche' la persona davanti non e' pronta a riceverla.",
+            "Nell'IDPA fa parte del codice della scuola - il Dragone e la Fenice che le danno il nome - ed e' uno dei temi centrali del ciclo sulla Trasmissione."
+          ],
+          "keyPoints": [
+            "Decide a chi e quando si insegna",
+            "Il controllo di se' viene prima della capacita' tecnica",
+            "Fa parte del sistema, non e' un contorno"
+          ],
+          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann"
         }
       ]
     },
     {
-      "id": "interno",
-      "title": "Il lavoro interno",
-      "subtitle": "La ricerca sulle radici interne del sistema, nella linea Eternal Spring",
+      "id": "sensibilita",
+      "title": "Il ponte e l'ascolto",
+      "subtitle": "Dove i principi vengono messi alla prova",
       "items": [
-        {
-          "id": "motore_interno",
-          "name": "Il motore interno",
-          "chinese": "內功 · Noi Gung",
-          "summary": "La forza che nasce dal collegamento del corpo intero, non dalla contrazione muscolare.",
-          "body": [
-            "La ricerca di SiFu Sergio Iadarola, sviluppata nell'Eternal Spring Institute, parte da una constatazione: il Wing Chun delle origini era un sistema interno, paragonabile per profondità alle arti interne del nord, e molto di quel contenuto si è perso nella trasmissione moderna.",
-            "Il lavoro interno sostituisce la spinta muscolare con il collegamento: il corpo si muove come un'unica struttura elastica, in cui l'impulso nasce dal centro e arriva alle estremità senza essere generato dalle estremità.",
-            "Da qui l'immagine ricorrente del serpente e della gru — Snake e Crane — che descrivono due qualità diverse di movimento: la propagazione ondulatoria lungo la colonna e l'apertura elastica delle strutture esterne."
-          ],
-          "keyPoints": [
-            "L'impulso nasce dal centro, non dal braccio",
-            "Il corpo lavora come una struttura unica ed elastica",
-            "Le forme sono contenitori: vanno riempite"
-          ],
-          "source": "Eternal Spring Institute — SiFu Sergio Iadarola"
-        },
-        {
-          "id": "six_core",
-          "name": "I Six Core Elements",
-          "chinese": "Six Core Elements",
-          "summary": "Un programma che isola i tipi di forza meccanica descritti nei manoscritti del 1890.",
-          "body": [
-            "SiFu Sergio ha formulato un programma didattico chiamato Six Core Elements, costruito a partire dai tipi di forza meccanica documentati nel manoscritto noto come Wing Chun Secret Note, attribuito al 1890.",
-            "L'idea didattica è isolare ciascun elemento e allenarlo separatamente, invece di sperare che emerga da solo dalla pratica delle forme. Ogni elemento viene poi ricomposto negli esercizi a due.",
-            "È un approccio analitico a un contenuto tradizionalmente trasmesso per imitazione, ed è pensato per accorciare i tempi di acquisizione del lavoro interno."
-          ],
-          "keyPoints": [
-            "Isolare ogni componente prima di ricomporla",
-            "Fondato su fonti documentarie del XIX secolo",
-            "Pensato per accelerare l'accesso al lavoro interno"
-          ],
-          "source": "Eternal Spring Institute — SiFu Sergio Iadarola"
-        },
         {
           "id": "chi_sau",
           "name": "Le mani che aderiscono",
@@ -228,6 +228,24 @@
             "Il tatto decide più in fretta della vista",
             "È il ponte fra le forme e il combattimento"
           ],
+          "lessonId": "kwan_sau"
+        },
+        {
+          "id": "poon_sau",
+          "name": "Ascolta la forza, non le parole",
+          "chinese": "膀手 · Poon Sao",
+          "summary": "Il principio che regge tutto il lavoro a due: l'informazione passa dal contatto, non dalla spiegazione.",
+          "body": [
+            "Nel Poon Sao, il rullaggio da cui nasce il Chi Sau, due praticanti restano in contatto e imparano a leggersi attraverso la pressione.",
+            "Il principio che ne governa la pratica e' che si ascolta la forza, non le parole: un Maestro che corregge con un tocco trasmette in un istante cio' che una spiegazione non riuscirebbe a far arrivare.",
+            "SiFu Fiorentini vi dedica un ciclo di episodi sul silenzio inteso come pratica: non assenza di suono, ma spazio in cui l'ascolto diventa possibile."
+          ],
+          "keyPoints": [
+            "Il contatto informa piu' della vista e piu' delle parole",
+            "Si corregge con un tocco, non con un discorso",
+            "Il silenzio e' una condizione dell'ascolto, non una sua mancanza"
+          ],
+          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann",
           "lessonId": "kwan_sau"
         }
       ]
@@ -498,6 +516,47 @@
             "La gamba d'appoggio resta viva e piegata"
           ],
           "lessonId": "jing_geuk"
+        }
+      ]
+    },
+    {
+      "id": "ricerca",
+      "title": "La ricerca sulle radici",
+      "subtitle": "Cosa si e' ritrovato del Wing Chun delle origini",
+      "items": [
+        {
+          "id": "motore_interno",
+          "name": "Il motore interno",
+          "chinese": "內功 · Noi Gung",
+          "summary": "La forza che nasce dal collegamento del corpo intero, non dalla contrazione muscolare.",
+          "body": [
+            "Una parte della ricerca contemporanea sostiene che il Wing Chun delle origini fosse un sistema interno, e che molto di quel contenuto si sia perso nel passaggio alla trasmissione moderna.",
+            "Il lavoro interno sostituisce la spinta muscolare con il collegamento: il corpo si muove come un'unica struttura elastica, in cui l'impulso nasce dal centro e non viene generato dalle estremita'.",
+            "SiFu Massimo Fiorentini racconta questa ricerca nel quarto episodio dedicato ai Kuen Kuit: sedici anni di lavoro sul campo di SiFu Sergio Iadarola fra gli archivi di Foshan, i Maestri di Hong Kong e i lignaggi del sud della Cina."
+          ],
+          "keyPoints": [
+            "L'impulso nasce dal centro, non dal braccio",
+            "Il corpo lavora come una struttura unica ed elastica",
+            "Le forme sono contenitori: vanno riempite"
+          ],
+          "source": "Raccontata da SiFu Massimo Fiorentini — IDPA Academy, Kuen Kuit ep. 4"
+        },
+        {
+          "id": "snake_crane",
+          "name": "Snake Crane e il manoscritto",
+          "chinese": "蛇鶴詠春",
+          "summary": "Uno stile antico custodito dentro le societa' segrete, e i documenti che lo attestano.",
+          "body": [
+            "Lo Snake Crane Wing Chun e' stato custodito per generazioni dalla famiglia Law e trasmesso in segreto all'interno delle Hung Mun, di padre in figlio e per linea maschile.",
+            "Attorno a questa linea ruotano i documenti - fra cui un manoscritto attribuito al 1890 - su cui si fonda la ricostruzione delle radici interne del sistema.",
+            "E' materiale storico prima che tecnico: dice da dove viene il Wing Chun, non come si esegue una tecnica."
+          ],
+          "keyPoints": [
+            "Trasmissione segreta dentro le Hung Mun",
+            "Documenti attestati, non solo tradizione orale",
+            "Riguarda le origini del sistema, non la sua esecuzione"
+          ],
+          "source": "IDPA Academy — Kuen Kuit ep. 3"
         }
       ]
     }

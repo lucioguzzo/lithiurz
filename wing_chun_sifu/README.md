@@ -14,7 +14,8 @@ senza rete; la connessione serve solo alla sezione video.
 
 | Sezione | Cosa contiene |
 |---|---|
-| **Storia del Wing Chun** | Capitoli in ordine cronologico, dalla leggenda di Ng Mui alle scuole italiane di oggi. |
+| **La scuola** | L'IDPA e SiFu Massimo Fiorentini: percorso, linea tecnica, allievi anziani, canali ufficiali. In testa al menu. |
+| **Storia del Wing Chun** | I Kuen Kuit, il silenzio della storia, il manoscritto, i lignaggi: sintesi dai podcast dell'IDPA Academy, con il rimando all'episodio. |
 | **Principi e tecniche di base** | 27 voci in 6 gruppi: struttura, massime del combattimento, forze del Weng Chun, lavoro interno, le mani, posizioni e passi. |
 | **Forme** | 12 forme su tre lignaggi, con struttura in sezioni e cosa sviluppa ciascuna. |
 | **3D SiFu — Lessons** | 21 lezioni animate. Il SiFu esegue la tecnica; si ruota con un dito e si guarda da qualsiasi angolazione. |
@@ -26,23 +27,36 @@ contengono, dalla forma ai video che la documentano.
 
 ---
 
-## Le fonti dei contenuti
+## La scuola e le fonti
 
-I contenuti tecnici fanno riferimento alle due scuole indicate dal committente:
+L'app nasce dentro l'**IDPA — International Dragon and Phoenix** e dal lavoro di
+**SiFu Massimo Fiorentini**, che ne è fondatore e Chief Instructor. Non è un
+credito di cortesia: l'app segue una linea di trasmissione precisa, e dire quale
+è un'informazione tecnica. Per questo la scuola compare in testa al menu, ha una
+sezione propria (`/scuola`) e i suoi canali sono la fonte prevalente dei video.
 
-- **SiFu Massimo Fiorentini — IDPA** (International Dragon & Phoenix
-  Association, fondata a Napoli il 21 gennaio 2006). L'IDPA appartiene alla
-  famiglia del Chi Sim Weng Chun del Gran Maestro Andreas Hoffmann: da qui
-  vengono le sei forze (Tai, Lan, Dim, Kit, Got, Wun), il principio del fluire
-  (Lau) e le forme Saam Bai Fat, Jong Kuen, Fa Kuen.
-- **SiFu Sergio Pascal Iadarola — Eternal Spring Institute** (e IWKA). Da qui
-  vengono il lavoro interno, il programma dei Six Core Elements, la linea Snake
-  Crane e le forme ancestrali (Siu Lin Tau, Weng Chun Kuen della famiglia Tang,
-  Emei Zhe Zhuang).
+**Da dove vengono i contenuti**
+
+- **IDPA Academy Podcast.** SiFu Fiorentini pubblica cicli di episodi su storia,
+  cultura e principi del Wing Chun: *La Trasmissione*, *I Kuen Kuit*, *Il
+  Silenzio*, *Il Tempo*. È la fonte principale della sezione Storia, e ogni
+  capitolo rimanda all'episodio da cui viene.
+- **Chi Sim Weng Chun.** La linea tecnica della scuola, nella famiglia del Gran
+  Maestro Andreas Hoffmann: le sei forze (Tai, Lan, Dim, Kit, Got, Wun), il
+  principio del fluire (Lau), le forme Saam Bai Fat, Jong Kuen, Fa Kuen. È il
+  primo lignaggio elencato nella sezione Forme.
+- **Materiali di confronto.** La linea Ip Man e la ricerca sulle radici interne
+  del sistema, che SiFu Fiorentini stesso racconta nel quarto episodio dei Kuen
+  Kuit. Sono riferimenti per vedere il sistema da un altro lato, non fonti
+  alternative.
 
 I testi sono originali e scritti per l'app; i video restano sui canali dei
 rispettivi autori e vengono riprodotti tramite il player ufficiale di YouTube,
 senza che l'app ne ospiti copia.
+
+I collegamenti ufficiali stanno in `assets/data/school.json`. Un test
+(`test/school_test.dart`) verifica che ci siano tutti, che i canali IDPA restino
+la fonte prevalente e che non ricompaia un collegamento indicato come errato.
 
 **Sezione Storia:** i capitoli attualmente presenti sono provvisori e ricavati
 da fonti pubbliche. L'app lo dichiara apertamente. Per sostituirli con la
@@ -169,7 +183,8 @@ editoriali.
 
 | File | Cosa governa |
 |---|---|
-| `history.json` | Capitoli della sezione Storia. |
+| `school.json` | La scuola: SiFu, linea tecnica, allievi anziani, collegamenti ufficiali. |
+| `history.json` | Capitoli della sezione Storia, con `videoId` per il rimando all'episodio. |
 | `principles.json` | Gruppi e voci di principi e tecniche. |
 | `forms.json` | Forme e lignaggi. |
 | `videos.json` | Catalogo video e canali ufficiali. |
