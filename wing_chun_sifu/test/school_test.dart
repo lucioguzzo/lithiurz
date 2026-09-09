@@ -75,6 +75,50 @@ void main() {
         reason: 'la linea tecnica della scuola viene per prima');
   });
 
+  test('i video sono solo dei due Maestri della scuola', () {
+    // Nessun altro SiFu nella sezione video: la scuola ha due riferimenti,
+    // SiFu Massimo Fiorentini e SiFu Sergio Iadarola, e la selezione li segue.
+    const ammessi = {'IDPA Academy', 'IDPA Kombat', 'SiFu Sergio Iadarola'};
+    final videos = jsonDecode(File('assets/data/videos.json').readAsStringSync())
+        as Map<String, dynamic>;
+    final estranei = <String>{};
+    for (final c in videos['categories'] as List) {
+      for (final v in (c as Map<String, dynamic>)['videos'] as List) {
+        final autore = (v as Map<String, dynamic>)['author'] as String;
+        if (!ammessi.contains(autore)) estranei.add(autore);
+      }
+    }
+    expect(estranei, isEmpty, reason: 'autori estranei alla scuola: $estranei');
+
+    final canali = (videos['channels'] as List)
+        .map((c) => (c as Map<String, dynamic>)['who'] as String)
+        .toSet();
+    for (final chi in canali) {
+      expect(
+          chi.contains('Fiorentini') ||
+              chi.contains('Iadarola') ||
+              chi.contains('IDPA') ||
+              chi.contains('Profilo'),
+          isTrue,
+          reason: 'canale non riconducibile alla scuola: $chi');
+    }
+  });
+
+  test('le due linee della scuola sono attribuite ai Maestri giusti', () {
+    final forms = jsonDecode(File('assets/data/forms.json').readAsStringSync())
+        as Map<String, dynamic>;
+    final lineages = forms['lineages'] as Map<String, dynamic>;
+    expect(lineages.keys.toSet(), {'wingchun', 'wengchun'},
+        reason: 'nella scuola si praticano due sistemi, non di piu\'');
+    expect(lineages['wingchun']['label'], contains('Iadarola'));
+    expect(lineages['wengchun']['label'], contains('Sunny So'));
+
+    // l'attribuzione precedente era sbagliata: non deve tornare
+    final dati = _tuttiIDati();
+    expect(dati.contains('Hoffmann'), isFalse,
+        reason: 'il Weng Chun della scuola e\' quello della famiglia Tang');
+  });
+
   test('la maggior parte dei video viene dai canali della scuola', () {
     final videos = jsonDecode(File('assets/data/videos.json').readAsStringSync())
         as Map<String, dynamic>;

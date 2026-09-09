@@ -37,18 +37,23 @@ sezione propria (`/scuola`) e i suoi canali sono la fonte prevalente dei video.
 
 **Da dove vengono i contenuti**
 
+Nella scuola si praticano **due sistemi imparentati ma distinti**, ciascuno con
+la propria trasmissione. L'app li tiene separati perché separati sono: forme
+diverse, vocabolario di forza diverso, storia diversa.
+
+- **Wing Chun — la linea di SiFu Sergio Iadarola.** Il sistema a mani nude con
+  manichino e armi, e la ricerca sulle radici interne del sistema.
+- **Weng Chun — la linea di SiFu Sunny So.** La famiglia Tang, l'Eterna
+  Primavera del Gran Maestro Tang Yik, di cui SiFu Sunny So è l'ultimo discepolo
+  diretto: la forma Weng Chun Kuen, il palo Luk Dim Poon Kwan con le sue sei
+  forze e mezza (Tai, Lan, Dim, Kit, Got, Wun), i set a due.
 - **IDPA Academy Podcast.** SiFu Fiorentini pubblica cicli di episodi su storia,
   cultura e principi del Wing Chun: *La Trasmissione*, *I Kuen Kuit*, *Il
   Silenzio*, *Il Tempo*. È la fonte principale della sezione Storia, e ogni
   capitolo rimanda all'episodio da cui viene.
-- **Chi Sim Weng Chun.** La linea tecnica della scuola, nella famiglia del Gran
-  Maestro Andreas Hoffmann: le sei forze (Tai, Lan, Dim, Kit, Got, Wun), il
-  principio del fluire (Lau), le forme Saam Bai Fat, Jong Kuen, Fa Kuen. È il
-  primo lignaggio elencato nella sezione Forme.
-- **Materiali di confronto.** La linea Ip Man e la ricerca sulle radici interne
-  del sistema, che SiFu Fiorentini stesso racconta nel quarto episodio dei Kuen
-  Kuit. Sono riferimenti per vedere il sistema da un altro lato, non fonti
-  alternative.
+
+La sezione video contiene **solo contenuti dei due Maestri di riferimento**,
+SiFu Fiorentini e SiFu Iadarola. Un test lo verifica.
 
 I testi sono originali e scritti per l'app; i video restano sui canali dei
 rispettivi autori e vengono riprodotti tramite il player ufficiale di YouTube,

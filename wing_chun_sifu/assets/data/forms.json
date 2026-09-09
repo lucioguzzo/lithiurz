@@ -1,130 +1,110 @@
 {
-  "intro": "Le forme sono la biblioteca del sistema. Non sono coreografie da eseguire: sono il modo in cui il Wing Chun conserva i suoi principi in una sequenza che il corpo puo' ripetere finche' non la capisce. L'ordine seguito qui e' quello della scuola: prima il Weng Chun della linea Chi Sim, che e' il riferimento tecnico dell'IDPA, poi il curriculum della linea Ip Man, poi le forme ancestrali su cui si e' concentrata la ricerca storica.",
+  "intro": "Le forme sono la biblioteca del sistema. Non sono coreografie da eseguire: sono il modo in cui l'arte conserva i suoi principi in una sequenza che il corpo puo' ripetere finche' non la capisce. Nell'IDPA si praticano due sistemi imparentati ma distinti, e le loro forme sono tenute separate perche' separate sono: il Wing Chun della linea di SiFu Sergio Iadarola e il Weng Chun della famiglia Tang, trasmesso da SiFu Sunny So.",
   "lineages": {
+    "wingchun": {
+      "label": "Wing Chun — la linea di SiFu Sergio Iadarola",
+      "note": "Il sistema a mani nude con manichino e armi, nella linea che attraversa il metodo di Leung Ting e le ricerche sulle radici ancestrali e interne."
+    },
     "wengchun": {
-      "label": "Weng Chun — Chi Sim, la linea dell'IDPA",
-      "note": "Il riferimento tecnico della scuola. SiFu Massimo Fiorentini e' responsabile italiano del Weng Chun per la famiglia del Gran Maestro Andreas Hoffmann, e da questa linea vengono le sei forze e il principio del fluire."
-    },
-    "ipman": {
-      "label": "Linea Ip Man",
-      "note": "Il curriculum piu' diffuso in Occidente, riorganizzato in tre forme a mani nude piu' manichino e armi. SiFu Fiorentini lo attraversa nel proprio percorso, dal metodo di William Cheung a quello di Leung Ting."
-    },
-    "eternal": {
-      "label": "Le forme ancestrali",
-      "note": "Le forme delle linee piu' antiche, oggetto della ricerca storica di cui SiFu Fiorentini parla nel ciclo sui Kuen Kuit."
+      "label": "Weng Chun — la linea di SiFu Sunny So",
+      "note": "La famiglia Tang, l'Eterna Primavera del Gran Maestro Tang Yik. SiFu Sunny So ne e' l'ultimo discepolo diretto. Vocabolario di forza, palo e set a due la distinguono nettamente dal Wing Chun."
     }
   },
   "forms": [
     {
-      "id": "saam_bai_fat",
-      "name": "Saam Bai Fat",
-      "chinese": "三拜佛",
-      "translation": "I tre inchini al Buddha",
+      "id": "weng_chun_kuen",
+      "name": "Weng Chun Kuen",
+      "chinese": "永春拳",
+      "translation": "Il pugno dell'Eterna Primavera",
       "lineage": "wengchun",
       "level": 1,
       "order": 1,
-      "summary": "La forma centrale del Weng Chun e il cuore del programma dell'IDPA: undici sezioni costruite sull'idea dell'inchino.",
+      "summary": "La forma a mani nude della famiglia Tang: il cuore del sistema Weng Chun praticato nella scuola.",
       "body": [
-        "Saam Bai Fat è considerata la forma più importante del Chi Sim Weng Chun. Il nome descrive il gesto dell'inchino, ripetuto verso il Cielo, la Terra e l'Uomo: tre direzioni che nella pratica diventano tre modi di coprire lo spazio.",
-        "La forma è organizzata in undici sezioni e sviluppa la capacità di moltiplicare la forza attraverso la vita, come nel movimento dell'inchino: il corpo si piega e si raddrizza, e in quel ciclo si genera l'energia.",
-        "È la forma in cui il praticante di Weng Chun impara a coprire tutto lo spazio e tutto il tempo, non solo la linea frontale.",
-        "E' la forma su cui si misura il praticante di questa linea: chi la esegue bene ha capito come la vita genera la forza, e chi la esegue male lo mostra subito, perche' il movimento dell'inchino non si puo' fingere con le braccia."
+        "Weng Chun Kuen e' la forma centrale del sistema della famiglia Tang, la linea dell'Eterna Primavera del compianto Gran Maestro Tang Yik.",
+        "Il Weng Chun non e' una variante del Wing Chun: ha un proprio vocabolario di forza, un rapporto diverso con il palo lungo e un lavoro a due che ne costituisce il tratto distintivo. Chi arriva dal Wing Chun riconosce l'aria di famiglia e sbaglia quasi tutto il resto.",
+        "La trasmissione di questa linea e' arrivata in Europa attraverso SiFu Sunny So, ultimo discepolo diretto di Tang Yik."
       ],
       "sections": [
         {
           "n": 1,
-          "title": "L'inchino al Cielo",
-          "text": "Movimenti verso l'alto: la forza Tai che solleva e sradica."
-        },
-        {
-          "n": 2,
-          "title": "L'inchino alla Terra",
-          "text": "Movimenti verso il basso: Got, il semicerchio che falcia via il ponte."
-        },
-        {
-          "n": 3,
-          "title": "L'inchino all'Uomo",
-          "text": "La linea orizzontale, il contatto diretto, Lan e Dim."
+          "title": "La forma",
+          "text": "La sequenza a mani nude che raccoglie il vocabolario del sistema."
         }
       ],
       "develops": [
-        "Forza generata dalla vita",
-        "Copertura dello spazio in tutte le direzioni",
-        "Le sei forze del Weng Chun"
+        "Il vocabolario di forza del Weng Chun",
+        "Il collegamento fra corpo e ponte",
+        "La base dei set a due"
       ],
       "lessonIds": [
         "kwan_sau",
-        "jum_sau"
-      ],
-      "videoIds": [
-        "x4kQBVVkUZw",
-        "SKMo1RS00Hc",
-        "nfL67fs7hhY",
-        "8Fv-jWyktRA",
-        "DW36I-LtDMQ"
-      ]
-    },
-    {
-      "id": "jong_kuen",
-      "name": "Jong Kuen",
-      "chinese": "樁拳",
-      "translation": "Il pugno del palo",
-      "lineage": "wengchun",
-      "level": 2,
-      "order": 2,
-      "summary": "Passi agili in tutte le direzioni, con il corpo che si muove come un blocco unico.",
-      "body": [
-        "Jong Kuen combina passi rapidi in ogni direzione con il movimento del corpo intero. È la forma che porta il Weng Chun fuori dalla linea frontale.",
-        "Il set contiene, in forma condensata, i concetti e i principi che compaiono anche nel palo lungo e nel manichino: è un punto di raccolta del sistema."
-      ],
-      "sections": [
-        {
-          "n": 1,
-          "title": "I passi",
-          "text": "Spostamenti in otto direzioni mantenendo il collegamento del corpo."
-        }
-      ],
-      "develops": [
-        "Mobilità in tutte le direzioni",
-        "Corpo unico in movimento",
-        "Sintesi dei principi del sistema"
-      ],
-      "lessonIds": [
-        "juen_ma"
+        "bong_lap_sau"
       ],
       "videoIds": []
     },
     {
-      "id": "fa_kuen",
-      "name": "Fa Kuen",
-      "chinese": "花拳",
-      "translation": "Il pugno del fiore",
+      "id": "luk_dim_poon_kwan",
+      "name": "Luk Dim Poon Kwan",
+      "chinese": "六點半棍",
+      "translation": "Il palo dei sei punti e mezzo",
       "lineage": "wengchun",
-      "level": 3,
-      "order": 3,
-      "summary": "La forma del cerchio: sviluppa la potenza rotatoria, quella che il Weng Chun chiama tornado.",
+      "level": 2,
+      "order": 2,
+      "summary": "Il palo lungo, e con esso le sei forze e mezza che danno il nome alla tecnica del sistema.",
       "body": [
-        "Fa Kuen sviluppa il Principio del Cerchio, e con esso una qualità di potenza rotatoria che nella tradizione viene descritta come la forza del tornado.",
-        "Il movimento circolare non è decorativo: è il modo in cui una forza in arrivo viene raccolta, ruotata e restituita senza mai essere fermata — la forza Wun portata alle sue conseguenze."
+        "Nel Weng Chun il palo non e' un'arma aggiunta alla fine del percorso: e' il luogo dove il vocabolario di forza del sistema si vede meglio, perche' il peso dell'arma non perdona le approssimazioni.",
+        "I sei punti e mezzo sono le sei forze - Tai, Lan, Dim, Kit, Got, Wun - piu' il mezzo punto finale. Sono le stesse qualita' che il praticante deve saper esprimere a mani nude, e il palo serve a scoprirle prima di poterle nascondere.",
+        "E' una delle prime cose che SiFu Sergio Iadarola ha ricevuto in questa linea, prima da SiFu Tang Chung Pak e poi da SiFu Sunny So."
       ],
       "sections": [
         {
           "n": 1,
-          "title": "Il principio del cerchio",
-          "text": "Rotazioni concatenate che non si interrompono mai: il fluire (Lau) reso visibile."
+          "title": "I sei punti e mezzo",
+          "text": "Tai, Lan, Dim, Kit, Got, Wun e il mezzo punto che chiude."
         }
       ],
       "develops": [
-        "Potenza rotatoria",
-        "Il principio del cerchio",
-        "Continuità senza interruzioni"
+        "Le sei forze del sistema",
+        "Struttura sotto carico",
+        "Forza connessa a distanza lunga"
+      ],
+      "lessonIds": [],
+      "videoIds": []
+    },
+    {
+      "id": "set_a_due",
+      "name": "I set a due",
+      "chinese": "對拆",
+      "translation": "Le sequenze a coppie",
+      "lineage": "wengchun",
+      "level": 2,
+      "order": 3,
+      "summary": "Il tratto distintivo della linea Tang: molto del sistema vive nel lavoro a coppie, non nella forma solitaria.",
+      "body": [
+        "La famiglia Tang trasmette una parte importante del proprio sistema attraverso set a due persone: sequenze fissate in cui due praticanti si scambiano ruoli e pressioni.",
+        "E' una scelta di metodo, non un esercizio accessorio. Una forma solitaria puo' essere eseguita per anni senza che nessuno ne verifichi il contenuto; un set a due si interrompe da solo quando uno dei due sbaglia distanza, angolo o tempo.",
+        "Per questo, in questa linea, chi conosce solo le forme individuali conosce meta' del sistema."
+      ],
+      "sections": [
+        {
+          "n": 1,
+          "title": "Il lavoro a coppie",
+          "text": "Sequenze fissate che verificano distanza, angolo e tempo."
+        }
+      ],
+      "develops": [
+        "Verifica immediata degli errori",
+        "Distanza e tempo con un partner",
+        "Il passaggio dalla forma all'applicazione"
       ],
       "lessonIds": [
-        "huen_sau",
-        "kwan_sau"
+        "kwan_sau",
+        "bong_lap_sau",
+        "pak_da"
       ],
       "videoIds": [
-        "rrgT0oF4j3o"
+        "V7ncKiKcPUc"
       ]
     },
     {
@@ -132,7 +112,7 @@
       "name": "Siu Nim Tau",
       "chinese": "小念頭",
       "translation": "La piccola idea",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 1,
       "order": 4,
       "summary": "La prima forma: si esegue da fermi, e insegna la struttura prima del movimento.",
@@ -186,7 +166,7 @@
         "lin_wan_kuen"
       ],
       "videoIds": [
-        "PDpx5juWHX0",
+        "ILFD6TN-JzE",
         "5wAiHd0FkhU"
       ]
     },
@@ -195,7 +175,7 @@
       "name": "Chum Kiu",
       "chinese": "尋橋",
       "translation": "Cercare il ponte",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 2,
       "order": 5,
       "summary": "La seconda forma: la struttura impara a muoversi, girare e collegarsi all'avversario.",
@@ -234,6 +214,7 @@
         "lap_sau"
       ],
       "videoIds": [
+        "P_gUIA7JElw",
         "jXq2INOt6ls"
       ]
     },
@@ -242,7 +223,7 @@
       "name": "Biu Tze",
       "chinese": "鏢指",
       "translation": "Le dita che infilzano",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 3,
       "order": 6,
       "summary": "La terza forma: cosa fare quando la struttura è già compromessa.",
@@ -278,14 +259,16 @@
         "gaan_sau",
         "jut_sau"
       ],
-      "videoIds": []
+      "videoIds": [
+        "_KfP56Il9zQ"
+      ]
     },
     {
       "id": "muk_yan_jong",
       "name": "Muk Yan Jong",
       "chinese": "木人樁",
       "translation": "L'uomo di legno",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 3,
       "order": 7,
       "summary": "Il manichino di legno: un avversario che non cede, per correggere angoli e distanza.",
@@ -330,7 +313,7 @@
       "name": "Luk Dim Boon Kwun",
       "chinese": "六點半棍",
       "translation": "Il palo dei sei punti e mezzo",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 3,
       "order": 8,
       "summary": "Il palo lungo: sei tecniche e mezza, e una posizione completamente diversa.",
@@ -357,16 +340,14 @@
         "Le sei forze applicate all'arma"
       ],
       "lessonIds": [],
-      "videoIds": [
-        "wg4y_fp-43U"
-      ]
+      "videoIds": []
     },
     {
       "id": "bart_cham_dao",
       "name": "Bart Cham Dao",
       "chinese": "八斬刀",
       "translation": "I coltelli degli otto tagli",
-      "lineage": "ipman",
+      "lineage": "wingchun",
       "level": 3,
       "order": 9,
       "summary": "I coltelli a farfalla: l'ultima forma, che riporta i principi del sistema nelle mani armate.",
@@ -391,46 +372,13 @@
       "videoIds": []
     },
     {
-      "id": "weng_chun_kuen",
-      "name": "Weng Chun Kuen",
-      "chinese": "永春拳",
-      "translation": "Il pugno dell'Eterna Primavera",
-      "lineage": "eternal",
-      "level": 3,
-      "order": 10,
-      "summary": "La forma della famiglia Tang, nella linea dell'Eterna Primavera del GM Tang Yick.",
-      "body": [
-        "SiFu Sergio ha studiato il sistema Weng Chun della famiglia Tang — la linea Eternal Spring del compianto Gran Maestro Tang Yick — sotto SiFu Tang Chung Pak e SiFu Sunny So, ultimo discepolo di Tang Yick.",
-        "Il curriculum comprende la forma Weng Chun Kuen, il palo Luk Dim Boon Kwun e diversi set a due persone, che sono il tratto distintivo di questa linea: molto del contenuto vive nel lavoro a coppie, non nella forma solitaria."
-      ],
-      "sections": [
-        {
-          "n": 1,
-          "title": "La forma e i set a due",
-          "text": "La sequenza individuale e gli esercizi a coppie che ne trasmettono le applicazioni."
-        }
-      ],
-      "develops": [
-        "Lavoro a due della linea Tang",
-        "Ponte e sensibilità",
-        "Forza interna dell'Eterna Primavera"
-      ],
-      "lessonIds": [
-        "kwan_sau",
-        "bong_lap_sau"
-      ],
-      "videoIds": [
-        "_0nmfds0b7s"
-      ]
-    },
-    {
       "id": "siu_lin_tau",
       "name": "Siu Lin Tau",
       "chinese": "小練頭",
       "translation": "La forma unica ancestrale",
-      "lineage": "eternal",
+      "lineage": "wingchun",
       "level": 2,
-      "order": 11,
+      "order": 10,
       "summary": "La forma singola da cui, secondo le fonti ottocentesche, derivano le tre forme moderne.",
       "body": [
         "Nella ricerca di SiFu Sergio Iadarola, basata sul manoscritto noto come Wing Chun Secret Note (attribuito al 1890), il Wing Chun delle origini non aveva tre forme ma una sola, chiamata Siu Lin Tau, risalente alla fine del Settecento.",
@@ -464,9 +412,9 @@
       "name": "Emei Zhe Zhuang",
       "chinese": "峨眉十二樁",
       "translation": "Le dodici posture di Emei",
-      "lineage": "eternal",
+      "lineage": "wingchun",
       "level": 3,
-      "order": 12,
+      "order": 11,
       "summary": "Le dodici posture del monte Emei, considerate fra gli antenati del sistema.",
       "body": [
         "Fra i sistemi antenati studiati nell'Eternal Spring Institute ci sono lo Yong Chun Bai He (la Gru Bianca del Fujian) e le dodici posture di Emei, lo Zhe Zhuang.",

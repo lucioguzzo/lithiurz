@@ -1,5 +1,5 @@
 {
-  "intro": "Il Wing Chun non e' una collezione di tecniche: e' un insieme di principi che generano tecniche. Chi impara le tecniche senza i principi ha imparato delle forme vuote; chi impara i principi puo' ricostruire ogni tecnica da solo. I contenuti di questa sezione seguono la linea dell'IDPA e l'insegnamento di SiFu Massimo Fiorentini.",
+  "intro": "Il Wing Chun non e' una collezione di tecniche: e' un insieme di principi che generano tecniche. Chi impara le tecniche senza i principi ha imparato delle forme vuote; chi impara i principi puo' ricostruire ogni tecnica da solo. Nell'IDPA convivono due sistemi imparentati - il Wing Chun della linea di SiFu Iadarola e il Weng Chun della famiglia Tang - e questa sezione tiene distinto cio' che appartiene all'uno e cio' che appartiene all'altro.",
   "groups": [
     {
       "id": "struttura",
@@ -136,7 +136,7 @@
     {
       "id": "forze",
       "title": "Le forze del Weng Chun",
-      "subtitle": "Il vocabolario tecnico della linea dell'IDPA",
+      "subtitle": "Il vocabolario di forza della linea Tang, praticata nell'IDPA",
       "items": [
         {
           "id": "sei_forze",
@@ -144,16 +144,17 @@
           "chinese": "Tai · Lan · Dim · Kit · Got · Wun",
           "summary": "Sei modi fondamentali di applicare la forza, che compongono l'intero repertorio del Weng Chun.",
           "body": [
-            "Il Weng Chun della linea Chi Sim, quella trasmessa in Italia da SiFu Massimo Fiorentini nell'IDPA come parte della famiglia del Gran Maestro Andreas Hoffmann, organizza la forza in sei categorie fondamentali. Non sono tecniche: sono qualità di movimento che ogni tecnica può assumere.",
+            "Il Weng Chun praticato nell'IDPA viene dalla famiglia Tang, la linea dell'Eterna Primavera del Gran Maestro Tang Yik trasmessa da SiFu Sunny So. Questo sistema organizza la forza in sei categorie fondamentali: non sono tecniche, sono qualita' di movimento che ogni tecnica puo' assumere.",
             "Tai — sollevare: la forza che porta verso l'alto e stacca la radice dell'avversario.\nLan — sbarrare: la forza che chiude e blocca una linea con l'avambraccio.\nDim — puntare: la forza concentrata in un punto, di urto breve e penetrante.\nKit — aprire: la forza che squarcia e apre la guardia dall'interno.\nGot — falciare: il semicerchio verso il basso che porta via il ponte.\nWun — circolare: la forza che ruota e riconduce, senza inizio né fine.",
-            "Le sei forze non si usano isolate: si combinano e si trasformano l'una nell'altra all'interno dello stesso movimento."
+            "Le sei forze non si usano isolate: si combinano e si trasformano l'una nell'altra all'interno dello stesso movimento.",
+            "Le sei forze sono anche i sei punti del palo lungo, il Luk Dim Poon Kwan, che nel Weng Chun e' lo strumento con cui si imparano prima di poterle nascondere a mani nude."
           ],
           "keyPoints": [
             "Sono qualità di forza, non tecniche",
             "Ogni tecnica può essere eseguita con più di una",
             "Si trasformano l'una nell'altra durante il movimento"
           ],
-          "source": "Sistema Chi Sim Weng Chun — GM Andreas Hoffmann / IDPA"
+          "source": "Weng Chun della famiglia Tang — linea di SiFu Sunny So"
         },
         {
           "id": "lau",
@@ -161,7 +162,7 @@
           "chinese": "流 · Lau",
           "summary": "La settima forza, considerata la più importante: la capacità di non interrompersi mai.",
           "body": [
-            "Sopra le sei forze c'è Lau, il fluire, che nella tradizione Chi Sim Weng Chun è considerato il principio più importante di tutti.",
+            "Sopra le sei forze c'e' Lau, il fluire, che in questa linea e' considerato il principio piu' importante di tutti.",
             "Lau è ciò che tiene insieme le altre sei. Una forza che si esaurisce lascia un vuoto, e in quel vuoto l'avversario rientra. Una forza che fluisce si trasforma prima di esaurirsi: il Tai diventa Got, il Got diventa Wun, e la pressione non cade mai a zero.",
             "È la differenza fra una sequenza di tecniche e un movimento unico che cambia forma."
           ],
@@ -170,7 +171,7 @@
             "La pressione non cade mai a zero",
             "Il movimento cambia forma, non si ferma"
           ],
-          "source": "Sistema Chi Sim Weng Chun — GM Andreas Hoffmann / IDPA"
+          "source": "Weng Chun della famiglia Tang — linea di SiFu Sunny So"
         },
         {
           "id": "kuen_kuit",
@@ -187,7 +188,7 @@
             "Sono il supporto della trasmissione orale, non un ornamento",
             "Il significato si apre con la pratica, non con la spiegazione"
           ],
-          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann"
+          "source": "IDPA — SiFu Massimo Fiorentini"
         },
         {
           "id": "wu_de",
@@ -204,7 +205,7 @@
             "Il controllo di se' viene prima della capacita' tecnica",
             "Fa parte del sistema, non e' un contorno"
           ],
-          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann"
+          "source": "IDPA — SiFu Massimo Fiorentini"
         }
       ]
     },
@@ -245,7 +246,7 @@
             "Si corregge con un tocco, non con un discorso",
             "Il silenzio e' una condizione dell'ascolto, non una sua mancanza"
           ],
-          "source": "IDPA — SiFu Massimo Fiorentini, linea Chi Sim Weng Chun del GM Andreas Hoffmann",
+          "source": "IDPA — SiFu Massimo Fiorentini",
           "lessonId": "kwan_sau"
         }
       ]
@@ -521,8 +522,8 @@
     },
     {
       "id": "ricerca",
-      "title": "La ricerca sulle radici",
-      "subtitle": "Cosa si e' ritrovato del Wing Chun delle origini",
+      "title": "La linea Wing Chun della scuola",
+      "subtitle": "SiFu Sergio Iadarola: le radici interne del sistema",
       "items": [
         {
           "id": "motore_interno",
@@ -530,16 +531,16 @@
           "chinese": "內功 · Noi Gung",
           "summary": "La forza che nasce dal collegamento del corpo intero, non dalla contrazione muscolare.",
           "body": [
-            "Una parte della ricerca contemporanea sostiene che il Wing Chun delle origini fosse un sistema interno, e che molto di quel contenuto si sia perso nel passaggio alla trasmissione moderna.",
+            "Il Wing Chun praticato nell'IDPA viene dalla linea di SiFu Sergio Pascal Iadarola, il cui lavoro parte da una constatazione: il Wing Chun delle origini era un sistema interno, e molto di quel contenuto si e' perso nel passaggio alla trasmissione moderna.",
             "Il lavoro interno sostituisce la spinta muscolare con il collegamento: il corpo si muove come un'unica struttura elastica, in cui l'impulso nasce dal centro e non viene generato dalle estremita'.",
-            "SiFu Massimo Fiorentini racconta questa ricerca nel quarto episodio dedicato ai Kuen Kuit: sedici anni di lavoro sul campo di SiFu Sergio Iadarola fra gli archivi di Foshan, i Maestri di Hong Kong e i lignaggi del sud della Cina."
+            "SiFu Massimo Fiorentini racconta questa ricerca nel quarto episodio dedicato ai Kuen Kuit: sedici anni di lavoro sul campo fra gli archivi di Foshan, i Maestri di Hong Kong e i lignaggi del sud della Cina."
           ],
           "keyPoints": [
             "L'impulso nasce dal centro, non dal braccio",
             "Il corpo lavora come una struttura unica ed elastica",
             "Le forme sono contenitori: vanno riempite"
           ],
-          "source": "Raccontata da SiFu Massimo Fiorentini — IDPA Academy, Kuen Kuit ep. 4"
+          "source": "Wing Chun — linea di SiFu Sergio Iadarola"
         },
         {
           "id": "snake_crane",
@@ -556,7 +557,7 @@
             "Documenti attestati, non solo tradizione orale",
             "Riguarda le origini del sistema, non la sua esecuzione"
           ],
-          "source": "IDPA Academy — Kuen Kuit ep. 3"
+          "source": "Wing Chun — linea di SiFu Sergio Iadarola"
         }
       ]
     }
