@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: '3.11'
 
-      - run: pip install numpy pillow
+      - run: pip install numpy pillow playwright
 
       - name: Dipendenze
         run: flutter pub get
@@ -58,6 +58,17 @@ jobs:
 
       - name: Verifica delle posizioni Wing Chun
         run: python3 tools/verify_poses.py
+
+      # I controlli precedenti guardano il modello con i nostri strumenti.
+      # Questo lo carica nello stesso motore che gira nella WebView dell'app:
+      # e' l'unico che puo' accorgersi se il modello non parte o se
+      # l'inquadratura taglia la figura, i due difetti che si sono visti solo
+      # aprendo l'app su un telefono.
+      - name: Installa Chromium per la verifica nel motore reale
+        run: python3 -m playwright install --with-deps chromium
+
+      - name: Il modello carica e sta nell'inquadratura
+        run: python3 tools/verify_in_engine.py
 
   android:
     name: APK Android

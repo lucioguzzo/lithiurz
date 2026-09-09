@@ -4,6 +4,14 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<!-- Il visualizzatore 3D serve il modello alla WebView da un server
+	     locale sulla scheda di loopback. Questa chiave consente quelle sole
+	     connessioni, senza allentare le regole per la rete esterna. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>CFBundleDisplayName</key>
 	<string>Wing Chun SiFu</string>
 	<key>CFBundleExecutable</key>

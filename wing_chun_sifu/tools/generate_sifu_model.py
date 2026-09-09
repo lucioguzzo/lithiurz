@@ -32,17 +32,24 @@ LESSONS_PATH = os.path.join(ROOT, "assets", "data", "lessons.json")
 
 # Come inquadrare ogni lezione. theta = azimut, phi = angolo polare,
 # radius = distanza in metri; target = punto guardato dalla camera.
+#
+# I raggi sono misurati, non stimati: model-viewer usa un campo visivo
+# verticale di 30 gradi, non i 45 che verrebbe naturale supporre, e con i
+# valori calcolati per 45 gradi la figura veniva tagliata sopra e sotto.
+# A 3,8 m il SiFu occupa circa l'85% dell'altezza del riquadro.
 CAMERAS = {
-    "front":         {"theta":   0.0, "phi": 82.0, "radius": 3.1,
-                      "targetY": 1.05, "targetZ": 0.0},
-    "three_quarter": {"theta": -38.0, "phi": 78.0, "radius": 2.9,
-                      "targetY": 1.10, "targetZ": 0.10},
-    "side":          {"theta": -86.0, "phi": 84.0, "radius": 3.1,
-                      "targetY": 1.00, "targetZ": 0.05},
-    "top_front":     {"theta":  -8.0, "phi": 58.0, "radius": 3.3,
-                      "targetY": 0.95, "targetZ": 0.0},
-    "close":         {"theta": -30.0, "phi": 76.0, "radius": 2.0,
-                      "targetY": 1.28, "targetZ": 0.20},
+    "front":         {"theta":   0.0, "phi": 82.0, "radius": 3.90,
+                      "targetY": 0.92, "targetZ": 0.05},
+    "three_quarter": {"theta": -38.0, "phi": 79.0, "radius": 3.80,
+                      "targetY": 0.95, "targetZ": 0.08},
+    "side":          {"theta": -86.0, "phi": 82.0, "radius": 3.90,
+                      "targetY": 0.92, "targetZ": 0.05},
+    "top_front":     {"theta":  -8.0, "phi": 58.0, "radius": 3.90,
+                      "targetY": 0.86, "targetZ": 0.0},
+    # l'unica inquadratura volutamente stretta: taglia le gambe per mostrare
+    # il lavoro delle mani, che e' il soggetto della lezione Huen Sau
+    "close":         {"theta": -30.0, "phi": 76.0, "radius": 2.60,
+                      "targetY": 1.20, "targetZ": 0.16},
 }
 
 

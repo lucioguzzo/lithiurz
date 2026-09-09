@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_3d_controller/flutter_3d_controller.dart';
 import 'package:go_router/go_router.dart';
@@ -31,6 +33,7 @@ class _LessonScreenState extends State<LessonScreen> {
 
   bool _ready = false;
   bool _failed = false;
+  Timer? _loadTimeout;
   bool _playing = true;
   double _loading = 0;
   _View _view = _View.lesson;
@@ -44,6 +47,20 @@ class _LessonScreenState extends State<LessonScreen> {
     if (_index < 0) _index = 0;
     _lesson = _lessons[_index];
     ProgressService.instance.setLastLesson(_lesson.id);
+
+    // Il visualizzatore 3D carica il modello in una WebView. Se qualcosa
+    // glielo impedisce, il callback di completamento non arriva mai e senza
+    // questo limite l'allievo resterebbe davanti a un'attesa infinita senza
+    // sapere perche'. Meglio dirglielo e lasciargli la lezione scritta.
+    _loadTimeout = Timer(const Duration(seconds: 20), () {
+      if (mounted && !_ready) setState(() => _failed = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _loadTimeout?.cancel();
+    super.dispose();
   }
 
   /// Il controller 3D solleva un'eccezione se lo si comanda prima che il
@@ -61,7 +78,11 @@ class _LessonScreenState extends State<LessonScreen> {
 
   void _onModelLoaded() {
     if (!mounted) return;
-    setState(() => _ready = true);
+    _loadTimeout?.cancel();
+    setState(() {
+      _ready = true;
+      _failed = false;
+    });
     _applyLesson(resetCamera: true);
     ProgressService.instance.markStudied(_lesson.id);
   }
@@ -76,12 +97,15 @@ class _LessonScreenState extends State<LessonScreen> {
 
   void _applyView(_View view) {
     final cam = _lesson.camera;
+    // I raggi sono quelli misurati sul motore reale: model-viewer inquadra
+    // con un campo visivo verticale di 30 gradi, e sotto i 3,6 metri la
+    // figura esce dal riquadro.
     final (theta, phi, radius) = switch (view) {
       _View.lesson => (cam.theta, cam.phi, cam.radius),
-      _View.front => (0.0, 82.0, 3.1),
-      _View.side => (-88.0, 84.0, 3.1),
-      _View.back => (180.0, 82.0, 3.1),
-      _View.top => (-10.0, 42.0, 3.3),
+      _View.front => (0.0, 82.0, 3.9),
+      _View.side => (-86.0, 82.0, 3.9),
+      _View.back => (180.0, 82.0, 3.9),
+      _View.top => (-10.0, 56.0, 3.9),
     };
     _safe(() {
       _controller.setCameraTarget(0, cam.targetY, cam.targetZ);
@@ -139,11 +163,13 @@ class _LessonScreenState extends State<LessonScreen> {
                     children: [
                       _Stage(
                         controller: _controller,
+                        thumbnail: _lesson.thumbnail,
                         ready: _ready,
                         failed: _failed,
                         loading: _loading,
                         onLoad: (_) => _onModelLoaded(),
                         onError: (e) {
+                          _loadTimeout?.cancel();
                           if (mounted) setState(() => _failed = true);
                         },
                         onProgress: (v) {
@@ -251,6 +277,7 @@ class _TopBar extends StatelessWidget {
 class _Stage extends StatelessWidget {
   const _Stage({
     required this.controller,
+    required this.thumbnail,
     required this.ready,
     required this.failed,
     required this.loading,
@@ -260,6 +287,7 @@ class _Stage extends StatelessWidget {
   });
 
   final Flutter3DController controller;
+  final String thumbnail;
   final bool ready;
   final bool failed;
   final double loading;
@@ -296,28 +324,49 @@ class _Stage extends StatelessWidget {
                 onError: onError,
                 onProgress: onProgress,
               ),
-            if (failed)
-              Center(
+            if (failed) ...[
+              // Ripiego: la posizione finale della tecnica resta visibile
+              // anche quando il visualizzatore 3D non parte.
+              Opacity(
+                opacity: 0.5,
+                child: Image.asset(thumbnail, fit: BoxFit.contain),
+              ),
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        AppColors.surface.withValues(alpha: 0.25),
+                        AppColors.surface.withValues(alpha: 0.92),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
                 child: Padding(
-                  padding: const EdgeInsets.all(28),
+                  padding: const EdgeInsets.all(22),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.view_in_ar_outlined,
-                          size: 34, color: AppColors.textFaint),
-                      const SizedBox(height: 14),
+                          size: 28, color: AppColors.textFaint),
+                      const SizedBox(height: 12),
                       Text(
                         'Non riesco a mostrare il SiFu su questo dispositivo.\n'
                         'La descrizione della tecnica resta disponibile qui '
-                        'sotto.',
+                        'sotto, e la miniatura mostra la posizione finale.',
                         textAlign: TextAlign.center,
                         style: t.bodySmall,
                       ),
                     ],
                   ),
                 ),
-              )
-            else if (!ready)
+              ),
+            ] else if (!ready)
               ColoredBox(
                 color: AppColors.surface,
                 child: Center(

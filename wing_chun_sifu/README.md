@@ -124,9 +124,29 @@ Serve perché un modello 3D può essere formalmente valido e mostrare comunque
 posizioni sbagliate — e per un'app che insegna quello è il difetto peggiore.
 
 ```bash
-python3 tools/verify_poses.py       # 128 verifiche
+python3 tools/verify_poses.py        # 128 verifiche sulle posizioni
+python3 tools/verify_in_engine.py    # carica il modello nel motore reale
 python3 tools/generate_sifu_model.py # rigenera sifu.glb + lessons.json
 ```
+
+### Verifica nel motore reale
+
+`verify_poses.py` guarda il modello dall'interno, con la nostra matematica.
+`verify_in_engine.py` lo guarda da fuori: carica il `.glb` nello stesso
+`model-viewer` che gira nella WebView dell'app, dentro Chromium, e verifica
+che il modello carichi davvero e che ogni inquadratura contenga la figura.
+
+Serve perché due difetti si sono visti solo aprendo l'app su un telefono, e
+nessun controllo interno poteva vederli:
+
+- il modello restava in caricamento all'infinito, perché il visualizzatore
+  serve il `.glb` alla WebView da un server HTTP locale e Android blocca il
+  traffico in chiaro dalla API 28 (vedi `network_security_config.xml`);
+- le inquadrature tagliavano la figura, perché model-viewer usa un campo
+  visivo verticale di **30 gradi**, non i 45 che verrebbe naturale supporre,
+  e i raggi calcolati a mente erano tutti troppo corti.
+
+Entrambi i controlli girano in CI.
 
 La CI rigenera il modello a ogni push e fallisce se il `.glb` committato non
 corrisponde al suo generatore.
@@ -231,6 +251,13 @@ lib/
   nessuna rete: l'app deve funzionare in una palestra senza campo.
 - **Permessi.** Su Android solo `INTERNET`, necessario al player video e alle
   miniature.
+- **Traffico locale.** Il visualizzatore 3D serve il modello alla WebView da
+  `http://127.0.0.1`. Android lo consente solo tramite
+  `network_security_config.xml`, che qui apre il traffico in chiaro
+  esclusivamente verso il loopback e lascia il resto della rete su HTTPS; su
+  iOS serve `NSAllowsLocalNetworking`. Un test di regressione
+  (`test/platform_config_test.dart`) controlla che le due dichiarazioni ci
+  siano: senza, il SiFu resta in caricamento per sempre.
 
 ---
 

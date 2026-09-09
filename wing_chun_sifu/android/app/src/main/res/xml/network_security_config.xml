@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Il visualizzatore 3D (flutter_3d_controller) serve il modello alla WebView
+  da un piccolo server HTTP sulla scheda di loopback, cioe' in chiaro. Dalla
+  API 28 Android blocca il traffico in chiaro per impostazione predefinita:
+  senza questa dichiarazione la WebView rifiuta di caricare la pagina, il
+  callback onLoad non arriva mai e il SiFu resta in caricamento per sempre.
+
+  Il permesso e' concesso solo verso 127.0.0.1 e localhost. La rete esterna
+  resta obbligata a HTTPS: l'alternativa usata di solito, usesCleartextTraffic
+  sull'intera applicazione, aprirebbe il traffico in chiaro verso qualunque
+  host, che qui non serve a niente.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+    </domain-config>
+</network-security-config>

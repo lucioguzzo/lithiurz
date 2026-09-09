@@ -7,9 +7,9 @@
     "camera": {
       "theta": 0.0,
       "phi": 82.0,
-      "radius": 3.1,
-      "targetY": 1.05,
-      "targetZ": 0.0
+      "radius": 3.9,
+      "targetY": 0.92,
+      "targetZ": 0.05
     }
   },
   {
@@ -19,10 +19,10 @@
     "duration": 6.4,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -32,10 +32,10 @@
     "duration": 8.5,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -45,9 +45,9 @@
     "duration": 8.5,
     "camera": {
       "theta": -86.0,
-      "phi": 84.0,
-      "radius": 3.1,
-      "targetY": 1.0,
+      "phi": 82.0,
+      "radius": 3.9,
+      "targetY": 0.92,
       "targetZ": 0.05
     }
   },
@@ -58,10 +58,10 @@
     "duration": 8.5,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -72,9 +72,9 @@
     "camera": {
       "theta": 0.0,
       "phi": 82.0,
-      "radius": 3.1,
-      "targetY": 1.05,
-      "targetZ": 0.0
+      "radius": 3.9,
+      "targetY": 0.92,
+      "targetZ": 0.05
     }
   },
   {
@@ -85,9 +85,9 @@
     "camera": {
       "theta": 0.0,
       "phi": 82.0,
-      "radius": 3.1,
-      "targetY": 1.05,
-      "targetZ": 0.0
+      "radius": 3.9,
+      "targetY": 0.92,
+      "targetZ": 0.05
     }
   },
   {
@@ -97,10 +97,10 @@
     "duration": 8.5,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -110,10 +110,10 @@
     "duration": 6.2,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -123,9 +123,9 @@
     "duration": 8.5,
     "camera": {
       "theta": -86.0,
-      "phi": 84.0,
-      "radius": 3.1,
-      "targetY": 1.0,
+      "phi": 82.0,
+      "radius": 3.9,
+      "targetY": 0.92,
       "targetZ": 0.05
     }
   },
@@ -136,10 +136,10 @@
     "duration": 6.2,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -149,10 +149,10 @@
     "duration": 6.05,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -163,9 +163,9 @@
     "camera": {
       "theta": -30.0,
       "phi": 76.0,
-      "radius": 2.0,
-      "targetY": 1.28,
-      "targetZ": 0.2
+      "radius": 2.6,
+      "targetY": 1.2,
+      "targetZ": 0.16
     }
   },
   {
@@ -175,10 +175,10 @@
     "duration": 2.95,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -189,9 +189,9 @@
     "camera": {
       "theta": 0.0,
       "phi": 82.0,
-      "radius": 3.1,
-      "targetY": 1.05,
-      "targetZ": 0.0
+      "radius": 3.9,
+      "targetY": 0.92,
+      "targetZ": 0.05
     }
   },
   {
@@ -202,8 +202,8 @@
     "camera": {
       "theta": -8.0,
       "phi": 58.0,
-      "radius": 3.3,
-      "targetY": 0.95,
+      "radius": 3.9,
+      "targetY": 0.86,
       "targetZ": 0.0
     }
   },
@@ -214,9 +214,9 @@
     "duration": 3.1,
     "camera": {
       "theta": -86.0,
-      "phi": 84.0,
-      "radius": 3.1,
-      "targetY": 1.0,
+      "phi": 82.0,
+      "radius": 3.9,
+      "targetY": 0.92,
       "targetZ": 0.05
     }
   },
@@ -227,10 +227,10 @@
     "duration": 2.95,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -240,10 +240,10 @@
     "duration": 4.95,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -253,10 +253,10 @@
     "duration": 4.9,
     "camera": {
       "theta": -38.0,
-      "phi": 78.0,
-      "radius": 2.9,
-      "targetY": 1.1,
-      "targetZ": 0.1
+      "phi": 79.0,
+      "radius": 3.8,
+      "targetY": 0.95,
+      "targetZ": 0.08
     }
   },
   {
@@ -267,9 +267,9 @@
     "camera": {
       "theta": 0.0,
       "phi": 82.0,
-      "radius": 3.1,
-      "targetY": 1.05,
-      "targetZ": 0.0
+      "radius": 3.9,
+      "targetY": 0.92,
+      "targetZ": 0.05
     }
   }
 ]
