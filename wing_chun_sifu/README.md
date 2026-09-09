@@ -277,6 +277,26 @@ flutter build appbundle --release  # Play Store
 flutter build ios --release        # iOS (richiede macOS e certificato)
 ```
 
+### Installare l'APK sul telefono
+
+Gli APK di sviluppo sono firmati con la chiave di debug, che viene rigenerata
+ogni volta che l'ambiente di build viene ricreato. Android rifiuta di
+aggiornare un'app quando la firma cambia, e lo comunica solo con un laconico
+**"App non installata"**.
+
+Quindi, prima di installare una nuova versione: **disinstalla quella
+precedente**. Si perdono i progressi salvati (le voci segnate come studiate),
+non altro.
+
+Va anche ricordato che il `versionCode` — il numero dopo il `+` in
+`pubspec.yaml` — **deve crescere a ogni APK consegnato**. Se resta uguale,
+Android considera l'installazione un doppione e la rifiuta con lo stesso
+messaggio, senza dire perche'.
+
+Per eliminare del tutto il problema servirebbe una chiave di firma stabile
+(nel repository, o nei secret della CI): tutti gli APK firmati con la stessa
+chiave si aggiornano l'uno sopra l'altro senza disinstallare.
+
 ### Per pubblicare
 
 - **Play Store:** serve una chiave di firma (`keystore`) configurata in

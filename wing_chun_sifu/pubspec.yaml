@@ -1,7 +1,10 @@
 name: wing_chun_sifu
 description: "Wing Chun SiFu Online - storia, principi, forme e lezioni con il SiFu 3D"
 publish_to: 'none'
-version: 1.0.0+1
+# Il numero dopo il "+" e' il versionCode di Android: deve crescere a ogni
+# APK consegnato, altrimenti il sistema rifiuta l'aggiornamento e mostra
+# soltanto "App non installata", senza spiegare perche'.
+version: 1.0.1+2
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
