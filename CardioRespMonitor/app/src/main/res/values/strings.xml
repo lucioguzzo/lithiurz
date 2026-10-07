@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CardioResp Monitor</string>
+    <string name="notification_channel_name">Acquisizione sensori</string>
+    <string name="notification_channel_description">Notifica permanente durante la registrazione</string>
+    <string name="notification_title">CardioResp Monitor – registrazione in corso</string>
+    <string name="notification_text">Acquisizione accelerometro e giroscopio attiva</string>
+    <string name="stop">STOP</string>
+</resources>
