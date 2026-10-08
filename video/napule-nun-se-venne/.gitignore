@@ -1,3 +1,4 @@
 out/
 *.mp3
 *.wav
+out_render.log
