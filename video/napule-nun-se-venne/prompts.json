@@ -1,0 +1,226 @@
+[
+ {
+  "id": "ad_vesuvio",
+  "width": 1024,
+  "height": 576,
+  "seed": 11,
+  "prompt": "Mount Vesuvius and the Gulf of Naples at golden sunset, glossy travel advertisement photo, lens flare, oversaturated colors, postcard, ultra sharp"
+ },
+ {
+  "id": "lot_vesuvio",
+  "width": 1024,
+  "height": 768,
+  "seed": 12,
+  "prompt": "aerial drone photo of the Gulf of Naples with Mount Vesuvius at sunset, oversaturated tourist postcard, HDR"
+ },
+ {
+  "id": "lot_panni",
+  "width": 1024,
+  "height": 768,
+  "seed": 13,
+  "prompt": "colorful laundry hanging on lines across a narrow old alley in Naples, sunny, tourist photo, vivid colors"
+ },
+ {
+  "id": "lot_vespa",
+  "width": 1024,
+  "height": 768,
+  "seed": 14,
+  "prompt": "vintage mint green Vespa scooter parked on a seaside promenade in Italy, sunny tourist photo, vivid colors"
+ },
+ {
+  "id": "lot_pizza",
+  "width": 1024,
+  "height": 768,
+  "seed": 51,
+  "prompt": "neapolitan pizza margherita with red tomato sauce, melted mozzarella and fresh green basil leaves, wood fired, top view on a wooden table, food photo"
+ },
+ {
+  "id": "lot_snowglobe",
+  "width": 1024,
+  "height": 768,
+  "seed": 17,
+  "prompt": "souvenir snow globe with a tiny volcano inside, product photo on pure white background, studio lighting"
+ },
+ {
+  "id": "lot_caffe",
+  "width": 1024,
+  "height": 768,
+  "seed": 42,
+  "prompt": "classic neapolitan espresso cup on saucer, product photo on pure white background, studio lighting, high detail"
+ },
+ {
+  "id": "lot_balcone",
+  "width": 1024,
+  "height": 768,
+  "seed": 19,
+  "prompt": "old weathered balcony in Naples with flower pots and an old wooden chair, laundry, warm afternoon light, 35mm film photo"
+ },
+ {
+  "id": "lot_keybox",
+  "width": 1024,
+  "height": 768,
+  "seed": 57,
+  "prompt": "modern black key safe lockbox with four digit combination dials, attached to an old historic wooden door frame, close-up photo"
+ },
+ {
+  "id": "lot_chitarra",
+  "width": 1024,
+  "height": 768,
+  "seed": 21,
+  "prompt": "old acoustic guitar with worn scratched wood leaning on a wooden chair in a dim room, warm light, 35mm film photo"
+ },
+ {
+  "id": "lot_voce",
+  "width": 1024,
+  "height": 768,
+  "seed": 22,
+  "prompt": "vintage chrome microphone on a stand in an empty smoky bar at night, blue light, 35mm film photo, moody"
+ },
+ {
+  "id": "lot_vicolo",
+  "width": 1024,
+  "height": 768,
+  "seed": 23,
+  "prompt": "narrow old alley in Naples at night, wet cobblestones, a single street lamp, blue and amber light, moody cinematic photo"
+ },
+ {
+  "id": "lot_mare",
+  "width": 1024,
+  "height": 768,
+  "seed": 24,
+  "prompt": "calm sea at dusk near rocky coast of Naples, small wooden fishing boat, poetic soft pastel light, film photo"
+ },
+ {
+  "id": "lot_moda",
+  "width": 1024,
+  "height": 768,
+  "seed": 53,
+  "prompt": "headless tailor dress form mannequin wearing a vintage black tailcoat jacket, old tailor shop, warm light, film photo"
+ },
+ {
+  "id": "lot_piano",
+  "width": 1024,
+  "height": 768,
+  "seed": 26,
+  "prompt": "close-up of old upright piano keys, warm window light, dust in the air, film photo, shallow depth of field"
+ },
+ {
+  "id": "lot_luci",
+  "width": 1024,
+  "height": 768,
+  "seed": 27,
+  "prompt": "ring light and smartphone on tripod in a dark room, pink and blue neon lights, influencer setup, glossy photo"
+ },
+ {
+  "id": "lot_vinile",
+  "width": 1024,
+  "height": 768,
+  "seed": 28,
+  "prompt": "black vinyl record with plain white blank label, product photo on pure white background, studio lighting"
+ },
+ {
+  "id": "lot_autotune",
+  "width": 1024,
+  "height": 768,
+  "seed": 29,
+  "prompt": "studio condenser microphone with neon pink and cyan lights, glossy product photo, dark background"
+ },
+ {
+  "id": "lot_maschera",
+  "width": 1024,
+  "height": 768,
+  "seed": 54,
+  "prompt": "black leather Pulcinella half mask with long hooked nose, commedia dell'arte mask lying on white linen cloth, product photo, soft light"
+ },
+ {
+  "id": "hit_cover",
+  "width": 768,
+  "height": 768,
+  "seed": 55,
+  "prompt": "glossy pink neon heart shape floating over a dark wet city street at night, generic pop single cover art, no people, no text"
+ },
+ {
+  "id": "factory",
+  "width": 1024,
+  "height": 576,
+  "seed": 56,
+  "prompt": "assembly line in a factory with rows of identical black vinyl records stacked on a conveyor belt, industrial, cold blue light, photo"
+ },
+ {
+  "id": "real_guitar",
+  "width": 1024,
+  "height": 576,
+  "seed": 33,
+  "prompt": "old acoustic guitar on a chair by an open window in an old Naples apartment, warm morning light, dust in the air, 35mm film photo, cinematic"
+ },
+ {
+  "id": "real_radio",
+  "width": 1024,
+  "height": 576,
+  "seed": 34,
+  "prompt": "vintage record player spinning a vinyl in a warm old kitchen, nostalgic, 35mm film photo, cinematic"
+ },
+ {
+  "id": "real_sea",
+  "width": 1024,
+  "height": 576,
+  "seed": 35,
+  "prompt": "waves crashing on dark rocks, wind and salt spray, Gulf of Naples, dramatic sky, cinematic photo"
+ },
+ {
+  "id": "real_city",
+  "width": 1024,
+  "height": 576,
+  "seed": 36,
+  "prompt": "old town Naples rooftops and church domes at blue hour, warm lit windows, aerial view, cinematic photo"
+ },
+ {
+  "id": "real_records",
+  "width": 1024,
+  "height": 576,
+  "seed": 37,
+  "prompt": "crate of old vinyl records in a dusty record shop, warm light, close-up, film photo"
+ },
+ {
+  "id": "real_road",
+  "width": 1024,
+  "height": 576,
+  "seed": 38,
+  "prompt": "empty country road in Southern Italy at golden hour, olive trees, warm light, film photo"
+ },
+ {
+  "id": "real_fishermen",
+  "width": 1024,
+  "height": 576,
+  "seed": 39,
+  "prompt": "fishermen mending nets on a wooden boat at dawn in a small harbor, seen from behind, film photo"
+ },
+ {
+  "id": "real_chairs",
+  "width": 1024,
+  "height": 576,
+  "seed": 40,
+  "prompt": "two old wooden chairs and two espresso cups by an open doorway in a narrow Naples alley, warm evening light, film photo"
+ },
+ {
+  "id": "real_wall",
+  "width": 1024,
+  "height": 576,
+  "seed": 41,
+  "prompt": "old wall with peeling torn posters and painted murals in Naples, textured, film photo"
+ },
+ {
+  "id": "real_sheets",
+  "width": 1024,
+  "height": 576,
+  "seed": 43,
+  "prompt": "white sheets blowing in the wind on a laundry line on a rooftop, blue sky, film photo"
+ },
+ {
+  "id": "real_gulf",
+  "width": 1024,
+  "height": 576,
+  "seed": 44,
+  "prompt": "panorama of the Gulf of Naples at dawn with Mount Vesuvius, soft pastel light, calm sea, film photo"
+ }
+]
