@@ -9,7 +9,7 @@ class PrivacyScreen extends StatelessWidget {
   const PrivacyScreen({super.key});
 
   static const String text = '''
-${AppInfo.name} è pensata per trattare il minimo indispensabile dei tuoi dati.
+${AppInfo.fullName} è pensata per trattare il minimo indispensabile dei tuoi dati.
 
 AUDIO
 L'audio che condividi viene copiato in una cartella privata dell'app e

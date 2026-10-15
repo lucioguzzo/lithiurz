@@ -52,7 +52,7 @@ class BRIEFApp extends StatelessWidget {
         valueListenable: services.settings,
         builder: (BuildContext context, AppSettings settings, _) {
           return MaterialApp(
-            title: AppInfo.name,
+            title: AppInfo.fullName,
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),

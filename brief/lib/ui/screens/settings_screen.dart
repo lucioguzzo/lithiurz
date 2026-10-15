@@ -368,9 +368,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => showLicensePage(
                       context: context,
-                      applicationName: AppInfo.name,
+                      applicationName: AppInfo.fullName,
                       applicationVersion: AppInfo.version,
                       applicationLegalese:
+                          '${AppInfo.copyright}\n\n'
                           'Trascrizione con whisper.cpp (MIT). Conversione '
                           'audio con FFmpeg (LGPL 2.1+, collegamento '
                           'dinamico).',
