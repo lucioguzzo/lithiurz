@@ -17,7 +17,8 @@ plugins {
 
 android {
     namespace = "com.lucio.vocenota"
-    compileSdk = flutter.compileSdkVersion
+    // receive_sharing_intent 1.9.0 richiede la compilazione contro le API 37.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {

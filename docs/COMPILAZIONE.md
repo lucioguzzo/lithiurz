@@ -6,7 +6,7 @@
 |-----------|----------------|------|
 | Flutter | 3.47.7 stable (Dart 3.13.5) | minimo richiesto: Flutter 3.29 / Dart 3.7 (`whisper_ggml`) |
 | JDK | 17 o 21 | |
-| Android SDK | platform 36, build-tools 36 | |
+| Android SDK | **platform 37** (`platforms;android-37.0`), build-tools 37 | `receive_sharing_intent` 1.9 richiede `compileSdk 37`; è già impostato in `android/app/build.gradle.kts` |
 | Android NDK | quella richiesta dal plugin Flutter (si scarica da sola) | whisper.cpp è compilato nativamente |
 | Xcode | 15+ su macOS | **solo** per iOS |
 | Python | 3.11+ | solo per il backend |

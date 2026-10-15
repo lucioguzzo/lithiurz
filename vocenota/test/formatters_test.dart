@@ -35,6 +35,11 @@ void main() {
     test('non tocca un numero che fa parte del nome scelto dall\'utente', () {
       expect(Fmt.titleFromFileName('2024_bilancio.m4a'), '2024 bilancio');
     });
+
+    test('mette l\'iniziale maiuscola', () {
+      expect(Fmt.titleFromFileName('nota della riunione.m4a'),
+          'Nota della riunione');
+    });
     test('nome vuoto ricade su un titolo generico', () {
       expect(Fmt.titleFromFileName('.opus'), 'Audio');
     });

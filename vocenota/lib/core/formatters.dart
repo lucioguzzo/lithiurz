@@ -52,6 +52,7 @@ class Fmt {
     name = name.replaceAll(RegExp(r'\s+'), ' ').trim();
     // Un nome fatto di soli punti o separatori non è un titolo utile.
     if (name.replaceAll(RegExp(r'[.\s]'), '').isEmpty) return 'Audio';
+    name = '${name[0].toUpperCase()}${name.substring(1)}';
     return name.length <= 60 ? name : '${name.substring(0, 57)}…';
   }
 
