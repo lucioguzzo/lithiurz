@@ -49,6 +49,10 @@ jobs:
             printf 'storeFile=%s\n' "$RUNNER_TEMP/upload.jks"
           } > android/key.properties
 
+      - name: Licenze Android (necessarie per scaricare NDK e platform 37)
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+        working-directory: .
+
       - run: flutter pub get
       - run: flutter test
 

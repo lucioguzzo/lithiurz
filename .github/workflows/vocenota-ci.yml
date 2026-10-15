@@ -30,6 +30,10 @@ jobs:
           channel: stable
           cache: true
 
+      - name: Licenze Android (necessarie per scaricare NDK e platform 37)
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
+        working-directory: .
+
       - name: Dipendenze
         run: flutter pub get
 
