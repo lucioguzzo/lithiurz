@@ -2,8 +2,12 @@
 
 ## Google Play
 
-1. **Identificatore** — `com.lucio.vocenota`: cambiarlo prima del primo
+1. **Identificatore** — `com.lucio.brief`: cambiarlo prima del primo
    caricamento se serve, dopo non è più possibile.
+1b. **Nome nello store** — "BRIEF - Vocal Sum Up". L'etichetta sotto
+   l'icona è il solo "BRIEF": entrambi i sistemi troncano le etichette
+   lunghe. Per cambiarla: `android:label` nel manifest e
+   `CFBundleDisplayName` nei due Info.plist di iOS.
 2. **Firma** — creare il keystore e `android/key.properties`
    (vedi `COMPILAZIONE.md`), poi attivare Play App Signing.
 3. **AdMob** — creare l'app su AdMob, sostituire nel manifest
@@ -39,7 +43,7 @@
 - [ ] Icona e schermata di avvio personalizzate (oggi predefinite Flutter)
 - [ ] Informativa privacy pubblicata online
 - [ ] Backend in esercizio, con HTTPS e volume persistente
-- [ ] `VOCENOTA_BACKEND_URL` e `VOCENOTA_APP_TOKEN` impostati nella build
+- [ ] `BRIEF_BACKEND_URL` e `BRIEF_APP_TOKEN` impostati nella build
 - [ ] Prove su almeno tre dispositivi reali, uno di fascia bassa
 - [ ] Prova con audio lungo (30+ minuti) e con interruzione dell'app
 - [ ] Verifica delle quote: raggiungere il limite e controllare che l'app

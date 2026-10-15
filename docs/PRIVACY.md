@@ -1,7 +1,7 @@
 # Privacy e adempimenti
 
 Testo di riferimento per l'informativa. La versione mostrata nell'app è in
-`vocenota/lib/ui/screens/privacy_screen.dart`: **le due vanno tenute
+`brief/lib/ui/screens/privacy_screen.dart`: **le due vanno tenute
 allineate**. Gli store richiedono anche un URL pubblico raggiungibile.
 
 ## Principio seguito: minimizzazione

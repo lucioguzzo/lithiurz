@@ -1,4 +1,4 @@
-# Backend dei riassunti di VoceNota
+# Backend dei riassunti di BRIEF
 
 Servizio FastAPI che sta fra l'app e il fornitore di modelli linguistici.
 Esiste per tre motivi: **non mettere chiavi API dentro l'app**, **tenere i
@@ -64,7 +64,7 @@ cp .env.example .env
 uvicorn app.main:app --reload
 ```
 
-Con `VOCENOTA_PROVIDER=echo` (predefinito) il servizio funziona senza chiavi
+Con `BRIEF_PROVIDER=echo` (predefinito) il servizio funziona senza chiavi
 API: i riassunti sono fittizi ma la pipeline è completa, utile per provare
 l'app.
 

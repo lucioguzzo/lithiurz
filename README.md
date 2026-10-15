@@ -1,4 +1,7 @@
-# VoceNota — trascrizione e riassunto di audio (Android + iOS)
+# BRIEF - Vocal Sum Up
+
+**Trascrizione e riassunto di audio, Android e iOS.**
+© 2026 Lucio Guzzo
 
 App Flutter che riceve un audio dal menu **Condividi** di WhatsApp, Telegram,
 email o file manager e restituisce **trascrizione**, **riassunto**, **punti
@@ -12,11 +15,27 @@ passa dal backend — che riceve **testo, mai audio**.
 > In questo repository convive anche il progetto precedente
 > **Baby Cry Translator** (cartella `app/`), lasciato invariato.
 
+## Nome e copyright
+
+L'app si chiama **BRIEF - Vocal Sum Up**: è il nome che compare
+nell'intestazione, nelle impostazioni, nei testi esportati e che va usato
+nelle schede degli store. Sotto l'icona del telefono compare il solo
+**BRIEF**, perché Android e iOS troncano le etichette oltre una dozzina di
+caratteri e "BRIEF - Vocal Su…" si leggerebbe male.
+
+In fondo a ogni schermata compare la riga **© 2026 Lucio Guzzo**. Nome e
+anno stanno in `AppInfo.copyrightOwner` e `AppInfo.copyrightYear`
+(`brief/lib/core/constants.dart`): per cambiarli basta quella riga.
+
+Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
+`applicationId` e bundle id `com.lucio.brief`, gruppo app iOS
+`group.com.lucio.brief`.
+
 ## Struttura
 
 | Cartella    | Contenuto |
 |-------------|-----------|
-| `vocenota/` | App Flutter (Android + iOS) |
+| `brief/` | App Flutter (Android + iOS) |
 | `backend/`  | Servizio FastAPI per i riassunti, con quote e tetto di spesa |
 | `docs/`     | Architettura, compilazione, iOS, privacy, pubblicazione, attività residue |
 | `app/`      | Progetto precedente (Baby Cry Translator), non toccato |
@@ -25,7 +44,7 @@ passa dal backend — che riceve **testo, mai audio**.
 
 ```bash
 # App
-cd vocenota
+cd brief
 flutter pub get
 flutter test                 # 85 test unitari
 flutter build apk --debug    # Android
@@ -39,7 +58,7 @@ uvicorn app.main:app --reload
 
 Dettagli completi in [`docs/COMPILAZIONE.md`](docs/COMPILAZIONE.md).
 Se vuoi solo l'APK senza compilare nulla sul tuo computer:
-[`COME_OTTENERE_APK_VOCENOTA.md`](COME_OTTENERE_APK_VOCENOTA.md).
+[`COME_OTTENERE_APK_BRIEF.md`](COME_OTTENERE_APK_BRIEF.md).
 
 ## Che cosa fa, in concreto
 

@@ -14,7 +14,7 @@
 ## App Flutter
 
 ```bash
-cd vocenota
+cd brief
 flutter pub get
 flutter analyze          # deve restituire "No issues found!"
 flutter test             # 85 test unitari
@@ -32,8 +32,8 @@ Con i propri identificativi AdMob e il backend:
 
 ```bash
 flutter build appbundle --release \
-  --dart-define=VOCENOTA_BACKEND_URL=https://api.tuodominio.it \
-  --dart-define=VOCENOTA_APP_TOKEN=token-pubblico-dell-app \
+  --dart-define=BRIEF_BACKEND_URL=https://api.tuodominio.it \
+  --dart-define=BRIEF_APP_TOKEN=token-pubblico-dell-app \
   --dart-define=ADMOB_BANNER_ANDROID=ca-app-pub-XXXX/YYYY
 ```
 
@@ -66,7 +66,7 @@ target va creato una volta in Xcode: la procedura completa è in
 
 ```bash
 flutter config --enable-swift-package-manager   # richiesto da receive_sharing_intent
-cd vocenota
+cd brief
 flutter build ios --release                     # dopo aver creato il target
 ```
 
@@ -88,8 +88,8 @@ Con Docker:
 
 ```bash
 cd backend
-docker build -t vocenota-backend .
-docker run -p 8000:8000 --env-file .env -v "$PWD/dati:/dati" vocenota-backend
+docker build -t brief-backend .
+docker run -p 8000:8000 --env-file .env -v "$PWD/dati:/dati" brief-backend
 ```
 
 Senza chiavi API il backend parte lo stesso con il provider `echo`, che

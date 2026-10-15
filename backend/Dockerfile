@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    VOCENOTA_DATABASE_PATH=/dati/usage.db
+    BRIEF_DATABASE_PATH=/dati/usage.db
 
 WORKDIR /app
 
@@ -12,9 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 # I contatori di utilizzo vanno su un volume: solo numeri, nessun testo.
-RUN mkdir -p /dati && useradd --create-home --uid 10001 vocenota \
-    && chown -R vocenota /dati /app
-USER vocenota
+RUN mkdir -p /dati && useradd --create-home --uid 10001 brief \
+    && chown -R brief /dati /app
+USER brief
 VOLUME ["/dati"]
 
 EXPOSE 8000

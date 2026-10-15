@@ -12,7 +12,7 @@ creare il target della Share Extension e attivare l'App Group.
 
 ```
 ios/Runner/Info.plist               AppGroupId, schema URL, tipi di documento audio
-ios/Runner/Runner.entitlements      gruppo app  group.com.lucio.vocenota
+ios/Runner/Runner.entitlements      gruppo app  group.com.lucio.brief
 ios/Share Extension/
     ShareViewController.swift       eredita da RSIShareViewController
     Info.plist                      attivazione su file/allegati
@@ -25,7 +25,7 @@ ios/Share Extension/
 1. **Swift Package Manager**
    ```bash
    flutter config --enable-swift-package-manager
-   cd vocenota && flutter pub get
+   cd brief && flutter pub get
    ```
    `receive_sharing_intent` è distribuito solo come Swift Package.
 
@@ -39,12 +39,12 @@ ios/Share Extension/
 
 4. **App Group** — scheda *Signing & Capabilities*, su **entrambi** i target
    (Runner e Share Extension): *+ Capability → App Groups*, e selezionare
-   `group.com.lucio.vocenota` (o il proprio, aggiornando i due
+   `group.com.lucio.brief` (o il proprio, aggiornando i due
    `.entitlements`).
 
 5. **Variabile CUSTOM_GROUP_ID** — *Build Settings → + → Add User-Defined
    Setting* su **entrambi** i target: nome `CUSTOM_GROUP_ID`, valore
-   `group.com.lucio.vocenota`. I due `Info.plist` la leggono.
+   `group.com.lucio.brief`. I due `Info.plist` la leggono.
 
 6. **Collegare il package all'estensione** — target Share Extension →
    *General → Frameworks and Libraries → +* → libreria
@@ -55,14 +55,14 @@ ios/Share Extension/
    compilazione fallisce con `no such module 'receive_sharing_intent'`.
 
 8. **Firma** — team di sviluppo su entrambi i target; i due bundle id devono
-   essere annidati, es. `com.lucio.vocenota` e
-   `com.lucio.vocenota.ShareExtension`.
+   essere annidati, es. `com.lucio.brief` e
+   `com.lucio.brief.ShareExtension`.
 
 ## Prove da fare sul dispositivo
 
 | Scenario | Atteso |
 |---|---|
-| WhatsApp → nota vocale → Condividi → VoceNota, **app chiusa** | l'app si apre, mostra l'anteprima, poi trascrive |
+| WhatsApp → nota vocale → Condividi → BRIEF, **app chiusa** | l'app si apre, mostra l'anteprima, poi trascrive |
 | Stesso flusso con **app in background** | stesso risultato, senza riavvio |
 | Stesso flusso con **app già aperta** | l'anteprima compare subito |
 | Condivisione di 2+ file | elabora il primo e lo dice chiaramente |

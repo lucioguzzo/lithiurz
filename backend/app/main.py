@@ -1,4 +1,4 @@
-"""API dei riassunti di VoceNota.
+"""API dei riassunti di BRIEF.
 
 Riceve solo testo. Protegge la chiave del fornitore IA, applica quote,
 limiti di frequenza e un tetto di spesa con disattivazione automatica.
@@ -23,7 +23,7 @@ from .summarize import summarize_text
 
 # Attenzione: nessun log deve contenere trascrizioni o riassunti.
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("vocenota")
+logger = logging.getLogger("brief")
 
 
 @asynccontextmanager
@@ -50,7 +50,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="VoceNota Summary API",
+    title="BRIEF Summary API",
     version="0.1.0",
     lifespan=lifespan,
     docs_url="/docs",

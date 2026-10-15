@@ -14,7 +14,7 @@ importanza.
 | 5 | **Account AdMob e identificativi veri** | Ora ci sono gli ID di test; pubblicare con quelli non genera ricavi |
 | 6 | **Icone e schermata di avvio** | Oggi ci sono quelle predefinite di Flutter |
 | 7 | **Informativa privacy pubblicata su web** | Google e Apple pretendono un URL raggiungibile; il testo è già in `PRIVACY.md` e nell'app |
-| 8 | **Distribuire il backend** e puntarci l'app (`VOCENOTA_BACKEND_URL`) | Senza, il riassunto cloud non è disponibile e l'app ripiega sul locale |
+| 8 | **Distribuire il backend** e puntarci l'app (`BRIEF_BACKEND_URL`) | Senza, il riassunto cloud non è disponibile e l'app ripiega sul locale |
 
 ## Importanti, non bloccanti
 
