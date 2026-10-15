@@ -10,6 +10,7 @@ import 'package:vocenota/data/settings.dart';
 import 'package:vocenota/domain/audio_source.dart';
 import 'package:vocenota/domain/note.dart';
 import 'package:vocenota/domain/processing.dart';
+import 'package:vocenota/services/audio/chunk_planner.dart';
 import 'package:vocenota/services/audio/media_tools.dart';
 import 'package:vocenota/services/pipeline/processing_controller.dart';
 import 'package:vocenota/services/summary/summary_service.dart';
@@ -33,6 +34,7 @@ class FakeTranscription extends TranscriptionService {
   final AppFailure? failure;
   int calls = 0;
   bool sawCancel = false;
+  TranscriptionJob? lastResume;
 
   @override
   Future<TranscriptionOutcome> transcribe({
@@ -44,6 +46,7 @@ class FakeTranscription extends TranscriptionService {
     TranscriptionJob? resume,
   }) async {
     calls++;
+    lastResume = resume;
     onUpdate(const ProcessingUpdate(
       stage: ProcessingStage.trascrizione,
       progress: 0.5,
@@ -209,6 +212,31 @@ void main() {
     final Note fromDb = (await notes.byId(note.id!))!;
     expect(fromDb.summary!.style, SummaryStyle.breve);
     expect(await notes.count(), 1);
+  });
+
+  test('il lavoro parziale viene passato al trascrittore', () async {
+    final AudioSource source = await fakeAudio(tempDir);
+    final TranscriptionJob job = TranscriptionJob(
+      audioPath: source.path,
+      displayName: source.displayName,
+      modelName: 'base',
+      language: 'it',
+      totalMs: 600000,
+      chunks: const <AudioChunk>[
+        AudioChunk(index: 0, start: Duration.zero, end: Duration(minutes: 5)),
+        AudioChunk(
+            index: 1, start: Duration(minutes: 5), end: Duration(minutes: 10)),
+      ],
+      done: <int, String>{0: 'Primo blocco.'},
+    );
+    final FakeTranscription transcription = FakeTranscription();
+    final ProcessingController controller = build(transcription);
+
+    await controller.run(source, resume: job);
+
+    expect(transcription.lastResume, isNotNull);
+    expect(transcription.lastResume!.done[0], 'Primo blocco.');
+    expect(transcription.lastResume!.remaining, 1);
   });
 
   test('reset riporta il controller allo stato iniziale', () async {

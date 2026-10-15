@@ -34,8 +34,17 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
     _started = true;
     final AppServices s = ServicesScope.of(context);
     s.processing.reset();
-    final Note? note =
-        await s.processing.run(widget.source, resume: widget.resume);
+
+    // Dopo un annullamento o un errore il lavoro parziale è su disco: va
+    // ripreso, altrimenti "Riprendi" ricomincerebbe da zero.
+    TranscriptionJob? resume = widget.resume;
+    final TranscriptionJob? saved = await s.transcription.jobs.load();
+    if (saved != null && saved.audioPath == widget.source.path) {
+      resume = saved;
+    }
+    if (!mounted) return;
+
+    final Note? note = await s.processing.run(widget.source, resume: resume);
     if (!mounted) return;
     if (note != null) {
       Navigator.of(context).pop(note);

@@ -115,3 +115,17 @@ async def test_echo_provider_produce_json_valido():
     assert result.summary
     assert result.key_points
     assert any("chiamare" in a["text"] for a in result.actions)
+
+
+def test_nome_lingua_esteso():
+    from app.prompts import language_name, single_prompt
+
+    assert language_name("it") == "italiano"
+    assert language_name("EN") == "inglese"
+    assert language_name("auto") == "italiano"
+    assert language_name("klingon") == "italiano"
+    assert language_name("") == "italiano"
+    # Il prompt non deve contenere il codice grezzo.
+    prompt = single_prompt("testo", "standard", "it")
+    assert "Scrivi in italiano" in prompt
+    assert "Scrivi in it." not in prompt

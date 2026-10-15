@@ -101,6 +101,8 @@ class ProcessingController extends ChangeNotifier {
         language: s.language,
         token: token,
         onUpdate: _emit,
+        // Riprende i blocchi già trascritti di un lavoro interrotto.
+        resume: resume,
       );
       token.throwIfCancelled();
 
