@@ -57,7 +57,7 @@ importanza.
 | Verifica | Esito |
 |---|---|
 | `flutter analyze` | nessun problema |
-| `flutter test` (85 test) | superati |
+| `flutter test` (90 test) | superati |
 | `pytest` backend (39 test) | superati |
 | Build APK Android (debug) | compilata e ispezionata |
 | Build APK Android (release con R8, split per ABI) | compilata: 41-51 MB per architettura |
