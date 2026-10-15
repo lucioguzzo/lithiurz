@@ -59,7 +59,7 @@ importanza.
 | `flutter analyze` | nessun problema |
 | `flutter test` (90 test) | superati |
 | `pytest` backend (39 test) | superati |
-| Build APK Android (debug) | compilata e ispezionata |
+| Build APK Android (debug) | compilata e ispezionata, anche dopo il rinomino in BRIEF |
 | Build APK Android (release con R8, split per ABI) | compilata: 41-51 MB per architettura |
 | Backend avviato davvero (uvicorn + richieste HTTP reali) | funzionante; nei log nessun contenuto |
 | `docker build` del backend | non eseguito qui (manca il demone Docker); lo fa la CI |
