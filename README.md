@@ -74,7 +74,7 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 |----------|-------|
 | `flutter analyze` | ✅ nessun problema |
 | Test Dart (`flutter test`) | ✅ 85 test |
-| Test backend (`pytest`) | ✅ 38 test |
+| Test backend (`pytest`) | ✅ 39 test |
 | Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build iOS | ❌ **non compilata**: richiede macOS e Xcode. Il codice e i file
 della Share Extension ci sono, i passaggi manuali sono in [`docs/IOS.md`](docs/IOS.md) |
