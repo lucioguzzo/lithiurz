@@ -59,6 +59,21 @@ stanno dietro una classe sottile. Per questo `planChunks`, `parseSilenceLog`,
 dispositivo, e `ProcessingController` è testabile sostituendo validatore e
 trascrittore.
 
+## Codice nativo
+
+Sul lato nativo è stato scritto solo ciò che serviva davvero:
+
+- **Swift** — `ios/Share Extension/ShareViewController.swift`, l'estensione
+  che riceve l'audio dal menu Condividi di iOS e lo passa all'app tramite
+  l'App Group.
+- **Kotlin** — nessun codice su misura: su Android gli intent
+  `ACTION_SEND` / `ACTION_SEND_MULTIPLE` / `VIEW` sono dichiarati nel
+  manifest e gestiti dal plugin `receive_sharing_intent`, che li consegna a
+  Dart. Scrivere un'`Activity` propria avrebbe duplicato quel codice senza
+  aggiungere nulla.
+- **C/C++** — whisper.cpp e FFmpeg arrivano già compilati dai rispettivi
+  pacchetti (`whisper_ggml` li costruisce con CMake e NDK in fase di build).
+
 Non c'è un contenitore di dependency injection: i servizi sono costruiti in
 `AppServices.bootstrap` e passati con un `InheritedWidget` (`ServicesScope`).
 Per un'app di queste dimensioni è più leggibile di un framework.

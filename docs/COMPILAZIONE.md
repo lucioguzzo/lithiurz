@@ -100,9 +100,17 @@ produce riassunti fittizi: utile per provare l'app end-to-end.
 - `flutter analyze` → nessun problema.
 - `flutter test` → tutti i test superati.
 - `python -m pytest` (backend) → tutti i test superati.
-- Build Android: eseguita in un container Linux il cui IP di uscita viene
-  limitato (HTTP 429) da `repo.maven.apache.org`. Per aggirarlo è stato usato
-  un `~/.gradle/init.gradle` che antepone il mirror ufficiale di Maven
-  Central su Google Cloud Storage — un accorgimento dell'ambiente, non del
-  progetto: su una macchina normale e in CI non serve.
+- **APK di debug: compilato davvero** (`app-debug.apk`, 232 MB con tutte e
+  quattro le architetture). Contiene `libwhisper.so` e le librerie FFmpeg,
+  dichiara i filtri `SEND`/`SEND_MULTIPLE`, `minSdk 24`, `compileSdk 37`.
+  È grande perché è una build di debug non divisa per ABI: per la
+  distribuzione si usa l'App Bundle o `--split-per-abi`.
+- Nota sull'ambiente: il container usato ha l'IP di uscita limitato
+  (HTTP 429) da `repo.maven.apache.org`. È stato aggirato con un
+  `~/.gradle/init.gradle` che riscrive l'URL di Maven Central verso il
+  mirror ufficiale su Google Cloud Storage — un accorgimento dell'ambiente,
+  non del progetto: su una macchina normale e in CI non serve.
+- Immagine Docker del backend: **non costruita** qui (nel container non
+  c'è un demone Docker). Il `Dockerfile` è verificato dal workflow di CI,
+  che esegue `docker build`.
 - Build iOS: **non eseguita**, serve macOS con Xcode.

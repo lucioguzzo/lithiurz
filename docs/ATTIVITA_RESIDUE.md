@@ -24,6 +24,11 @@ importanza.
 - **Attestazione del dispositivo** (Play Integrity / DeviceCheck) — oggi le
   quote del backend si appoggiano a un identificativo casuale generato
   dall'app: basta a limitare gli abusi casuali, non uno determinato.
+- **Esclusione dei modelli dal backup su iOS** — `whisper_ggml` salva i
+  modelli ggml (da 77 MB a 488 MB) in `Library/`, che iOS include nel
+  backup iCloud. Apple chiede che i dati riscaricabili siano esclusi: serve
+  impostare `isExcludedFromBackup` sulla cartella dei modelli da codice
+  Swift all'avvio. Da fare prima di inviare l'app alla revisione.
 - **Prove di durata** — un audio di 60+ minuti su telefono di fascia bassa:
   misurare memoria, tempi e comportamento quando il sistema sospende l'app.
 - **Notifica persistente su Android** durante l'elaborazione (foreground
@@ -54,6 +59,8 @@ importanza.
 | `flutter analyze` | nessun problema |
 | `flutter test` (75 test) | superati |
 | `pytest` backend (38 test) | superati |
-| Build APK Android | vedi [COMPILAZIONE.md](COMPILAZIONE.md) |
+| Build APK Android (debug) | compilata e ispezionata |
+| Backend avviato davvero (uvicorn + richieste HTTP reali) | funzionante; nei log nessun contenuto |
+| `docker build` del backend | non eseguito qui (manca il demone Docker); lo fa la CI |
 | Build iOS | non eseguita (serve macOS) |
 | Trascrizione su audio reale | non eseguita (serve un dispositivo) |

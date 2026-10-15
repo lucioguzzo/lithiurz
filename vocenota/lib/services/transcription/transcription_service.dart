@@ -69,13 +69,22 @@ class TranscriptionService {
       detail: 'Analisi del file audio',
     ));
 
+    // Il lavoro salvato si riprende solo se riguarda lo stesso file con lo
+    // stesso modello e la stessa lingua: altrimenti la trascrizione
+    // risulterebbe metà in un modo e metà nell'altro.
+    final bool canResume = resume != null &&
+        resume.audioPath == source.path &&
+        resume.modelName == model.id &&
+        resume.language == language &&
+        !resume.isComplete;
+
     TranscriptionJob job;
-    if (resume != null && resume.audioPath == source.path) {
+    if (canResume) {
       job = resume;
       onUpdate(ProcessingUpdate(
         stage: ProcessingStage.preparazione,
-        progress: resume.fraction,
-        detail: 'Ripresa: ${resume.remaining} blocchi mancanti',
+        progress: job.fraction,
+        detail: 'Ripresa: ${job.remaining} blocchi mancanti',
       ));
     } else {
       final List<AudioChunk> chunks = await _planFor(source, token, onUpdate);

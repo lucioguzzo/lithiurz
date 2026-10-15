@@ -239,6 +239,30 @@ void main() {
     expect(transcription.lastResume!.remaining, 1);
   });
 
+  test('una ripresa con modello diverso non viene usata', () async {
+    // Il controller inoltra comunque il lavoro: è il servizio di
+    // trascrizione a scartarlo se modello o lingua non coincidono.
+    final AudioSource source = await fakeAudio(tempDir);
+    final TranscriptionJob job = TranscriptionJob(
+      audioPath: source.path,
+      displayName: source.displayName,
+      modelName: 'tiny',
+      language: 'en',
+      totalMs: 600000,
+      chunks: const <AudioChunk>[
+        AudioChunk(index: 0, start: Duration.zero, end: Duration(minutes: 5)),
+      ],
+      done: <int, String>{0: 'vecchio blocco'},
+    );
+    final FakeTranscription transcription = FakeTranscription();
+    final ProcessingController controller = build(transcription);
+
+    await controller.run(source, resume: job);
+
+    expect(transcription.lastResume!.modelName, 'tiny');
+    expect(controller.update.stage, ProcessingStage.completato);
+  });
+
   test('reset riporta il controller allo stato iniziale', () async {
     final ProcessingController controller = build(FakeTranscription());
     await controller.run(await fakeAudio(tempDir));

@@ -73,7 +73,7 @@ Dettagli completi in [`docs/COMPILAZIONE.md`](docs/COMPILAZIONE.md).
 | `flutter analyze` | ✅ nessun problema |
 | Test Dart (`flutter test`) | ✅ 75 test |
 | Test backend (`pytest`) | ✅ 38 test |
-| Build APK Android | vedi [`docs/COMPILAZIONE.md`](docs/COMPILAZIONE.md) |
+| Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build iOS | ❌ **non compilata**: richiede macOS e Xcode. Il codice e i file
 della Share Extension ci sono, i passaggi manuali sono in [`docs/IOS.md`](docs/IOS.md) |
 
