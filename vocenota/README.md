@@ -1,17 +1,40 @@
-# vocenota
+# VoceNota — app Flutter
 
-Trascrizione e riassunto automatico di audio condivisi
+Trascrizione locale (whisper.cpp) e riassunto di audio condivisi da altre
+app. Documentazione completa in [`../docs`](../docs):
 
-## Getting Started
+- [Architettura](../docs/ARCHITETTURA.md)
+- [Compilazione](../docs/COMPILAZIONE.md)
+- [Configurazione iOS](../docs/IOS.md)
+- [Privacy](../docs/PRIVACY.md) · [Pubblicazione](../docs/PUBBLICAZIONE.md)
+- [Attività residue](../docs/ATTIVITA_RESIDUE.md)
 
-This project is a starting point for a Flutter application.
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter build apk --debug
+```
 
-A few resources to get you started if this is your first Flutter project:
+## Mappa del codice
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+| Percorso | Responsabilità |
+|---|---|
+| `lib/core/` | costanti, errori, annullamento, formattazioni |
+| `lib/domain/` | modelli immutabili |
+| `lib/data/` | impostazioni (SharedPreferences) e cronologia (SQLite) |
+| `lib/services/audio/` | pianificazione blocchi, ffprobe/ffmpeg, ricucitura testi |
+| `lib/services/share/` | ingresso dai menu Condividi e import manuale |
+| `lib/services/transcription/` | modelli whisper, orchestrazione, ripresa |
+| `lib/services/summary/` | riassunto locale, client del backend |
+| `lib/services/pipeline/` | `ProcessingController`: stato dell'elaborazione |
+| `lib/ui/` | tema, schermate, widget |
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Parametri di compilazione
+
+| `--dart-define` | Uso |
+|---|---|
+| `VOCENOTA_BACKEND_URL` | server dei riassunti (vuoto = solo locale) |
+| `VOCENOTA_APP_TOKEN` | token pubblico accettato dal backend |
+| `ADMOB_BANNER_ANDROID` | unità banner Android (vuoto = ID di test) |
+| `ADMOB_BANNER_IOS` | unità banner iOS (vuoto = ID di test) |

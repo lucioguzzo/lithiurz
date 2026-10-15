@@ -50,8 +50,8 @@ Chi pubblica l'app è titolare. Vanno indicati nell'informativa:
 | Flutter e plugin usati | BSD/MIT/Apache 2.0 | citare le licenze |
 | Google Mobile Ads | termini AdMob | serve una CMP nello SEE |
 
-L'app deve mostrare l'elenco delle licenze: Flutter offre già
-`showLicensePage()`; **collegarlo dalle impostazioni è un'attività residua**.
+L'app mostra l'elenco completo delle licenze da *Impostazioni → Privacy e
+dati → Licenze dei componenti* (`showLicensePage` di Flutter).
 
 ## Dove i modelli vengono scaricati
 

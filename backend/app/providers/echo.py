@@ -31,7 +31,7 @@ class EchoProvider(Provider):
             "actions": [
                 {"text": s[:160], "owner": None, "due": None}
                 for s in sentences
-                if re.search(r"\b(bisogna|dobbiamo|devo|ricorda|entro)\b", s, re.I)
+                if re.search(r"\b(bisogna|dobbiamo|dev[oi]|ricord\w*|entro|chiama\w*)\b", s, re.I)
             ][:5],
         }
         text = json.dumps(payload, ensure_ascii=False)

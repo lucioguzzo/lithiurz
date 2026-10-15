@@ -37,7 +37,6 @@
 ## Prima di entrambi
 
 - [ ] Icona e schermata di avvio personalizzate (oggi predefinite Flutter)
-- [ ] Pagina delle licenze open source raggiungibile dalle impostazioni
 - [ ] Informativa privacy pubblicata online
 - [ ] Backend in esercizio, con HTTPS e volume persistente
 - [ ] `VOCENOTA_BACKEND_URL` e `VOCENOTA_APP_TOKEN` impostati nella build

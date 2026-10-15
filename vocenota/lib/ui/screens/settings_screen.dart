@@ -357,6 +357,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Licenze dei componenti'),
+                    subtitle: const Text(
+                      'whisper.cpp, FFmpeg e le altre librerie usate',
+                    ),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => showLicensePage(
+                      context: context,
+                      applicationName: AppInfo.name,
+                      applicationVersion: AppInfo.version,
+                      applicationLegalese:
+                          'Trascrizione con whisper.cpp (MIT). Conversione '
+                          'audio con FFmpeg (LGPL 2.1+, collegamento '
+                          'dinamico).',
+                    ),
+                  ),
                 ],
               ),
             ),
