@@ -29,3 +29,20 @@
 # I nomi originali nelle tracce di stack servono a capire i crash.
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
+
+# Room e WorkManager.
+# Room carica per nome le classi *_Impl che genera a compilazione
+# (Class.forName("...WorkDatabase_Impl")). R8 le rimuoveva, e l'app moriva
+# all'avvio dentro WorkManagerInitializer con
+# "Failed to create an instance of androidx.work.impl.WorkDatabase",
+# prima ancora che partisse Flutter. WorkManager arriva come dipendenza di
+# Google Mobile Ads, quindi deve restare funzionante.
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
+-keep class * extends androidx.room.migration.AutoMigrationSpec { <init>(); }
+-keep class androidx.work.impl.** { *; }
+-keep class * extends androidx.work.ListenableWorker { <init>(...); }
+-dontwarn androidx.room.**
+
+# androidx.startup istanzia gli initializer per nome, leggendoli dai
+# meta-data del manifest: i nomi non devono cambiare.
+-keep class * implements androidx.startup.Initializer { *; }
