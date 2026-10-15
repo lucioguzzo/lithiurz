@@ -12,7 +12,7 @@ class AppInfo {
 
   /// Titolare del copyright, mostrato in fondo a ogni schermata.
   /// Per cambiarlo basta questa riga.
-  static const String copyrightOwner = 'Lucio Guzzo';
+  static const String copyrightOwner = 'Lucio Salvatore Guzzo';
   static const int copyrightYear = 2026;
 
   /// Riga di copyright così come appare nell'app.

@@ -1,7 +1,7 @@
 # BRIEF - Vocal Sum Up
 
 **Trascrizione e riassunto di audio, Android e iOS.**
-© 2026 Lucio Guzzo
+© 2026 Lucio Salvatore Guzzo
 
 App Flutter che riceve un audio dal menu **Condividi** di WhatsApp, Telegram,
 email o file manager e restituisce **trascrizione**, **riassunto**, **punti
@@ -23,7 +23,7 @@ nelle schede degli store. Sotto l'icona del telefono compare il solo
 **BRIEF**, perché Android e iOS troncano le etichette oltre una dozzina di
 caratteri e "BRIEF - Vocal Su…" si leggerebbe male.
 
-In fondo a ogni schermata compare la riga **© 2026 Lucio Guzzo**. Nome e
+In fondo a ogni schermata compare la riga **© 2026 Lucio Salvatore Guzzo**. Nome e
 anno stanno in `AppInfo.copyrightOwner` e `AppInfo.copyrightYear`
 (`brief/lib/core/constants.dart`): per cambiarli basta quella riga.
 

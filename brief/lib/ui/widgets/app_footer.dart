@@ -15,7 +15,10 @@ class AppFooter extends StatelessWidget {
       child: Text(
         AppInfo.copyright,
         textAlign: TextAlign.center,
-        maxLines: 1,
+        // Due righe: con un nome lungo, uno schermo stretto o i caratteri
+        // ingranditi per accessibilità il copyright va a capo invece di
+        // essere troncato.
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.labelSmall?.copyWith(
           color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
