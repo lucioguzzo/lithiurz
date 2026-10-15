@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Il gruppo deve coincidere con quello della Share Extension e con la
+	     variabile CUSTOM_GROUP_ID (vedi docs/IOS.md). -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.lucio.vocenota</string>
+	</array>
+</dict>
+</plist>

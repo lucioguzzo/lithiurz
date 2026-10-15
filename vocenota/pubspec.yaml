@@ -1,0 +1,55 @@
+name: vocenota
+description: "VoceNota - trascrizione locale e riassunto intelligente di messaggi vocali e registrazioni."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.7.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Trascrizione on-device (whisper.cpp via FFI). Porta con sé
+  # ffmpeg_kit_flutter_new_min, usato anche da noi per probe/split.
+  whisper_ggml: ^2.8.1
+  ffmpeg_kit_flutter_new_min: ^2.1.0
+
+  # Ingresso file: menu Condividi (Android/iOS) + import manuale
+  receive_sharing_intent: ^1.9.0
+  file_picker: ^13.1.0
+
+  # Riproduzione anteprima audio
+  just_audio: ^0.10.6
+
+  # Sintesi vocale nativa
+  flutter_tts: ^4.2.5
+
+  # Persistenza
+  sqflite: ^2.4.4
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  shared_preferences: ^2.5.6
+
+  # Condivisione / export risultati
+  share_plus: ^13.3.1
+
+  # Backend riassunti
+  http: ^1.6.0
+
+  # Pubblicità (ID di test di default)
+  google_mobile_ads: ^9.1.0
+
+  # Raccomandazione modello in base alla RAM del dispositivo
+  device_info_plus: ^13.3.0
+
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  sqflite_common_ffi: ^2.4.4
+
+flutter:
+  uses-material-design: true

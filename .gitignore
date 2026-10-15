@@ -1,0 +1,21 @@
+# Artefatti di compilazione
+build/
+.dart_tool/
+.gradle/
+
+# Segreti e configurazioni locali
+.env
+key.properties
+*.jks
+*.keystore
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+
+# Sistema operativo ed editor
+.DS_Store
+*.swp
+.idea/
