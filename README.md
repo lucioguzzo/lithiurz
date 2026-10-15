@@ -38,6 +38,8 @@ uvicorn app.main:app --reload
 ```
 
 Dettagli completi in [`docs/COMPILAZIONE.md`](docs/COMPILAZIONE.md).
+Se vuoi solo l'APK senza compilare nulla sul tuo computer:
+[`COME_OTTENERE_APK_VOCENOTA.md`](COME_OTTENERE_APK_VOCENOTA.md).
 
 ## Che cosa fa, in concreto
 

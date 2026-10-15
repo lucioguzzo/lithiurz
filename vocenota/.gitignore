@@ -54,3 +54,4 @@ android/key.properties
 
 # Modelli ggml eventualmente scaricati in locale per prove.
 *.bin
+vocenota/android/.kotlin/
