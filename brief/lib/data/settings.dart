@@ -9,7 +9,7 @@ import '../core/constants.dart';
 @immutable
 class AppSettings {
   const AppSettings({
-    this.modelName = 'base',
+    this.modelName = 'small',
     this.language = 'it',
     this.summaryStyle = SummaryStyle.standard,
     this.engine = SummaryEngine.locale,
@@ -41,12 +41,8 @@ class AppSettings {
   bool get cloudAllowed =>
       engine == SummaryEngine.cloud && cloudConsentAt != null;
 
-  WhisperModel get whisperModel => switch (modelName) {
-        'tiny' => WhisperModel.tiny,
-        'small' => WhisperModel.small,
-        'medium' => WhisperModel.medium,
-        _ => WhisperModel.base,
-      };
+  /// BRIEF usa solo Small: i modelli più leggeri sbagliavano troppo.
+  WhisperModel get whisperModel => WhisperModel.small;
 
   AppSettings copyWith({
     String? modelName,
@@ -104,10 +100,17 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
   static const String _kBackend = 'backend_url';
   static const String _kTheme = 'theme_mode';
 
+  static const Set<String> _supportedModels = <String>{'small'};
+
+  static String _normalizeModel(String? saved) =>
+      _supportedModels.contains(saved) ? saved! : 'small';
+
   static AppSettings _read(SharedPreferences p) {
     final int? consent = p.getInt(_kConsent);
     return AppSettings(
-      modelName: p.getString(_kModel) ?? 'base',
+      // Un'installazione precedente può avere salvato 'tiny' o 'base':
+      // quei modelli non esistono più, si riparte da Small.
+      modelName: _normalizeModel(p.getString(_kModel)),
       language: p.getString(_kLang) ?? 'it',
       summaryStyle: SummaryStyle.fromId(p.getString(_kStyle)),
       engine: SummaryEngine.fromId(p.getString(_kEngine)),

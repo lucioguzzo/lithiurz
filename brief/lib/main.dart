@@ -6,6 +6,7 @@ import 'core/constants.dart';
 import 'data/note_repository.dart';
 import 'data/settings.dart';
 import 'services/share/share_intake_service.dart';
+import 'services/transcription/model_manager.dart';
 import 'ui/screens/home_screen.dart';
 import 'ui/theme.dart';
 
@@ -28,7 +29,9 @@ Future<void> main() async {
   runApp(BRIEFApp(services: services));
 }
 
-/// Pulizia dell'inbox senza bloccare l'avvio.
+/// Pulizia di avvio, senza bloccare l'apertura dell'app: audio importati e
+/// non più serviti, e modelli delle versioni precedenti (Tiny e Base non
+/// vengono più usati e occupano centinaia di megabyte).
 void unawaitedCleanup(NoteRepository notes) {
   Future<void>(() async {
     final Set<String> keep = <String>{
@@ -36,6 +39,10 @@ void unawaitedCleanup(NoteRepository notes) {
         if (note.audioPath != null) note.audioPath!,
     };
     await ShareIntakeService.cleanupInbox(keepPaths: keep);
+    final int freed = await ModelManager().deleteLegacyModels();
+    if (freed > 0) {
+      debugPrint('Liberati $freed byte di modelli non più usati.');
+    }
   }).ignore();
 }
 

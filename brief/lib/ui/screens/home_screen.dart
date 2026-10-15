@@ -440,7 +440,7 @@ class _PreviewSheet extends StatelessWidget {
     final AppServices s = ServicesScope.of(context);
     final ModelOption model = ModelOption.byId(s.settings.value.modelName);
     final bool cloud = s.settings.value.cloudAllowed;
-    final Duration estimate = _estimate(source.duration, model.id);
+    final Duration estimate = _estimate(source.duration);
 
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -476,8 +476,8 @@ class _PreviewSheet extends StatelessWidget {
           if (source.duration > AudioLimits.chunkThreshold)
             const _InfoRow(
               icon: Icons.splitscreen,
-              text: 'Audio lungo: verrà diviso in blocchi, con avanzamento e '
-                  'possibilità di riprendere',
+              text: 'Vedrai la trascrizione comparire un pezzo alla volta, '
+                  'e potrai riprenderla se viene interrotta',
             ),
           Gaps.h16,
           FilledButton.icon(
@@ -494,16 +494,10 @@ class _PreviewSheet extends StatelessWidget {
     );
   }
 
-  /// Stima grossolana: su un telefono di fascia media whisper.cpp elabora
-  /// più veloce del tempo reale con i modelli piccoli.
-  static Duration _estimate(Duration audio, String modelId) {
-    final double factor = switch (modelId) {
-      'tiny' => 0.25,
-      'small' => 1.1,
-      _ => 0.45,
-    };
-    return Duration(seconds: (audio.inSeconds * factor).round().clamp(2, 99999));
-  }
+  /// Stima grossolana con il modello Small su un telefono recente:
+  /// all'incirca il tempo dell'audio stesso.
+  static Duration _estimate(Duration audio) =>
+      Duration(seconds: (audio.inSeconds * 1.1).round().clamp(2, 99999));
 }
 
 class _InfoRow extends StatelessWidget {

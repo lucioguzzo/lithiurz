@@ -36,12 +36,32 @@ void main() {
   });
 
   group('planChunks', () {
-    test('audio breve resta in un unico blocco', () {
+    test('un audio breve resta in un unico blocco', () {
       final List<AudioChunk> chunks =
-          planChunks(total: const Duration(minutes: 3));
+          planChunks(total: const Duration(seconds: 90));
       expect(chunks, hasLength(1));
       expect(chunks.single.start, Duration.zero);
-      expect(chunks.single.end, const Duration(minutes: 3));
+      expect(chunks.single.end, const Duration(seconds: 90));
+    });
+
+    test('oltre due minuti si divide, per mostrare il testo via via', () {
+      // La soglia bassa è voluta: whisper.cpp restituisce il testo solo a
+      // fine blocco, quindi è la suddivisione a rendere visibile
+      // l'avanzamento invece di una barra ferma per minuti.
+      final List<AudioChunk> chunks =
+          planChunks(total: const Duration(minutes: 3));
+      expect(chunks.length, greaterThan(1));
+      expect(chunks.last.end, const Duration(minutes: 3));
+    });
+
+    test('un vocale di dieci minuti produce blocchi frequenti', () {
+      final List<AudioChunk> chunks =
+          planChunks(total: const Duration(minutes: 10));
+      // Un pezzo di testo ogni minuto e mezzo circa.
+      expect(chunks.length, inInclusiveRange(5, 9));
+      for (final AudioChunk c in chunks) {
+        expect(c.length, lessThanOrEqualTo(const Duration(seconds: 130)));
+      }
     });
 
     test('durata nulla non produce blocchi', () {

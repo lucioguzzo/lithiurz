@@ -81,14 +81,20 @@ Per un'app di queste dimensioni è più leggibile di un framework.
 ## Trascrizione di audio lunghi
 
 whisper.cpp elabora internamente finestre di 30 secondi, ma una singola
-chiamata su 40 minuti è un blocco opaco: niente avanzamento utile, niente
+chiamata è un blocco opaco: niente testo finché non finisce, niente
 annullamento, nessun recupero se il sistema sospende l'app. Perciò:
 
-1. **Pianificazione** (`planChunks`) — oltre 8 minuti si creano blocchi di
-   ~5 minuti. Il confine teorico viene spostato sul **silenzio più vicino**
-   entro 25 secondi (`silencedetect` di ffmpeg), così non si taglia a metà
-   una parola. Una coda inferiore a 30 secondi viene fusa nel blocco
+1. **Pianificazione** (`planChunks`) — oltre 2 minuti si creano blocchi di
+   ~90 secondi. Il confine teorico viene spostato sul **silenzio più vicino**
+   entro 12 secondi (`silencedetect` di ffmpeg), così non si taglia a metà
+   una parola. Una coda inferiore a 20 secondi viene fusa nel blocco
    precedente.
+
+   La soglia è bassa di proposito: whisper.cpp consegna il testo solo a fine
+   elaborazione, quindi senza suddivisione l'utente fisserebbe una barra
+   ferma per minuti. Con blocchi da 90 secondi il testo compare con
+   regolarità e il costo aggiuntivo è contenuto, perché il modello resta
+   caricato in memoria fra un blocco e l'altro.
 2. **Estrazione** — ogni blocco diventa un WAV 16 kHz mono (il formato che
    whisper.cpp si aspetta), eliminato appena trascritto.
 3. **Decodifica** — `maxContext: 0` fra blocchi distinti, così una frase

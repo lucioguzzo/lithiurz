@@ -27,39 +27,39 @@ class ModelOption {
   final int ramHintMb;
   final String description;
 
-  static const List<ModelOption> all = <ModelOption>[
-    ModelOption(
-      id: 'tiny',
-      model: WhisperModel.tiny,
-      label: 'Tiny (multilingua)',
-      approxBytes: 77 * 1024 * 1024,
-      ramHintMb: 1500,
-      description: 'Il più veloce e leggero. Qualità sufficiente per note '
-          'brevi e parlato chiaro.',
-    ),
-    ModelOption(
-      id: 'base',
-      model: WhisperModel.base,
-      label: 'Base (multilingua)',
-      approxBytes: 148 * 1024 * 1024,
-      ramHintMb: 2500,
-      description: 'Buon compromesso fra velocità e precisione in italiano. '
-          'Consigliato come predefinito.',
-    ),
-    ModelOption(
-      id: 'small',
-      model: WhisperModel.small,
-      label: 'Small (multilingua)',
-      approxBytes: 488 * 1024 * 1024,
-      ramHintMb: 4000,
-      description: 'Più preciso su audio rumorosi o con più voci. Richiede un '
-          'telefono recente: è 3-4 volte più lento di Base.',
-    ),
+  /// Unico modello offerto.
+  ///
+  /// Tiny e Base erano stati inclusi per i telefoni più modesti, ma sul
+  /// parlato italiano reale (voce al telefono, rumore di fondo, nomi propri)
+  /// sbagliavano troppo per essere utili: un riassunto costruito su una
+  /// trascrizione sbagliata è peggio di nessun riassunto. Resta Small.
+  static const ModelOption small = ModelOption(
+    id: 'small',
+    model: WhisperModel.small,
+    label: 'Small (multilingua)',
+    approxBytes: 488 * 1024 * 1024,
+    ramHintMb: 4000,
+    description: 'Il modello usato da BRIEF. Trascrive bene l\'italiano '
+        'parlato, anche con rumore di fondo o più voci. Si scarica una volta '
+        'sola e poi funziona senza connessione.',
+  );
+
+  static const List<ModelOption> all = <ModelOption>[small];
+
+  /// Modelli non più offerti: se sono rimasti sul telefono da una versione
+  /// precedente vanno cancellati, occupano spazio per niente.
+  static const List<String> legacyFileNames = <String>[
+    'ggml-tiny.bin',
+    'ggml-base.bin',
+    'ggml-tiny.en.bin',
+    'ggml-base.en.bin',
   ];
 
+  /// Un identificativo sconosciuto (per esempio 'base', salvato da una
+  /// versione precedente) ricade sull'unico modello disponibile.
   static ModelOption byId(String id) => all.firstWhere(
         (ModelOption o) => o.id == id,
-        orElse: () => all[1],
+        orElse: () => all.first,
       );
 }
 
@@ -171,13 +171,36 @@ class ModelManager {
     if (part.existsSync()) await part.delete();
   }
 
-  /// Modello consigliato in base alla RAM del dispositivo.
-  Future<ModelOption> recommended() async {
+  /// C'è un solo modello: resta qui per chiarezza nei punti che lo chiedono.
+  Future<ModelOption> recommended() async => ModelOption.small;
+
+  /// `true` quando il dispositivo ha poca memoria per il modello scelto.
+  /// Non impedisce nulla: serve ad avvisare che potrebbe andare a rilento.
+  Future<bool> isTightOnMemory() async {
     final int? ram = await _ramMb();
-    if (ram == null) return ModelOption.byId('base');
-    if (ram >= 5800) return ModelOption.byId('small');
-    if (ram >= 2800) return ModelOption.byId('base');
-    return ModelOption.byId('tiny');
+    if (ram == null) return false;
+    return ram < ModelOption.small.ramHintMb;
+  }
+
+  /// Elimina i modelli delle versioni precedenti (Tiny e Base), che non
+  /// vengono più offerti. Restituisce i byte liberati.
+  Future<int> deleteLegacyModels() async {
+    int freed = 0;
+    try {
+      final String dir = await WhisperController.getModelDir();
+      for (final String name in ModelOption.legacyFileNames) {
+        final File f = File('$dir/$name');
+        if (f.existsSync()) {
+          freed += f.lengthSync();
+          await f.delete();
+        }
+        final File part = File('$dir/$name.part');
+        if (part.existsSync()) await part.delete();
+      }
+    } on Object catch (e) {
+      debugPrint('Pulizia dei modelli non più usati non riuscita: $e');
+    }
+    return freed;
   }
 
   Future<int?> _ramMb() async {

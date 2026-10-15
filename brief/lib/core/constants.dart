@@ -31,16 +31,26 @@ class AudioLimits {
   static const Duration minDuration = Duration(milliseconds: 400);
 
   /// Oltre questa durata la trascrizione viene spezzata in blocchi.
-  static const Duration chunkThreshold = Duration(minutes: 8);
+  ///
+  /// La soglia è bassa di proposito: whisper.cpp restituisce il testo solo a
+  /// fine elaborazione, quindi è la suddivisione in blocchi a permettere di
+  /// mostrare la trascrizione mentre procede, invece di far fissare
+  /// all'utente una barra per minuti interi.
+  static const Duration chunkThreshold = Duration(minutes: 2);
 
   /// Durata obiettivo di un blocco di trascrizione.
-  static const Duration chunkTarget = Duration(minutes: 5);
+  ///
+  /// Un minuto e mezzo è il compromesso scelto: abbastanza corto perché il
+  /// testo compaia con regolarità, abbastanza lungo da non moltiplicare
+  /// l'avvio dell'inferenza (il modello resta comunque in memoria fra un
+  /// blocco e l'altro).
+  static const Duration chunkTarget = Duration(seconds: 90);
 
   /// Scostamento massimo dal confine teorico per agganciare un silenzio.
-  static const Duration chunkDrift = Duration(seconds: 25);
+  static const Duration chunkDrift = Duration(seconds: 12);
 
   /// Un blocco finale più corto di così viene fuso con il precedente.
-  static const Duration minTailChunk = Duration(seconds: 30);
+  static const Duration minTailChunk = Duration(seconds: 20);
 
   /// Estensioni riconosciute come audio (il contenuto è comunque verificato
   /// con ffprobe: questo filtro serve solo a dare errori immediati).

@@ -23,7 +23,8 @@ class _ModelsScreenState extends State<ModelsScreen> {
   final Map<String, double?> _progress = <String, double?>{};
   final Map<String, bool> _installed = <String, bool>{};
   final Map<String, CancellationToken> _tokens = <String, CancellationToken>{};
-  ModelOption? _recommended;
+  bool _tightOnMemory = false;
+  int _freedLegacy = 0;
 
   @override
   void initState() {
@@ -37,13 +38,17 @@ class _ModelsScreenState extends State<ModelsScreen> {
     for (final ModelOption o in ModelOption.all) {
       installed[o.id] = await s.models.isInstalled(o);
     }
-    final ModelOption rec = await s.models.recommended();
+    final bool tight = await s.models.isTightOnMemory();
+    // Tiny e Base non sono più offerti: se restano da una versione
+    // precedente occupano spazio per niente.
+    final int freed = await s.models.deleteLegacyModels();
     if (mounted) {
       setState(() {
         _installed
           ..clear()
           ..addAll(installed);
-        _recommended = rec;
+        _tightOnMemory = tight;
+        _freedLegacy = freed;
       });
     }
   }
@@ -127,8 +132,11 @@ class _ModelsScreenState extends State<ModelsScreen> {
               ),
             if (widget.required != null) Gaps.h16,
             Text(
-              'I modelli vengono scaricati da Hugging Face e restano sul '
-              'dispositivo. Più il modello è grande, più è preciso e lento.',
+              'Il modello viene scaricato da Hugging Face e resta sul '
+              'dispositivo: da quel momento la trascrizione funziona anche '
+              'senza connessione.'
+              '${_freedLegacy > 0 ? ' Ho liberato ${Fmt.bytes(_freedLegacy)} '
+                  'eliminando i modelli non più usati.' : ''}',
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -139,7 +147,7 @@ class _ModelsScreenState extends State<ModelsScreen> {
                 option: option,
                 installed: _installed[option.id] ?? false,
                 selected: selected == option.id,
-                recommended: _recommended?.id == option.id,
+                tightOnMemory: _tightOnMemory,
                 progress: _progress[option.id],
                 downloading: _progress.containsKey(option.id),
                 onDownload: () => _download(option),
@@ -166,7 +174,7 @@ class _ModelCard extends StatelessWidget {
     required this.option,
     required this.installed,
     required this.selected,
-    required this.recommended,
+    required this.tightOnMemory,
     required this.progress,
     required this.downloading,
     required this.onDownload,
@@ -178,7 +186,7 @@ class _ModelCard extends StatelessWidget {
   final ModelOption option;
   final bool installed;
   final bool selected;
-  final bool recommended;
+  final bool tightOnMemory;
   final double? progress;
   final bool downloading;
   final VoidCallback onDownload;
@@ -202,11 +210,16 @@ class _ModelCard extends StatelessWidget {
                   child: Text(option.label,
                       style: theme.textTheme.titleMedium),
                 ),
-                if (recommended)
+                if (tightOnMemory)
                   Chip(
-                    label: const Text('consigliato'),
+                    avatar: Icon(Icons.warning_amber,
+                        size: 16, color: theme.colorScheme.onErrorContainer),
+                    label: const Text('memoria limitata'),
+                    backgroundColor: theme.colorScheme.errorContainer,
                     visualDensity: VisualDensity.compact,
-                    labelStyle: theme.textTheme.labelSmall,
+                    labelStyle: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onErrorContainer,
+                    ),
                   ),
               ],
             ),

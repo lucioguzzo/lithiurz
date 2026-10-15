@@ -81,4 +81,5 @@ ios/Share Extension/
   questo ogni blocco completato viene salvato: al rientro compare "Riprendi".
   Un'elaborazione lunga va tenuta in primo piano.
 - **Memoria** — su iPhone con 3 GB di RAM il modello Small può essere
-  terminato dal sistema; l'app consiglia Tiny o Base in base alla RAM.
+  terminato dal sistema. L'app lo segnala ("memoria limitata") ma non offre
+  alternative: Tiny e Base sono stati rimossi perché trascrivevano male.

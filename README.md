@@ -46,7 +46,7 @@ Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
 # App
 cd brief
 flutter pub get
-flutter test                 # 90 test unitari
+flutter test                 # 98 test unitari
 flutter build apk --debug    # Android
 
 # Backend
@@ -68,14 +68,21 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   può sparire appena l'app di origine si chiude.
 - **Controlli preventivi** — formato, dimensione (max 500 MB), durata (max 4
   ore) e presenza di una traccia audio, letti con ffprobe.
-- **Trascrizione locale** — whisper.cpp (`whisper_ggml`) con modelli Tiny,
-  Base e Small multilingua. Il modello si scarica una volta e poi funziona
-  offline; quello consigliato dipende dalla RAM del dispositivo.
-- **Audio lunghi** — oltre 8 minuti l'audio viene diviso in blocchi da ~5
-  minuti, tagliati **sui silenzi** per non spezzare le parole. Ogni blocco
-  completato viene salvato su disco: chiudendo l'app o annullando si riprende
-  da dove si era rimasti. I testi dei blocchi vengono ricuciti rimuovendo le
-  frasi ripetute al confine.
+- **Trascrizione locale** — whisper.cpp (`whisper_ggml`) con il modello
+  **Small multilingua**. Si scarica una volta (488 MB) e poi funziona
+  offline. Tiny e Base erano offerti all'inizio ma sul parlato italiano
+  reale sbagliavano troppo: un riassunto costruito su una trascrizione
+  sbagliata è peggio di nessun riassunto. Chi li aveva scaricati se li vede
+  eliminare al primo avvio, liberando lo spazio.
+- **Trascrizione visibile mentre procede** — oltre 2 minuti l'audio viene
+  diviso in blocchi da ~90 secondi, tagliati **sui silenzi** per non
+  spezzare le parole, e il testo di ogni blocco compare appena pronto sotto
+  una barra di avanzamento. whisper.cpp restituisce il testo solo a fine
+  elaborazione: è la suddivisione a rendere visibile il progresso invece di
+  una barra ferma per minuti. Ogni blocco completato viene salvato su
+  disco, quindi chiudendo l'app o annullando si riprende da dove si era
+  rimasti; i testi vengono ricuciti rimuovendo le frasi ripetute al
+  confine. Il riassunto parte solo a trascrizione finita.
 - **Riassunto** — due motori: *locale* (estrattivo, offline, nessun dato
   esce) e *cloud* (modello linguistico via backend, solo dopo consenso
   esplicito). Se il cloud fallisce o la quota è esaurita si ripiega sul
@@ -92,7 +99,7 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 | Elemento | Stato |
 |----------|-------|
 | `flutter analyze` | ✅ nessun problema |
-| Test Dart (`flutter test`) | ✅ 90 test |
+| Test Dart (`flutter test`) | ✅ 98 test |
 | Test backend (`pytest`) | ✅ 39 test |
 | Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build APK Android (release, R8 attivo) | ✅ compilata: 41 MB per arm64-v8a |
