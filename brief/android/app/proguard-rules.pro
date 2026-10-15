@@ -19,3 +19,13 @@
 -dontwarn com.google.android.play.core.splitinstall.**
 -dontwarn com.google.android.play.core.tasks.**
 -keep class io.flutter.embedding.engine.deferredcomponents.** { *; }
+
+# Classi di avvio e schermata di emergenza: nominate nel manifest e
+# istanziate dal sistema.
+-keep class com.lucio.brief.BriefApplication { *; }
+-keep class com.lucio.brief.CrashActivity { *; }
+-keep class com.lucio.brief.MainActivity { *; }
+
+# I nomi originali nelle tracce di stack servono a capire i crash.
+-keepattributes SourceFile,LineNumberTable
+-renamesourcefileattribute SourceFile

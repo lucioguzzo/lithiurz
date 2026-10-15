@@ -19,8 +19,17 @@
 
     <application
         android:label="BRIEF"
-        android:name="${applicationName}"
+        android:name=".BriefApplication"
         android:icon="@mipmap/ic_launcher">
+
+        <!-- Schermata di emergenza: mostra l'errore quando l'avvio
+             fallisce, invece del messaggio generico del sistema. -->
+        <activity
+            android:name=".CrashActivity"
+            android:exported="false"
+            android:process=":crash"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.Material.NoActionBar"/>
 
         <activity
             android:name=".MainActivity"
