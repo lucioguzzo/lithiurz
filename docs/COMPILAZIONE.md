@@ -105,6 +105,11 @@ produce riassunti fittizi: utile per provare l'app end-to-end.
   dichiara i filtri `SEND`/`SEND_MULTIPLE`, `minSdk 24`, `compileSdk 37`.
   È grande perché è una build di debug non divisa per ABI: per la
   distribuzione si usa l'App Bundle o `--split-per-abi`.
+- **APK di release: compilati davvero** con `--split-per-abi` e R8 attivo:
+  `app-arm64-v8a-release.apk` 41 MB, `app-armeabi-v7a-release.apk` 51 MB,
+  `app-x86_64-release.apk` 44 MB. Firmati con la chiave di debug, perché
+  qui non c'è un keystore: installabili su un telefono, **non**
+  pubblicabili.
 - Nota sull'ambiente: il container usato ha l'IP di uscita limitato
   (HTTP 429) da `repo.maven.apache.org`. È stato aggirato con un
   `~/.gradle/init.gradle` che riscrive l'URL di Maven Central verso il
