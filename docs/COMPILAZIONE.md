@@ -17,7 +17,7 @@
 cd vocenota
 flutter pub get
 flutter analyze          # deve restituire "No issues found!"
-flutter test             # 75 test unitari
+flutter test             # 85 test unitari
 ```
 
 ### Android
@@ -79,7 +79,7 @@ nel progetto.
 cd backend
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-python -m pytest                 # 38 test, senza rete e senza chiavi
+python -m pytest                 # 39 test, senza rete e senza chiavi
 cp .env.example .env             # poi scegliere provider e chiave
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```

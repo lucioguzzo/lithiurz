@@ -57,8 +57,8 @@ importanza.
 | Verifica | Esito |
 |---|---|
 | `flutter analyze` | nessun problema |
-| `flutter test` (75 test) | superati |
-| `pytest` backend (38 test) | superati |
+| `flutter test` (85 test) | superati |
+| `pytest` backend (39 test) | superati |
 | Build APK Android (debug) | compilata e ispezionata |
 | Backend avviato davvero (uvicorn + richieste HTTP reali) | funzionante; nei log nessun contenuto |
 | `docker build` del backend | non eseguito qui (manca il demone Docker); lo fa la CI |

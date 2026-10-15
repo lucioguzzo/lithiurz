@@ -27,13 +27,13 @@ passa dal backend — che riceve **testo, mai audio**.
 # App
 cd vocenota
 flutter pub get
-flutter test                 # 75 test unitari
+flutter test                 # 85 test unitari
 flutter build apk --debug    # Android
 
 # Backend
 cd ../backend
 pip install -r requirements-dev.txt
-python -m pytest             # 38 test
+python -m pytest             # 39 test
 uvicorn app.main:app --reload
 ```
 
@@ -73,7 +73,7 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 | Elemento | Stato |
 |----------|-------|
 | `flutter analyze` | ✅ nessun problema |
-| Test Dart (`flutter test`) | ✅ 75 test |
+| Test Dart (`flutter test`) | ✅ 85 test |
 | Test backend (`pytest`) | ✅ 38 test |
 | Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build iOS | ❌ **non compilata**: richiede macOS e Xcode. Il codice e i file

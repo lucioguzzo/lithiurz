@@ -59,7 +59,7 @@ trascrizione, nessun riassunto, né nei dati né nei log.
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest            # 38 test, senza rete
+python -m pytest            # 39 test, senza rete
 cp .env.example .env
 uvicorn app.main:app --reload
 ```
