@@ -73,6 +73,59 @@ class TranscriptMerger {
     return out.join(' ');
   }
 
+  /// Riduce le sequenze che crescono come revisioni l'una dell'altra.
+  ///
+  /// Un riconoscitore che consegna risultati parziali produce
+  /// "molto / molto interessante / molto interessante questa storia…":
+  /// ogni pezzo è una versione più lunga del precedente, non testo nuovo.
+  /// Qui si tiene solo il più lungo di ogni catena di prefissi.
+  static String collapseGrowingPrefixes(String text) {
+    final List<String> raw = text
+        .split(RegExp(r'\s+'))
+        .where((String w) => w.isNotEmpty)
+        .toList();
+    if (raw.length < 4) return text;
+
+    String key(String w) =>
+        w.toLowerCase().replaceAll(RegExp(r"[^\w'àèéìòùç]", unicode: true), '');
+
+    final List<String> keys = raw.map(key).toList();
+
+    // Cerca il punto in cui il testo ricomincia da capo: se le parole che
+    // seguono ripetono il tratto corrente, quel tratto era una revisione
+    // incompleta e va buttato.
+    //
+    // L'ultima parola del tratto può essere troncata a metà, perché il
+    // riconoscitore consegna la revisione mentre la sta ancora scrivendo
+    // ("…della lettera segre" poi "…della lettera segreta"): per quella
+    // basta che sia l'inizio della corrispondente.
+    int start = 0;
+    int i = 1;
+    while (i < raw.length) {
+      final int runLength = i - start;
+      if (runLength >= 1 && i + runLength <= raw.length) {
+        bool restarts = true;
+        for (int k = 0; k < runLength; k++) {
+          final String current = keys[start + k];
+          final String next = keys[i + k];
+          final bool last = k == runLength - 1;
+          final bool match = last ? next.startsWith(current) : next == current;
+          if (!match) {
+            restarts = false;
+            break;
+          }
+        }
+        if (restarts) {
+          start = i;
+          i = start + 1;
+          continue;
+        }
+      }
+      i++;
+    }
+    return raw.sublist(start).join(' ');
+  }
+
   String merge(Iterable<String> parts) {
     String result = '';
     for (final String raw in parts) {
@@ -87,7 +140,7 @@ class TranscriptMerger {
       result = normalize('$result $trimmed');
     }
     // La pulizia finale coglie anche gli anelli nati a cavallo fra blocchi.
-    return normalize(collapseRepetitions(result));
+    return normalize(collapseRepetitions(collapseGrowingPrefixes(result)));
   }
 
   /// Rimuove spazi doppi, spazi prima della punteggiatura e righe vuote.

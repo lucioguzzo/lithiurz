@@ -12,7 +12,7 @@ class NoteRepository {
 
   final Database _db;
   static const String table = 'notes';
-  static const int schemaVersion = 1;
+  static const int schemaVersion = 2;
 
   /// Apre (o crea) il database nel percorso standard dell'app.
   static Future<NoteRepository> open({String? directory}) async {
@@ -22,7 +22,13 @@ class NoteRepository {
       version: schemaVersion,
       onCreate: (Database db, int version) async => createSchema(db),
       onUpgrade: (Database db, int from, int to) async {
-        // Le migrazioni future si aggiungono qui, in ordine di versione.
+        if (from < 2) {
+          // Le note già salvate vengono da whisper: era l'unico motore.
+          await db.execute(
+            "ALTER TABLE $table ADD COLUMN engine TEXT NOT NULL "
+            "DEFAULT 'whisper'",
+          );
+        }
       },
     );
     return NoteRepository(db);
@@ -42,6 +48,7 @@ class NoteRepository {
         transcript TEXT NOT NULL DEFAULT '',
         summary_json TEXT,
         cloud_used INTEGER NOT NULL DEFAULT 0,
+        engine TEXT NOT NULL DEFAULT 'whisper',
         audio_path TEXT
       )
     ''');

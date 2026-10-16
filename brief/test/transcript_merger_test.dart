@@ -112,6 +112,42 @@ void main() {
     });
   });
 
+  group('collapseGrowingPrefixes', () {
+    // Caso reale: il riconoscitore di sistema consegnava i risultati
+    // parziali, ognuno una revisione più lunga del precedente, e venivano
+    // accodati tutti.
+    const String parziali =
+        'molto molto interessante molto interessante questa storia della '
+        'lettera segre molto interessante questa storia della lettera '
+        'segreta di Napoleone che viene molto interessante questa storia '
+        'della lettera segreta di Napoleone che viene decifrata da Astra';
+
+    test('tiene solo la revisione più lunga', () {
+      final String pulito =
+          TranscriptMerger.collapseGrowingPrefixes(parziali);
+      expect(pulito,
+          'molto interessante questa storia della lettera segreta di '
+          'Napoleone che viene decifrata da Astra');
+    });
+
+    test('la pulizia avviene anche passando da merge', () {
+      final String unito = merger.merge(<String>[parziali]);
+      expect('interessante'.allMatches(unito).length, 1);
+      expect(unito, endsWith('decifrata da Astra'));
+    });
+
+    test('non tocca un testo che non ricomincia da capo', () {
+      const String testo = 'Ti confermo la riunione di giovedì alle dieci. '
+          'Porta il preventivo aggiornato e i consumi.';
+      expect(TranscriptMerger.collapseGrowingPrefixes(testo), testo);
+    });
+
+    test('un testo cortissimo resta intatto', () {
+      expect(TranscriptMerger.collapseGrowingPrefixes('ciao a te'),
+          'ciao a te');
+    });
+  });
+
   test('normalize elimina spazi prima della punteggiatura', () {
     expect(
       TranscriptMerger.normalize('Ciao  ,  come stai ?'),

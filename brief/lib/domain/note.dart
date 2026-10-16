@@ -1,4 +1,5 @@
 import '../core/formatters.dart';
+import '../services/transcription/engine.dart';
 import 'summary.dart';
 
 /// Una elaborazione completata, salvata nella cronologia locale.
@@ -14,6 +15,7 @@ class Note {
     required this.modelName,
     required this.transcript,
     required this.cloudUsed,
+    this.engine = TranscriptionEngineId.whisper,
     this.summary,
     this.audioPath,
   });
@@ -28,6 +30,10 @@ class Note {
   final String modelName;
   final String transcript;
   final bool cloudUsed;
+
+  /// Motore che ha prodotto la trascrizione: la schermata dei risultati
+  /// lo dichiara, invece di dare per scontato whisper.
+  final TranscriptionEngineId engine;
   final SummaryBundle? summary;
 
   /// Valorizzato solo se l'utente ha scelto di conservare l'audio.
@@ -58,6 +64,7 @@ class Note {
         modelName: modelName,
         transcript: transcript ?? this.transcript,
         cloudUsed: cloudUsed,
+        engine: engine,
         summary: summary ?? this.summary,
         audioPath: clearAudioPath ? null : (audioPath ?? this.audioPath),
       );
@@ -74,6 +81,7 @@ class Note {
         'transcript': transcript,
         'summary_json': summary?.encode(),
         'cloud_used': cloudUsed ? 1 : 0,
+        'engine': engine.id,
         'audio_path': audioPath,
       };
 
@@ -90,6 +98,7 @@ class Note {
         modelName: (row['model_name'] ?? '') as String,
         transcript: (row['transcript'] ?? '') as String,
         cloudUsed: ((row['cloud_used'] as int?) ?? 0) == 1,
+        engine: TranscriptionEngineId.fromId(row['engine'] as String?),
         summary: SummaryBundle.decode(row['summary_json'] as String?),
         audioPath: row['audio_path'] as String?,
       );

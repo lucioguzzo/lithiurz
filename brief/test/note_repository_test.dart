@@ -3,6 +3,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:brief/core/constants.dart';
 import 'package:brief/data/note_repository.dart';
 import 'package:brief/domain/note.dart';
+import 'package:brief/services/transcription/engine.dart';
 import 'package:brief/domain/summary.dart';
 
 Note buildNote({
@@ -123,6 +124,62 @@ void main() {
     await repo.clear();
     expect(await repo.count(), 0);
     expect(await repo.list(), isEmpty);
+  });
+
+  test('registra il motore che ha prodotto la trascrizione', () async {
+    final int id = await repo.insert(
+      Note(
+        title: 'Con motore di sistema',
+        createdAt: DateTime(2026, 10, 16),
+        sourceName: 'nota.opus',
+        durationMs: 36000,
+        sizeBytes: 1000,
+        language: 'it',
+        modelName: 'small',
+        transcript: 'Testo.',
+        cloudUsed: false,
+        engine: TranscriptionEngineId.sistema,
+      ),
+    );
+    expect((await repo.byId(id))!.engine, TranscriptionEngineId.sistema);
+  });
+
+  test('una nota salvata prima della colonna risulta fatta con whisper',
+      () async {
+    // Simula lo schema di versione 1: nessuna colonna "engine".
+    await db.execute('DROP TABLE ${NoteRepository.table}');
+    await db.execute('''
+      CREATE TABLE ${NoteRepository.table} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        source_name TEXT NOT NULL,
+        duration_ms INTEGER NOT NULL DEFAULT 0,
+        size_bytes INTEGER NOT NULL DEFAULT 0,
+        language TEXT NOT NULL DEFAULT 'it',
+        model_name TEXT NOT NULL DEFAULT '',
+        transcript TEXT NOT NULL DEFAULT '',
+        summary_json TEXT,
+        cloud_used INTEGER NOT NULL DEFAULT 0,
+        audio_path TEXT
+      )
+    ''');
+    await db.insert(NoteRepository.table, <String, Object?>{
+      'title': 'Vecchia',
+      'created_at': DateTime(2026, 1, 1).millisecondsSinceEpoch,
+      'source_name': 'vecchia.opus',
+      'transcript': 'Testo di prima.',
+    });
+
+    // La migrazione aggiunge la colonna con il valore predefinito.
+    await db.execute(
+      "ALTER TABLE ${NoteRepository.table} ADD COLUMN engine TEXT NOT NULL "
+      "DEFAULT 'whisper'",
+    );
+
+    final List<Note> notes = await repo.list();
+    expect(notes.single.engine, TranscriptionEngineId.whisper);
+    expect(notes.single.transcript, 'Testo di prima.');
   });
 
   test('una nota senza riassunto resta leggibile', () async {

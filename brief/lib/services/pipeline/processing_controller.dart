@@ -135,6 +135,7 @@ class ProcessingController extends ChangeNotifier {
         modelName: transcript.modelName,
         transcript: transcript.text,
         cloudUsed: summary.usedCloud,
+        engine: s.transcriptionEngine,
         summary: summary.bundle,
         audioPath: keepAudio ? validated.path : null,
       );

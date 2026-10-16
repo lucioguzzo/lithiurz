@@ -94,10 +94,21 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
 
         // Una sola risposta: il riconoscitore può chiamare più callback.
         val answered = AtomicBoolean(false)
-        val transcript = StringBuilder()
 
-        fun finish(text: String?, errorCode: String?, errorMessage: String?) {
+        // Pezzi definitivi, uno per segmento. I risultati PARZIALI non
+        // vanno accumulati: ognuno è una revisione più lunga dello stesso
+        // segmento, non testo nuovo. Accodandoli si otteneva
+        // "molto / molto interessante / molto interessante questa storia…".
+        val segments = mutableListOf<String>()
+        var sawSegmentResults = false
+        val watchdog = Handler(Looper.getMainLooper())
+        var watchdogTask: Runnable? = null
+
+        fun transcript(): String = segments.joinToString(" ").trim()
+
+        fun finish(errorCode: String?, errorMessage: String?) {
             if (!answered.compareAndSet(false, true)) return
+            watchdogTask?.let { watchdog.removeCallbacks(it) }
             try {
                 recognizer.destroy()
             } catch (ignored: Throwable) {
@@ -111,53 +122,73 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
             if (errorCode != null) {
                 result.error(errorCode, errorMessage, null)
             } else {
-                result.success(text.orEmpty())
+                result.success(transcript())
             }
         }
 
+        /** Rete di sicurezza: su alcuni dispositivi la sessione segmentata
+         *  non si chiude da sola. Dopo un periodo senza novità si consegna
+         *  quello che si ha, invece di lasciare l'app in attesa. */
+        fun armWatchdog() {
+            watchdogTask?.let { watchdog.removeCallbacks(it) }
+            val task = Runnable {
+                Log.w(TAG, "Sessione non chiusa dal riconoscitore: consegno il parziale")
+                finish(null, null)
+            }
+            watchdogTask = task
+            watchdog.postDelayed(task, WATCHDOG_MS)
+        }
+
+        fun addSegment(bundle: Bundle?) {
+            val best = bundle
+                ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                ?.firstOrNull()
+                ?.trim()
+            if (!best.isNullOrEmpty() && best != segments.lastOrNull()) {
+                segments.add(best)
+            }
+            armWatchdog()
+        }
+
         recognizer.setRecognitionListener(object : RecognitionListener {
-            override fun onResults(results: Bundle?) = appendAndMaybeFinish(results, final = true)
 
-            override fun onPartialResults(partialResults: Bundle?) {
-                // In sessione segmentata i pezzi definitivi arrivano qui
-                // man mano che l'audio viene consumato.
-                appendAndMaybeFinish(partialResults, final = false)
+            /** Risultato definitivo di un segmento della sessione. */
+            override fun onSegmentResults(segmentResults: Bundle) {
+                sawSegmentResults = true
+                addSegment(segmentResults)
             }
 
-            override fun onSegmentResults(segmentResults: Bundle) =
-                appendAndMaybeFinish(segmentResults, final = false)
+            override fun onEndOfSegmentedSession() = finish(null, null)
 
-            override fun onEndOfSegmentedSession() {
-                finish(transcript.toString().trim(), null, null)
+            override fun onResults(results: Bundle?) {
+                // In sessione segmentata il testo arriva da onSegmentResults:
+                // prenderlo anche qui lo duplicherebbe. Serve solo come
+                // ripiego sui dispositivi che non segmentano.
+                if (sawSegmentResults) {
+                    finish(null, null)
+                } else {
+                    addSegment(results)
+                    finish(null, null)
+                }
             }
+
+            /** Revisioni in corso d'opera: utili a mostrare qualcosa a
+             *  schermo, mai da accumulare. Qui si ignorano. */
+            override fun onPartialResults(partialResults: Bundle?) = armWatchdog()
 
             override fun onError(error: Int) {
                 // A fine audio il riconoscitore segnala "nessun parlato" o
                 // "timeout": se abbiamo già del testo non è un errore.
                 val recoverable = error == SpeechRecognizer.ERROR_NO_MATCH ||
                     error == SpeechRecognizer.ERROR_SPEECH_TIMEOUT
-                if (recoverable) {
-                    finish(transcript.toString().trim(), null, null)
+                if (recoverable || segments.isNotEmpty()) {
+                    finish(null, null)
                 } else {
-                    finish(null, "RICONOSCIMENTO", describeError(error))
+                    finish("RICONOSCIMENTO", describeError(error))
                 }
             }
 
-            private fun appendAndMaybeFinish(bundle: Bundle?, final: Boolean) {
-                val best = bundle
-                    ?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
-                    ?.firstOrNull()
-                    ?.trim()
-                if (!best.isNullOrEmpty()) {
-                    if (transcript.isNotEmpty()) transcript.append(' ')
-                    transcript.append(best)
-                }
-                if (final && Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                    finish(transcript.toString().trim(), null, null)
-                }
-            }
-
-            override fun onReadyForSpeech(params: Bundle?) = Unit
+            override fun onReadyForSpeech(params: Bundle?) = armWatchdog()
             override fun onBeginningOfSpeech() = Unit
             override fun onRmsChanged(rmsdB: Float) = Unit
             override fun onBufferReceived(buffer: ByteArray?) = Unit
@@ -169,7 +200,7 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
             putExtra(RecognizerIntent.EXTRA_LANGUAGE, language)
             putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true)
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
+            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             // Sessione segmentata: continua fino alla fine del file invece
             // di chiudersi alla prima pausa lunga.
             putExtra(RecognizerIntent.EXTRA_SEGMENTED_SESSION, RecognizerIntent.EXTRA_AUDIO_SOURCE)
@@ -233,5 +264,8 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
         private const val TAG = "BRIEF"
         private const val SAMPLE_RATE = 16000
         private const val WAV_HEADER_BYTES = 44L
+
+        /** Attesa massima senza novità prima di consegnare il parziale. */
+        private const val WATCHDOG_MS = 15_000L
     }
 }

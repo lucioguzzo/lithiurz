@@ -5,6 +5,7 @@ import '../../core/constants.dart';
 import '../../core/formatters.dart';
 import '../../domain/note.dart';
 import '../../domain/summary.dart';
+import '../../services/transcription/engine.dart';
 import '../../services/tts/tts_service.dart';
 import '../theme.dart';
 import '../widgets/app_footer.dart';
@@ -396,8 +397,14 @@ class _TranscriptTab extends StatelessWidget {
         ),
         Gaps.h24,
         Text(
-          'Trascrizione eseguita sul dispositivo con ${AppInfo.fullName} '
-          '(whisper.cpp, modello ${note.modelName}).',
+          switch (note.engine) {
+            TranscriptionEngineId.sistema =>
+              'Trascrizione eseguita sul dispositivo con il riconoscitore '
+                  'vocale del telefono.',
+            TranscriptionEngineId.whisper =>
+              'Trascrizione eseguita sul dispositivo con ${AppInfo.fullName} '
+                  '(whisper.cpp, modello ${note.modelName} compresso).',
+          },
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,
           ),
