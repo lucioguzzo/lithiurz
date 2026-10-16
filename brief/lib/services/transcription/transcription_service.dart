@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import 'package:whisper_ggml/whisper_ggml.dart';
-
 import '../../core/constants.dart';
 import '../../core/failures.dart';
 import '../../domain/audio_source.dart';
@@ -12,6 +10,7 @@ import '../../domain/processing.dart';
 import '../audio/chunk_planner.dart';
 import '../audio/media_tools.dart';
 import '../audio/transcript_merger.dart';
+import 'engine.dart';
 import 'job_store.dart';
 import 'model_manager.dart';
 
@@ -35,18 +34,21 @@ class TranscriptionOutcome {
 class TranscriptionService {
   TranscriptionService({
     MediaTools? tools,
-    WhisperController? controller,
     JobStore? jobStore,
     ModelManager? models,
+    TranscriptionEngine? engine,
   })  : _tools = tools ?? const MediaTools(),
-        _whisper = controller ?? WhisperController(),
         _jobs = jobStore ?? JobStore(),
-        _models = models ?? ModelManager();
+        _models = models ?? ModelManager() {
+    this.engine = engine ?? WhisperEngine(models: _models);
+  }
 
   final MediaTools _tools;
-  final WhisperController _whisper;
   final JobStore _jobs;
   final ModelManager _models;
+  /// Motore in uso. Si cambia dalle impostazioni, anche fra
+  /// un'elaborazione e l'altra.
+  late TranscriptionEngine engine;
   static const TranscriptMerger _merger = TranscriptMerger();
 
   JobStore get jobs => _jobs;
@@ -61,6 +63,7 @@ class TranscriptionService {
     required CancellationToken token,
     TranscriptionJob? resume,
   }) async {
+    final TranscriptionEngine engine = this.engine;
     final DateTime started = DateTime.now();
     final Directory workDir = await _workDirectory();
 
@@ -101,20 +104,18 @@ class TranscriptionService {
 
     token.throwIfCancelled();
 
-    // Il modello deve essere presente: il download è gestito dalla UI prima
-    // di arrivare qui, ma un controllo esplicito evita errori opachi.
-    if (!await _models.isInstalled(model)) {
+    // Il motore deve essere pronto: per whisper significa modello
+    // scaricato, per quello di sistema che il telefono lo offra.
+    if (!await engine.isAvailable()) {
       throw AppFailure(
-        'Il modello ${model.label} non è installato. Scaricalo dalle '
-        'impostazioni prima di procedere.',
+        engine.id == TranscriptionEngineId.whisper
+            ? 'Il modello ${model.label} non è installato. Scaricalo dalle '
+                'impostazioni prima di procedere.'
+            : 'Il motore del telefono non è disponibile. Scegli Whisper '
+                'nelle impostazioni.',
         recoverable: false,
       );
     }
-
-    // Il rilevatore del parlato toglie silenzi e rumore prima della
-    // decodifica: è su quelli che whisper entra negli anelli e ripete la
-    // stessa frase. Se non è stato scaricato si procede lo stesso.
-    final String? vadPath = await _models.installedVadPath();
 
     final int totalChunks = job.chunks.length;
     try {
@@ -146,18 +147,9 @@ class TranscriptionService {
 
         token.throwIfCancelled();
 
-        // `TranscribeResult` non è esportato dal package: lasciamo inferire
-        // il tipo al compilatore.
-        final result = await _whisper.transcribe(
-          model: model.model,
-          audioPath: wavPath,
-          lang: language,
-          // Ogni blocco è indipendente: evita che una frase allucinata si
-          // propaghi per tutta la registrazione.
-          maxContext: totalChunks > 1 ? 0 : null,
-          keepModelLoaded: totalChunks > 1,
-          vadModelPath: vadPath,
-          vadSpeechPadMs: 100,
+        final String chunkText = await engine.transcribeFile(
+          wavPath: wavPath,
+          language: language,
           onProgress: (int percent) {
             onUpdate(ProcessingUpdate(
               stage: ProcessingStage.trascrizione,
@@ -169,15 +161,7 @@ class TranscriptionService {
 
         await _safeDelete(wavPath);
 
-        if (result == null) {
-          throw AppFailure(
-            'Trascrizione non riuscita'
-            '${totalChunks > 1 ? ' sul blocco ${chunk.index + 1}' : ''}. '
-            'Prova con un modello più leggero.',
-          );
-        }
-
-        job.done[chunk.index] = result.transcription.text.trim();
+        job.done[chunk.index] = chunkText;
         await _jobs.save(job);
 
         onUpdate(ProcessingUpdate(
@@ -188,10 +172,9 @@ class TranscriptionService {
         ));
       }
     } finally {
-      if (totalChunks > 1) {
-        // Libera la RAM occupata dal modello tenuto in memoria fra i blocchi.
-        await _whisper.releaseModel();
-      }
+      // Libera quello che il motore tiene fra un blocco e l'altro (per
+      // whisper il modello caricato in RAM).
+      await engine.release();
       await _cleanWorkDir(workDir);
     }
 

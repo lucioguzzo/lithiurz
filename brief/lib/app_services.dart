@@ -8,6 +8,7 @@ import 'services/pipeline/processing_controller.dart';
 import 'services/share/share_intake_service.dart';
 import 'services/summary/summary_api_client.dart';
 import 'services/summary/summary_service.dart';
+import 'services/transcription/engine.dart';
 import 'services/transcription/model_manager.dart';
 import 'services/transcription/transcription_service.dart';
 import 'services/tts/tts_service.dart';
@@ -20,6 +21,7 @@ class AppServices {
     required this.settings,
     required this.notes,
     required this.models,
+    required this.systemEngine,
     required this.transcription,
     required this.share,
     required this.tts,
@@ -32,6 +34,10 @@ class AppServices {
   final SettingsRepository settings;
   final NoteRepository notes;
   final ModelManager models;
+
+  /// Serve alle impostazioni per dire se il motore del telefono c'è.
+  final SystemSpeechEngine systemEngine;
+
   final TranscriptionService transcription;
   final ShareIntakeService share;
   final TtsService tts;
@@ -59,7 +65,22 @@ class AppServices {
     final AdsService ads = AdsService(enabled: settings.value.adsEnabled);
     await ads.initialize();
 
-    final TranscriptionService transcription = TranscriptionService();
+    final ModelManager models = ModelManager();
+    final SystemSpeechEngine systemEngine = SystemSpeechEngine();
+    final WhisperEngine whisperEngine = WhisperEngine(models: models);
+
+    TranscriptionEngine engineFor(TranscriptionEngineId id) =>
+        id == TranscriptionEngineId.sistema ? systemEngine : whisperEngine;
+
+    final TranscriptionService transcription = TranscriptionService(
+      models: models,
+      engine: engineFor(settings.value.transcriptionEngine),
+    );
+    // Il cambio di motore nelle impostazioni ha effetto dalla prossima
+    // elaborazione, senza riavviare l'app.
+    settings.addListener(
+      () => transcription.engine = engineFor(settings.value.transcriptionEngine),
+    );
     final ProcessingController processing = ProcessingController(
       settings: settings,
       notes: notes,
@@ -70,7 +91,8 @@ class AppServices {
     return AppServices(
       settings: settings,
       notes: notes,
-      models: ModelManager(),
+      models: models,
+      systemEngine: systemEngine,
       transcription: transcription,
       share: ShareIntakeService(),
       tts: TtsService(),

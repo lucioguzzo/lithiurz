@@ -4,6 +4,7 @@ import '../../app_services.dart';
 import '../../core/constants.dart';
 import '../../core/formatters.dart';
 import '../../data/settings.dart';
+import '../../services/transcription/engine.dart';
 import '../../services/transcription/model_manager.dart';
 import '../theme.dart';
 import '../widgets/app_footer.dart';
@@ -21,6 +22,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   int _modelBytes = 0;
   int _noteCount = 0;
+  bool _systemEngineAvailable = false;
+  String? _systemEngineReason;
 
   @override
   void initState() {
@@ -32,10 +35,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final AppServices s = ServicesScope.of(context);
     final int bytes = await s.models.installedBytes();
     final int count = await s.notes.count();
+    final bool systemOk = await s.systemEngine.isAvailable();
+    final String? reason =
+        systemOk ? null : await s.systemEngine.unavailableReason();
     if (mounted) {
       setState(() {
         _modelBytes = bytes;
         _noteCount = count;
+        _systemEngineAvailable = systemOk;
+        _systemEngineReason = reason;
       });
     }
   }
@@ -135,7 +143,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
               title: 'Trascrizione',
               icon: Icons.record_voice_over_outlined,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  Text('Motore', style: theme.textTheme.bodyMedium),
+                  Gaps.h8,
+                  SegmentedButton<TranscriptionEngineId>(
+                    segments: <ButtonSegment<TranscriptionEngineId>>[
+                      ButtonSegment<TranscriptionEngineId>(
+                        value: TranscriptionEngineId.sistema,
+                        label: const Text('Telefono'),
+                        icon: const Icon(Icons.bolt, size: 16),
+                        enabled: _systemEngineAvailable,
+                      ),
+                      const ButtonSegment<TranscriptionEngineId>(
+                        value: TranscriptionEngineId.whisper,
+                        label: Text('Whisper'),
+                        icon: Icon(Icons.download_done, size: 16),
+                      ),
+                    ],
+                    selected: <TranscriptionEngineId>{set.transcriptionEngine},
+                    onSelectionChanged: (Set<TranscriptionEngineId> v) =>
+                        _set(set.copyWith(transcriptionEngine: v.first)),
+                  ),
+                  Gaps.h8,
+                  Text(
+                    switch (set.transcriptionEngine) {
+                      TranscriptionEngineId.sistema =>
+                        'Usa il riconoscitore vocale del telefono, lo stesso '
+                            'delle app di trascrizione di sistema: molto più '
+                            'veloce, gratuito e offline.',
+                      TranscriptionEngineId.whisper =>
+                        'Usa il modello scaricato: funziona su qualunque '
+                            'telefono, ma impiega all\'incirca il tempo '
+                            'dell\'audio.',
+                    },
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (!_systemEngineAvailable &&
+                      _systemEngineReason != null) ...<Widget>[
+                    Gaps.h8,
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Icon(Icons.info_outline,
+                            size: 16, color: theme.colorScheme.outline),
+                        Gaps.w8,
+                        Expanded(
+                          child: Text(
+                            _systemEngineReason!,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                  const Divider(height: 24),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     title: const Text('Modello'),

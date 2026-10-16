@@ -12,5 +12,10 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    // Riconoscitore vocale di sistema, alternativa a whisper.
+    if let messenger = engineBridge.pluginRegistry
+      .registrar(forPlugin: "SystemSpeechPlugin")?.messenger() {
+      SystemSpeechPlugin.register(with: messenger)
+    }
   }
 }

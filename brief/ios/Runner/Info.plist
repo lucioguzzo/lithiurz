@@ -5,6 +5,8 @@
 	<!-- Gruppo app condiviso con la Share Extension: il valore reale si
 	     imposta come "User-Defined Setting" CUSTOM_GROUP_ID in Xcode
 	     (vedi docs/IOS.md). -->
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Il riconoscitore vocale del telefono viene usato per trascrivere gli audio che condividi con BRIEF. L'audio resta sul dispositivo.</string>
 	<key>AppGroupId</key>
 	<string>$(CUSTOM_GROUP_ID)</string>
 	<!-- Schema usato dalla Share Extension per riaprire l'app con i file. -->

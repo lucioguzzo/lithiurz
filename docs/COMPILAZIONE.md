@@ -17,7 +17,7 @@
 cd brief
 flutter pub get
 flutter analyze          # deve restituire "No issues found!"
-flutter test             # 106 test unitari
+flutter test             # 115 test unitari
 ```
 
 ### Android

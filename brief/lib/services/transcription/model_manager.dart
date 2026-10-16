@@ -16,7 +16,12 @@ class ModelOption {
     required this.approxBytes,
     required this.ramHintMb,
     required this.description,
+    required this.downloadUrl,
   });
+
+  /// Da dove scaricarlo. Non si usa l'URL del pacchetto perché BRIEF
+  /// preferisce la versione quantizzata, che pesa e impiega meno.
+  final String downloadUrl;
 
   final String id;
   final WhisperModel model;
@@ -36,13 +41,21 @@ class ModelOption {
   static const ModelOption small = ModelOption(
     id: 'small',
     model: WhisperModel.small,
-    label: 'Small (multilingua)',
-    approxBytes: 488 * 1024 * 1024,
-    ramHintMb: 4000,
-    description: 'Il modello usato da BRIEF. Trascrive bene l\'italiano '
-        'parlato, anche con rumore di fondo o più voci. Si scarica una volta '
-        'sola e poi funziona senza connessione.',
+    label: 'Small quantizzato (multilingua)',
+    // La versione q5_1 pesa 181 MB invece di 465 ed è circa due volte più
+    // rapida, con una perdita di precisione trascurabile sul parlato.
+    approxBytes: 181 * 1024 * 1024,
+    ramHintMb: 2500,
+    description: 'Trascrive l\'italiano parlato anche con rumore di fondo. '
+        'Versione compressa: 181 MB invece di 465 e circa il doppio più '
+        'veloce. Si scarica una volta sola e poi funziona offline.',
+    downloadUrl: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/'
+        'ggml-small-q5_1.bin',
   );
+
+  /// Oltre questa dimensione il file scaricato è il modello pieno di una
+  /// versione precedente: va sostituito con quello compresso.
+  static const int legacyFullModelBytes = 300 * 1024 * 1024;
 
   static const List<ModelOption> all = <ModelOption>[small];
 
@@ -94,8 +107,22 @@ class ModelManager {
 
   Future<bool> isInstalled(ModelOption option) async {
     final File f = File(await pathFor(option));
-    // Un file troncato da un download interrotto non va considerato valido.
-    return f.existsSync() && f.lengthSync() > option.approxBytes * 0.6;
+    if (!f.existsSync()) return false;
+    final int size = f.lengthSync();
+    // Un file troncato da un download interrotto non è valido.
+    if (size < option.approxBytes * 0.6) return false;
+    // Né lo è il modello pieno scaricato da una versione precedente: è
+    // quello lento, va sostituito con il compresso.
+    if (size > ModelOption.legacyFullModelBytes) return false;
+    return true;
+  }
+
+  /// `true` se sul telefono c'è il modello pieno di una versione
+  /// precedente, da sostituire con quello compresso.
+  Future<bool> hasLegacyFullModel(ModelOption option) async {
+    final File f = File(await pathFor(option));
+    return f.existsSync() &&
+        f.lengthSync() > ModelOption.legacyFullModelBytes;
   }
 
   Future<int> installedBytes() async {
@@ -117,6 +144,12 @@ class ModelManager {
     final String target = await pathFor(option);
     if (await isInstalled(option)) return target;
 
+    // Via il modello pieno della versione precedente: occupa 465 MB e
+    // sarebbe comunque sostituito da quello compresso.
+    if (await hasLegacyFullModel(option)) {
+      await File(target).delete();
+    }
+
     final File tmp = File('$target.part');
     await tmp.parent.create(recursive: true);
     if (tmp.existsSync()) await tmp.delete();
@@ -127,7 +160,7 @@ class ModelManager {
     IOSink? sink;
     try {
       final HttpClientRequest request =
-          await client.getUrl(option.model.modelUri);
+          await client.getUrl(Uri.parse(option.downloadUrl));
       final HttpClientResponse response = await request.close();
       if (response.statusCode != 200) {
         throw AppFailure(

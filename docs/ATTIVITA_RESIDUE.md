@@ -16,6 +16,18 @@ importanza.
 | 7 | **Informativa privacy pubblicata su web** | Google e Apple pretendono un URL raggiungibile; il testo è già in `PRIVACY.md` e nell'app |
 | 8 | **Distribuire il backend** e puntarci l'app (`BRIEF_BACKEND_URL`) | Senza, il riassunto cloud non è disponibile e l'app ripiega sul locale |
 
+## Da provare sul telefono, appena possibile
+
+- **Motore di sistema su Android** — il codice Kotlin
+  (`SystemSpeechPlugin`) usa `SpeechRecognizer` su dispositivo con sessione
+  segmentata e sorgente da file, API disponibili da Android 13. Scritto ma
+  **mai eseguito**: qui non c'è né emulatore né telefono. Da verificare:
+  che la sessione segmentata restituisca davvero tutto il blocco e non si
+  fermi alla prima pausa, e che la lingua italiana offline sia presente.
+- **Motore di sistema su iOS** — `SystemSpeechPlugin.swift` con
+  `SFSpeechRecognizer` e `requiresOnDeviceRecognition`. **Mai compilato**:
+  serve un Mac.
+
 ## Importanti, non bloccanti
 
 - **Messaggio di consenso UMP/GDPR per la pubblicità** — AdMob in Europa
@@ -57,7 +69,7 @@ importanza.
 | Verifica | Esito |
 |---|---|
 | `flutter analyze` | nessun problema |
-| `flutter test` (106 test) | superati |
+| `flutter test` (115 test) | superati |
 | `pytest` backend (39 test) | superati |
 | Build APK Android (debug) | compilata e ispezionata, anche dopo il rinomino in BRIEF |
 | Build APK Android (release con R8, split per ABI) | compilata: 41-51 MB per architettura |

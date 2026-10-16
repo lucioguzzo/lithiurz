@@ -3,12 +3,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whisper_ggml/whisper_ggml.dart';
 
 import '../core/constants.dart';
+import '../services/transcription/engine.dart';
 
 /// Preferenze dell'utente. Immutabile: le modifiche passano da
 /// [SettingsRepository.update].
 @immutable
 class AppSettings {
   const AppSettings({
+    this.transcriptionEngine = TranscriptionEngineId.whisper,
     this.modelName = 'small',
     this.language = 'it',
     this.summaryStyle = SummaryStyle.standard,
@@ -22,6 +24,10 @@ class AppSettings {
     this.backendUrl = '',
     this.themeMode = ThemeModeSetting.sistema,
   });
+
+  /// Motore di trascrizione scelto dall'utente (da non confondere con
+  /// [engine], che riguarda il riassunto).
+  final TranscriptionEngineId transcriptionEngine;
 
   final String modelName;
   final String language;
@@ -45,6 +51,7 @@ class AppSettings {
   WhisperModel get whisperModel => WhisperModel.small;
 
   AppSettings copyWith({
+    TranscriptionEngineId? transcriptionEngine,
     String? modelName,
     String? language,
     SummaryStyle? summaryStyle,
@@ -60,6 +67,7 @@ class AppSettings {
     ThemeModeSetting? themeMode,
   }) =>
       AppSettings(
+        transcriptionEngine: transcriptionEngine ?? this.transcriptionEngine,
         modelName: modelName ?? this.modelName,
         language: language ?? this.language,
         summaryStyle: summaryStyle ?? this.summaryStyle,
@@ -87,6 +95,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
   static Future<SettingsRepository> open() async =>
       SettingsRepository(await SharedPreferences.getInstance());
 
+  static const String _kTranscriptionEngine = 'transcription_engine';
   static const String _kModel = 'model_name';
   static const String _kLang = 'language';
   static const String _kStyle = 'summary_style';
@@ -110,6 +119,8 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
     return AppSettings(
       // Un'installazione precedente può avere salvato 'tiny' o 'base':
       // quei modelli non esistono più, si riparte da Small.
+      transcriptionEngine:
+          TranscriptionEngineId.fromId(p.getString(_kTranscriptionEngine)),
       modelName: _normalizeModel(p.getString(_kModel)),
       language: p.getString(_kLang) ?? 'it',
       summaryStyle: SummaryStyle.fromId(p.getString(_kStyle)),
@@ -131,6 +142,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
     value = next;
     notifyListeners();
     await Future.wait<Object?>(<Future<Object?>>[
+      _prefs.setString(_kTranscriptionEngine, next.transcriptionEngine.id),
       _prefs.setString(_kModel, next.modelName),
       _prefs.setString(_kLang, next.language),
       _prefs.setString(_kStyle, next.summaryStyle.id),

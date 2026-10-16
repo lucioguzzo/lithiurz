@@ -46,7 +46,7 @@ Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
 # App
 cd brief
 flutter pub get
-flutter test                 # 106 test unitari
+flutter test                 # 115 test unitari
 flutter build apk --debug    # Android
 
 # Backend
@@ -68,12 +68,20 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   può sparire appena l'app di origine si chiude.
 - **Controlli preventivi** — formato, dimensione (max 500 MB), durata (max 4
   ore) e presenza di una traccia audio, letti con ffprobe.
-- **Trascrizione locale** — whisper.cpp (`whisper_ggml`) con il modello
-  **Small multilingua**. Si scarica una volta (488 MB) e poi funziona
-  offline. Tiny e Base erano offerti all'inizio ma sul parlato italiano
-  reale sbagliavano troppo: un riassunto costruito su una trascrizione
-  sbagliata è peggio di nessun riassunto. Chi li aveva scaricati se li vede
-  eliminare al primo avvio, liberando lo spazio.
+- **Due motori di trascrizione**, a scelta nelle impostazioni, entrambi
+  gratuiti e offline:
+  - **Motore del telefono** — il riconoscitore vocale di sistema, lo stesso
+    che usano le app di trascrizione del dispositivo. Molto più rapido
+    perché ottimizzato per quel chip. Richiede Android 13+ (da lì
+    `SpeechRecognizer` legge da file, non solo dal microfono) o iOS con la
+    lingua scaricata; dove manca, l'opzione è disattivata e l'app spiega
+    perché.
+  - **Whisper** — whisper.cpp con il modello **Small quantizzato q5_1**
+    (181 MB invece di 465, circa il doppio più rapido del modello pieno).
+    Funziona su qualunque telefono. Tiny e Base erano offerti all'inizio
+    ma sul parlato italiano reale sbagliavano troppo: un riassunto
+    costruito su una trascrizione sbagliata è peggio di nessun riassunto.
+    Chi li aveva scaricati se li vede eliminare al primo avvio.
 - **Trascrizione visibile mentre procede** — oltre 2 minuti l'audio viene
   diviso in blocchi da ~90 secondi, tagliati **sui silenzi** per non
   spezzare le parole, e il testo di ogni blocco compare appena pronto sotto
@@ -83,6 +91,11 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   disco, quindi chiudendo l'app o annullando si riprende da dove si era
   rimasti; i testi vengono ricuciti rimuovendo le frasi ripetute al
   confine. Il riassunto parte solo a trascrizione finita.
+- **Contro le frasi ripetute** — whisper può entrare in un anello e
+  ripetere la stessa frase per righe intere. Tre difese: il rilevatore del
+  parlato Silero toglie i silenzi su cui gli anelli nascono, un passaggio
+  di pulizia riduce a una copia le sequenze ripetute identiche, e il
+  riassunto locale scarta le frasi quasi uguali a una già scelta.
 - **Riassunto** — due motori: *locale* (estrattivo, offline, nessun dato
   esce) e *cloud* (modello linguistico via backend, solo dopo consenso
   esplicito). Se il cloud fallisce o la quota è esaurita si ripiega sul
@@ -99,7 +112,7 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 | Elemento | Stato |
 |----------|-------|
 | `flutter analyze` | ✅ nessun problema |
-| Test Dart (`flutter test`) | ✅ 106 test |
+| Test Dart (`flutter test`) | ✅ 115 test |
 | Test backend (`pytest`) | ✅ 39 test |
 | Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build APK Android (release, R8 attivo) | ✅ compilata: 41 MB per arm64-v8a |
