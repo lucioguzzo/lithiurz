@@ -43,12 +43,15 @@ importanza.
   `SFSpeechRecognizer` e `requiresOnDeviceRecognition`. **Mai compilato**:
   serve un Mac. Vale la stessa cautela: va considerato sperimentale finché
   non è provato su un dispositivo vero.
-- **Accuratezza di Whisper Small q5_1** — sul parlato italiano reale il
-  testo è comprensibile ma contiene errori di parola. Leve non ancora
-  provate, in ordine di costo: modello `small-q8_0` (circa 260 MB, meno
-  compresso, stessa velocità di decodifica a parità di memoria),
-  riassunto nel cloud (il backend è scritto, va distribuito), modello
-  `medium` (1,5 GB: sconsigliato su telefono).
+- **Accuratezza di Whisper Small** — sul parlato italiano reale il testo è
+  comprensibile ma contiene errori di parola. Il modello è passato da
+  `small-q5_1` (181 MB) a **`small-q8_0`** (252 MB): quantizzazione più
+  leggera, dettagli dei pesi meglio conservati. **Il guadagno non è ancora
+  misurato**: serve riascoltare lo stesso audio con entrambi e contare gli
+  errori. Se non bastasse, le leve rimaste sono il riassunto nel cloud (il
+  backend è scritto, va distribuito: compensa gli errori ragionando sul
+  testo) e il modello `medium` (1,5 GB, tempi tripli: sconsigliato su
+  telefono).
 
 ## Importanti, non bloccanti
 

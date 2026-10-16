@@ -69,12 +69,18 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 - **Controlli preventivi** — formato, dimensione (max 500 MB), durata (max 4
   ore) e presenza di una traccia audio, letti con ffprobe.
 - **Whisper come motore di trascrizione** — whisper.cpp con il modello
-  **Small quantizzato q5_1** (181 MB invece di 465, circa il doppio più
-  rapido del modello pieno), gratuito e offline su qualunque telefono.
-  Tiny e Base erano offerti all'inizio ma sul parlato italiano reale
-  sbagliavano troppo: un riassunto costruito su una trascrizione sbagliata
-  è peggio di nessun riassunto. Chi li aveva scaricati se li vede
-  eliminare al primo avvio.
+  **Small quantizzato q8_0** (252 MB invece dei 465 del modello pieno),
+  gratuito e offline su qualunque telefono. Tiny e Base erano offerti
+  all'inizio ma sul parlato italiano reale sbagliavano troppo: un riassunto
+  costruito su una trascrizione sbagliata è peggio di nessun riassunto. Chi
+  li aveva scaricati se li vede eliminare al primo avvio. La prima versione
+  usava q5_1 (181 MB): comprime di più, ma perde proprio i dettagli che
+  servono sui nomi propri e sulle parole dette di fretta, quindi si è
+  passati a q8_0. L'app riconosce dalla dimensione del file il modello
+  rimasto da una versione precedente e propone di sostituirlo; il download
+  nuovo arriva in un file `.part` e prende il posto del vecchio solo
+  quando è completo, così una connessione che cade non lascia senza
+  modello.
 - **Motore del telefono: opzione sperimentale, non consigliata** — il
   riconoscitore vocale di sistema (`SpeechRecognizer` da Android 13,
   `SFSpeechRecognizer` su iOS) sulla carta è molto più rapido, perché

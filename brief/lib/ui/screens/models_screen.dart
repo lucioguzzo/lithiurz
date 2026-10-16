@@ -22,6 +22,7 @@ class ModelsScreen extends StatefulWidget {
 class _ModelsScreenState extends State<ModelsScreen> {
   final Map<String, double?> _progress = <String, double?>{};
   final Map<String, bool> _installed = <String, bool>{};
+  final Map<String, bool> _outdated = <String, bool>{};
   final Map<String, CancellationToken> _tokens = <String, CancellationToken>{};
   bool _tightOnMemory = false;
   int _freedLegacy = 0;
@@ -35,8 +36,10 @@ class _ModelsScreenState extends State<ModelsScreen> {
   Future<void> _refresh() async {
     final AppServices s = ServicesScope.of(context);
     final Map<String, bool> installed = <String, bool>{};
+    final Map<String, bool> outdated = <String, bool>{};
     for (final ModelOption o in ModelOption.all) {
       installed[o.id] = await s.models.isInstalled(o);
+      outdated[o.id] = await s.models.hasOutdatedModel(o);
     }
     final bool tight = await s.models.isTightOnMemory();
     // Tiny e Base non sono più offerti: se restano da una versione
@@ -47,6 +50,9 @@ class _ModelsScreenState extends State<ModelsScreen> {
         _installed
           ..clear()
           ..addAll(installed);
+        _outdated
+          ..clear()
+          ..addAll(outdated);
         _tightOnMemory = tight;
         _freedLegacy = freed;
       });
@@ -75,6 +81,7 @@ class _ModelsScreenState extends State<ModelsScreen> {
       setState(() {
         _progress.remove(option.id);
         _installed[option.id] = true;
+        _outdated[option.id] = false;
       });
       showMessage(context, '${option.label} pronto all\'uso');
       if (widget.required?.id == option.id && mounted) {
@@ -95,7 +102,7 @@ class _ModelsScreenState extends State<ModelsScreen> {
     final bool ok = await confirm(
       context,
       title: 'Eliminare il modello?',
-      message: 'Libererai ${Fmt.bytes(option.approxBytes)}. Potrai '
+      message: 'Libererai ${Fmt.bytes(option.bytes)}. Potrai '
           'riscaricarlo quando vuoi.',
       confirmLabel: 'Elimina',
       destructive: true,
@@ -125,7 +132,7 @@ class _ModelsScreenState extends State<ModelsScreen> {
                   padding: const EdgeInsets.all(14),
                   child: Text(
                     'Per procedere serve il modello '
-                    '${widget.required!.label} (${Fmt.bytes(widget.required!.approxBytes)}). '
+                    '${widget.required!.label} (${Fmt.bytes(widget.required!.bytes)}). '
                     'Si scarica una sola volta e poi funziona offline.',
                     style: TextStyle(
                       color: theme.colorScheme.onTertiaryContainer,
@@ -149,6 +156,7 @@ class _ModelsScreenState extends State<ModelsScreen> {
               _ModelCard(
                 option: option,
                 installed: _installed[option.id] ?? false,
+                outdated: _outdated[option.id] ?? false,
                 selected: selected == option.id,
                 tightOnMemory: _tightOnMemory,
                 progress: _progress[option.id],
@@ -176,6 +184,7 @@ class _ModelCard extends StatelessWidget {
   const _ModelCard({
     required this.option,
     required this.installed,
+    required this.outdated,
     required this.selected,
     required this.tightOnMemory,
     required this.progress,
@@ -188,6 +197,10 @@ class _ModelCard extends StatelessWidget {
 
   final ModelOption option;
   final bool installed;
+
+  /// Sul telefono c'è un modello di una versione precedente: va
+  /// sostituito, non affiancato.
+  final bool outdated;
   final bool selected;
   final bool tightOnMemory;
   final double? progress;
@@ -228,12 +241,23 @@ class _ModelCard extends StatelessWidget {
             ),
             Gaps.h4,
             Text(
-              '${Fmt.bytes(option.approxBytes)} · RAM consigliata '
+              '${Fmt.bytes(option.bytes)} · RAM consigliata '
               '${(option.ramHintMb / 1024).toStringAsFixed(1)} GB',
               style: theme.textTheme.labelSmall,
             ),
             Gaps.h8,
             Text(option.description, style: theme.textTheme.bodySmall),
+            if (outdated && !downloading) ...<Widget>[
+              Gaps.h8,
+              Text(
+                'Sul telefono c\'è la versione precedente di questo modello, '
+                'più compressa e meno precisa. Scaricando quella nuova viene '
+                'sostituita: lo spazio occupato non raddoppia.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ],
             Gaps.h12,
             if (downloading) ...<Widget>[
               LinearProgressIndicator(value: progress),

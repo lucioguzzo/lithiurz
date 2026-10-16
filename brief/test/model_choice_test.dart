@@ -21,6 +21,27 @@ void main() {
       expect(ModelOption.byId('').id, 'small');
     });
 
+    test('il modello scaricato è il q8_0, con la dimensione attesa', () {
+      expect(ModelOption.small.downloadUrl, contains('ggml-small-q8_0.bin'));
+      // Dimensione del file su Hugging Face: se cambia, cambia anche il
+      // riconoscimento del modello già installato.
+      expect(ModelOption.small.bytes, 264464607);
+    });
+
+    test('la tolleranza distingue q8_0 da q5_1 e dal modello pieno', () {
+      const int atteso = 264464607;
+      const double t = ModelOption.sizeTolerance;
+      bool combacia(int size) =>
+          (size - atteso).abs() <= atteso * t;
+
+      expect(combacia(atteso), isTrue);
+      expect(combacia(atteso - 1024), isTrue, reason: 'piccole variazioni ok');
+      // q5_1: 181 MB. Modello pieno: 465 MB. Download interrotto: 50 MB.
+      expect(combacia(190 * 1000 * 1000), isFalse);
+      expect(combacia(465 * 1000 * 1000), isFalse);
+      expect(combacia(50 * 1000 * 1000), isFalse);
+    });
+
     test('i modelli da eliminare sono quelli non più offerti', () {
       expect(ModelOption.legacyFileNames, contains('ggml-tiny.bin'));
       expect(ModelOption.legacyFileNames, contains('ggml-base.bin'));

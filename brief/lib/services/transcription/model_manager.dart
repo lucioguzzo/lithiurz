@@ -13,7 +13,7 @@ class ModelOption {
     required this.id,
     required this.model,
     required this.label,
-    required this.approxBytes,
+    required this.bytes,
     required this.ramHintMb,
     required this.description,
     required this.downloadUrl,
@@ -26,7 +26,8 @@ class ModelOption {
   final String id;
   final WhisperModel model;
   final String label;
-  final int approxBytes;
+  /// Dimensione attesa del file scaricato, in byte.
+  final int bytes;
 
   /// RAM consigliata sul dispositivo per usarlo senza affanni.
   final int ramHintMb;
@@ -38,24 +39,36 @@ class ModelOption {
   /// parlato italiano reale (voce al telefono, rumore di fondo, nomi propri)
   /// sbagliavano troppo per essere utili: un riassunto costruito su una
   /// trascrizione sbagliata è peggio di nessun riassunto. Resta Small.
+  ///
+  /// La quantizzazione è passata da q5_1 (181 MB) a **q8_0** (252 MB): la
+  /// compressione più leggera conserva meglio i dettagli dei pesi, e sono
+  /// quelli che si perdono sui nomi propri e sulle parole pronunciate di
+  /// fretta. Costa 71 MB di spazio e un po' di memoria in più; la velocità
+  /// di decodifica è paragonabile. Il modello pieno (465 MB) resta fuori
+  /// discussione su un telefono.
   static const ModelOption small = ModelOption(
     id: 'small',
     model: WhisperModel.small,
     label: 'Small quantizzato (multilingua)',
-    // La versione q5_1 pesa 181 MB invece di 465 ed è circa due volte più
-    // rapida, con una perdita di precisione trascurabile sul parlato.
-    approxBytes: 181 * 1024 * 1024,
+    // Dimensione esatta del file su Hugging Face, verificata il 16/10/2026:
+    // serve a distinguere questo modello da un q5_1 o da un modello pieno
+    // rimasti da una versione precedente.
+    bytes: 264464607,
     ramHintMb: 2500,
     description: 'Trascrive l\'italiano parlato anche con rumore di fondo. '
-        'Versione compressa: 181 MB invece di 465 e circa il doppio più '
-        'veloce. Si scarica una volta sola e poi funziona offline.',
+        'Versione compressa q8_0: 252 MB invece dei 465 del modello pieno, '
+        'con una perdita di precisione minima. Si scarica una volta sola e '
+        'poi funziona offline.',
     downloadUrl: 'https://huggingface.co/ggerganov/whisper.cpp/resolve/main/'
-        'ggml-small-q5_1.bin',
+        'ggml-small-q8_0.bin',
   );
 
-  /// Oltre questa dimensione il file scaricato è il modello pieno di una
-  /// versione precedente: va sostituito con quello compresso.
-  static const int legacyFullModelBytes = 300 * 1024 * 1024;
+  /// Scarto ammesso fra il file sul telefono e la dimensione attesa.
+  ///
+  /// Serve a riconoscere il modello giusto senza pretendere il byte esatto,
+  /// ma è abbastanza stretto da scartare una quantizzazione diversa: fra
+  /// q5_1 (181 MB) e q8_0 (252 MB) ci sono il 39% di differenza.
+  static const double sizeTolerance = 0.03;
 
   static const List<ModelOption> all = <ModelOption>[small];
 
@@ -108,21 +121,25 @@ class ModelManager {
   Future<bool> isInstalled(ModelOption option) async {
     final File f = File(await pathFor(option));
     if (!f.existsSync()) return false;
-    final int size = f.lengthSync();
-    // Un file troncato da un download interrotto non è valido.
-    if (size < option.approxBytes * 0.6) return false;
-    // Né lo è il modello pieno scaricato da una versione precedente: è
-    // quello lento, va sostituito con il compresso.
-    if (size > ModelOption.legacyFullModelBytes) return false;
-    return true;
+    return _matches(f.lengthSync(), option);
   }
 
-  /// `true` se sul telefono c'è il modello pieno di una versione
-  /// precedente, da sostituire con quello compresso.
-  Future<bool> hasLegacyFullModel(ModelOption option) async {
+  /// `true` se il file ha la dimensione attesa, a meno della tolleranza.
+  /// Scarta sia i download interrotti sia i modelli di versioni
+  /// precedenti: il modello pieno (465 MB) e il q5_1 (181 MB).
+  static bool _matches(int size, ModelOption option) =>
+      (size - option.bytes).abs() <= option.bytes * ModelOption.sizeTolerance;
+
+  /// `true` se sul telefono c'è un modello di una versione precedente —
+  /// quello pieno o una quantizzazione diversa — da sostituire.
+  Future<bool> hasOutdatedModel(ModelOption option) async {
     final File f = File(await pathFor(option));
-    return f.existsSync() &&
-        f.lengthSync() > ModelOption.legacyFullModelBytes;
+    if (!f.existsSync()) return false;
+    final int size = f.lengthSync();
+    // Un download interrotto è piccolo: quello non è un modello vecchio,
+    // è spazzatura che il download sovrascrive da sé.
+    if (size < option.bytes * 0.5) return false;
+    return !_matches(size, option);
   }
 
   Future<int> installedBytes() async {
@@ -144,11 +161,9 @@ class ModelManager {
     final String target = await pathFor(option);
     if (await isInstalled(option)) return target;
 
-    // Via il modello pieno della versione precedente: occupa 465 MB e
-    // sarebbe comunque sostituito da quello compresso.
-    if (await hasLegacyFullModel(option)) {
-      await File(target).delete();
-    }
+    // Un modello di una versione precedente non viene cancellato adesso:
+    // il download scrive su `.part` e sostituisce il file solo alla fine,
+    // così se la connessione cade si resta con il modello che si aveva.
 
     final File tmp = File('$target.part');
     await tmp.parent.create(recursive: true);
@@ -169,7 +184,7 @@ class ModelManager {
       }
       final int total = response.contentLength > 0
           ? response.contentLength
-          : option.approxBytes;
+          : option.bytes;
 
       sink = tmp.openWrite();
       int received = 0;
