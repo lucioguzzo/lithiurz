@@ -11,22 +11,39 @@ import 'model_manager.dart';
 /// Motori di trascrizione disponibili.
 enum TranscriptionEngineId {
   /// Riconoscitore vocale del sistema operativo: lo stesso usato dalle app
-  /// di trascrizione del telefono. Gratuito, offline e molto più rapido,
-  /// perché ottimizzato per quel chip. Non c'è su tutti i dispositivi.
-  sistema('sistema', 'Motore del telefono'),
+  /// di trascrizione del telefono. Sulla carta è gratuito, offline e molto
+  /// più rapido, perché ottimizzato per quel chip.
+  ///
+  /// Nella prova sul campo però non ha mantenuto la promessa: su un nubia
+  /// NX713J con Android 13 si ferma dopo i primi secondi e restituisce una
+  /// manciata di parole, qualunque sia la lunghezza degli spezzoni e per
+  /// quanto si allunghino le soglie di silenzio. Resta selezionabile come
+  /// opzione sperimentale per chi ha un telefono che lo implementa meglio,
+  /// ma non è il motore predefinito e non lo diventerà.
+  sistema('sistema', 'Motore del telefono', experimental: true),
 
   /// whisper.cpp con il modello Small compresso: funziona ovunque, ma
-  /// impiega all'incirca il tempo dell'audio.
+  /// impiega all'incirca il tempo dell'audio. È il motore predefinito.
   whisper('whisper', 'Whisper (modello scaricato)');
 
-  const TranscriptionEngineId(this.id, this.label);
+  const TranscriptionEngineId(this.id, this.label,
+      {this.experimental = false});
+
   final String id;
   final String label;
+
+  /// Motore non affidabile su tutti i dispositivi: va scelto dall'utente
+  /// in modo esplicito e segnalato come tale nell'interfaccia.
+  final bool experimental;
+
+  /// Il motore su cui ricade l'app quando non c'è una scelta valida.
+  static const TranscriptionEngineId predefinito =
+      TranscriptionEngineId.whisper;
 
   static TranscriptionEngineId fromId(String? id) =>
       TranscriptionEngineId.values.firstWhere(
         (TranscriptionEngineId e) => e.id == id,
-        orElse: () => TranscriptionEngineId.whisper,
+        orElse: () => predefinito,
       );
 }
 

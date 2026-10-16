@@ -106,6 +106,25 @@ annullamento, nessun recupero se il sistema sospende l'app. Perciò:
    confrontata con la testa del blocco successivo (minimo 3 parole, a meno
    di maiuscole e punteggiatura) e la ripetizione viene rimossa.
 
+### I due motori
+
+`TranscriptionEngine` è l'interfaccia che la pipeline conosce: riceve un WAV
+già pronto e restituisce testo. Le implementazioni sono `WhisperEngine`
+(whisper.cpp) e `SystemSpeechEngine` (canale nativo `brief/system_speech` →
+`SpeechRecognizer` su Android, `SFSpeechRecognizer` su iOS). Ogni motore
+dichiara anche la durata di blocco che preferisce, perché i vincoli sono
+diversi: whisper rende meglio con più contesto (90 s), il riconoscitore di
+sistema è tarato sul dettato e lavora a spezzoni brevi (25 s).
+
+Il motore di sistema è marcato `experimental`: alla prova sul campo
+(nubia NX713J, Android 13) chiude l'ascolto dopo i primi secondi e rende 15
+parole su 36 secondi di audio, contro le 127 di whisper. Resta nel codice
+come opzione da attivare a mano — l'astrazione serviva comunque e il difetto
+può essere specifico di quell'OEM — ma il predefinito è whisper e una
+migrazione una tantum riporta lì chi lo aveva scelto. `TranscriptQuality`
+riconosce il sintomo in modo indipendente dal motore (parole al minuto sotto
+la soglia del parlato plausibile) e la schermata del risultato lo segnala.
+
 ## Sintesi
 
 | | Locale | Cloud |

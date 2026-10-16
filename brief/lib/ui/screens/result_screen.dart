@@ -6,6 +6,7 @@ import '../../core/formatters.dart';
 import '../../domain/note.dart';
 import '../../domain/summary.dart';
 import '../../services/transcription/engine.dart';
+import '../../services/transcription/transcript_quality.dart';
 import '../../services/tts/tts_service.dart';
 import '../theme.dart';
 import '../widgets/app_footer.dart';
@@ -363,7 +364,7 @@ class _TranscriptTab extends StatelessWidget {
           children: <Widget>[
             Expanded(
               child: Text(
-                '${note.transcript.split(RegExp(r"\s+")).length} parole · '
+                '${TranscriptQuality.wordCount(note.transcript)} parole · '
                 '${Fmt.duration(note.duration)}',
                 style: theme.textTheme.bodySmall,
               ),
@@ -388,6 +389,11 @@ class _TranscriptTab extends StatelessWidget {
             ),
           ],
         ),
+        if (TranscriptQuality.looksTruncated(
+            text: note.transcript, audio: note.duration)) ...<Widget>[
+          Gaps.h8,
+          _TruncatedNotice(engine: note.engine),
+        ],
         Gaps.h8,
         SelectableText(
           note.transcript.isEmpty
@@ -410,6 +416,51 @@ class _TranscriptTab extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Avviso mostrato quando il testo è troppo corto per la durata
+/// dell'audio: quasi sempre vuol dire che il motore si è fermato prima
+/// della fine.
+class _TruncatedNotice extends StatelessWidget {
+  const _TruncatedNotice({required this.engine});
+
+  final TranscriptionEngineId engine;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Card(
+      margin: EdgeInsets.zero,
+      color: theme.colorScheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Icon(Icons.warning_amber_outlined,
+                size: 18, color: theme.colorScheme.onErrorContainer),
+            Gaps.w8,
+            Expanded(
+              child: Text(
+                engine == TranscriptionEngineId.sistema
+                    ? 'Il testo è molto più corto della durata dell\'audio: '
+                        'il motore del telefono si ferma spesso dopo i primi '
+                        'secondi. Disattivalo nelle impostazioni e ripeti la '
+                        'trascrizione con Whisper.'
+                    : 'Il testo è molto più corto della durata dell\'audio. '
+                        'Può succedere con registrazioni in gran parte '
+                        'silenziose o con una voce poco udibile: controlla il '
+                        'risultato prima di usarlo.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onErrorContainer,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

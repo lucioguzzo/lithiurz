@@ -35,6 +35,33 @@ void main() {
           TranscriptionEngineId.sistema);
     });
 
+    test('il motore di sistema è segnato come sperimentale', () {
+      // Dopo le prove sul campo resta disponibile, ma solo per chi lo
+      // sceglie di proposito: non può tornare a essere il predefinito.
+      expect(TranscriptionEngineId.sistema.experimental, isTrue);
+      expect(TranscriptionEngineId.whisper.experimental, isFalse);
+      expect(TranscriptionEngineId.predefinito, TranscriptionEngineId.whisper);
+    });
+
+    test('chi aveva il motore di sistema torna a whisper una volta sola',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{
+        'transcription_engine': 'sistema',
+      });
+
+      final SettingsRepository dopoAggiornamento =
+          await SettingsRepository.open();
+      expect(dopoAggiornamento.value.transcriptionEngine,
+          TranscriptionEngineId.whisper);
+
+      // Se poi lo riattiva di proposito, la scelta va rispettata.
+      await dopoAggiornamento.update(dopoAggiornamento.value
+          .copyWith(transcriptionEngine: TranscriptionEngineId.sistema));
+      final SettingsRepository riaperto = await SettingsRepository.open();
+      expect(riaperto.value.transcriptionEngine,
+          TranscriptionEngineId.sistema);
+    });
+
     test('cambiare motore non tocca quello del riassunto', () async {
       SharedPreferences.setMockInitialValues(<String, Object>{});
       final SettingsRepository repo = await SettingsRepository.open();

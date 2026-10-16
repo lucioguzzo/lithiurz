@@ -147,60 +147,91 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: <Widget>[
                   Text('Motore', style: theme.textTheme.bodyMedium),
                   Gaps.h8,
-                  SegmentedButton<TranscriptionEngineId>(
-                    segments: <ButtonSegment<TranscriptionEngineId>>[
-                      ButtonSegment<TranscriptionEngineId>(
-                        value: TranscriptionEngineId.sistema,
-                        label: const Text('Telefono'),
-                        icon: const Icon(Icons.bolt, size: 16),
-                        enabled: _systemEngineAvailable,
-                      ),
-                      const ButtonSegment<TranscriptionEngineId>(
-                        value: TranscriptionEngineId.whisper,
-                        label: Text('Whisper'),
-                        icon: Icon(Icons.download_done, size: 16),
+                  Row(
+                    children: <Widget>[
+                      Icon(Icons.download_done,
+                          size: 18, color: theme.colorScheme.primary),
+                      Gaps.w8,
+                      Expanded(
+                        child: Text(
+                          set.transcriptionEngine ==
+                                  TranscriptionEngineId.whisper
+                              ? 'Whisper · consigliato'
+                              : 'Whisper · consigliato (non attivo)',
+                          style: theme.textTheme.titleSmall,
+                        ),
                       ),
                     ],
-                    selected: <TranscriptionEngineId>{set.transcriptionEngine},
-                    onSelectionChanged: (Set<TranscriptionEngineId> v) =>
-                        _set(set.copyWith(transcriptionEngine: v.first)),
                   ),
                   Gaps.h8,
                   Text(
-                    switch (set.transcriptionEngine) {
-                      TranscriptionEngineId.sistema =>
-                        'Usa il riconoscitore vocale del telefono, lo stesso '
-                            'delle app di trascrizione di sistema: molto più '
-                            'veloce, gratuito e offline.',
-                      TranscriptionEngineId.whisper =>
-                        'Usa il modello scaricato: funziona su qualunque '
-                            'telefono, ma impiega all\'incirca il tempo '
-                            'dell\'audio.',
-                    },
+                    'Trascrive con il modello scaricato sul telefono: '
+                    'funziona su qualunque dispositivo, resta offline e '
+                    'impiega all\'incirca il tempo dell\'audio.',
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  if (!_systemEngineAvailable &&
-                      _systemEngineReason != null) ...<Widget>[
-                    Gaps.h8,
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  Gaps.h8,
+                  Theme(
+                    // L'ExpansionTile disegnerebbe due righe divisorie
+                    // proprie, che qui si sommerebbero a quella della
+                    // sezione.
+                    data: theme.copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: const EdgeInsets.only(bottom: 8),
+                      initiallyExpanded: set.transcriptionEngine ==
+                          TranscriptionEngineId.sistema,
+                      title: Text(
+                        'Motore del telefono (sperimentale)',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      subtitle: Text(
+                        _systemEngineAvailable
+                            ? (set.transcriptionEngine ==
+                                    TranscriptionEngineId.sistema
+                                ? 'Attivo'
+                                : 'Disattivato')
+                            : 'Non disponibile su questo telefono',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                       children: <Widget>[
-                        Icon(Icons.info_outline,
-                            size: 16, color: theme.colorScheme.outline),
-                        Gaps.w8,
-                        Expanded(
-                          child: Text(
-                            _systemEngineReason!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
+                        _EngineWarning(
+                          text: 'Il riconoscitore vocale di sistema è molto '
+                              'più veloce, ma su diversi telefoni smette di '
+                              'ascoltare dopo i primi secondi e restituisce '
+                              'solo una parte del testo. Nelle nostre prove '
+                              '(nubia NX713J, Android 13) ha trascritto 15 '
+                              'parole su 36 secondi di audio, contro le 127 '
+                              'di Whisper. Attivalo solo per provarlo e '
+                              'confronta il risultato.',
+                        ),
+                        if (!_systemEngineAvailable &&
+                            _systemEngineReason != null)
+                          _EngineWarning(
+                            icon: Icons.info_outline,
+                            text: _systemEngineReason!,
                           ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          title: const Text('Usa il motore del telefono'),
+                          value: set.transcriptionEngine ==
+                              TranscriptionEngineId.sistema,
+                          onChanged: _systemEngineAvailable
+                              ? (bool on) => _set(set.copyWith(
+                                    transcriptionEngine: on
+                                        ? TranscriptionEngineId.sistema
+                                        : TranscriptionEngineId.whisper,
+                                  ))
+                              : null,
                         ),
                       ],
                     ),
-                  ],
+                  ),
                   const Divider(height: 24),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
@@ -518,4 +549,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'de' => 'Tedesco',
         _ => 'Rilevamento automatico',
       };
+}
+
+/// Riga di avviso con icona, usata per i limiti noti di un motore.
+class _EngineWarning extends StatelessWidget {
+  const _EngineWarning({
+    required this.text,
+    this.icon = Icons.warning_amber_outlined,
+  });
+
+  final String text;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Icon(icon, size: 16, color: theme.colorScheme.outline),
+          Gaps.w8,
+          Expanded(
+            child: Text(
+              text,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

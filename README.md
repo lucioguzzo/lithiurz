@@ -68,20 +68,26 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   può sparire appena l'app di origine si chiude.
 - **Controlli preventivi** — formato, dimensione (max 500 MB), durata (max 4
   ore) e presenza di una traccia audio, letti con ffprobe.
-- **Due motori di trascrizione**, a scelta nelle impostazioni, entrambi
-  gratuiti e offline:
-  - **Motore del telefono** — il riconoscitore vocale di sistema, lo stesso
-    che usano le app di trascrizione del dispositivo. Molto più rapido
-    perché ottimizzato per quel chip. Richiede Android 13+ (da lì
-    `SpeechRecognizer` legge da file, non solo dal microfono) o iOS con la
-    lingua scaricata; dove manca, l'opzione è disattivata e l'app spiega
-    perché.
-  - **Whisper** — whisper.cpp con il modello **Small quantizzato q5_1**
-    (181 MB invece di 465, circa il doppio più rapido del modello pieno).
-    Funziona su qualunque telefono. Tiny e Base erano offerti all'inizio
-    ma sul parlato italiano reale sbagliavano troppo: un riassunto
-    costruito su una trascrizione sbagliata è peggio di nessun riassunto.
-    Chi li aveva scaricati se li vede eliminare al primo avvio.
+- **Whisper come motore di trascrizione** — whisper.cpp con il modello
+  **Small quantizzato q5_1** (181 MB invece di 465, circa il doppio più
+  rapido del modello pieno), gratuito e offline su qualunque telefono.
+  Tiny e Base erano offerti all'inizio ma sul parlato italiano reale
+  sbagliavano troppo: un riassunto costruito su una trascrizione sbagliata
+  è peggio di nessun riassunto. Chi li aveva scaricati se li vede
+  eliminare al primo avvio.
+- **Motore del telefono: opzione sperimentale, non consigliata** — il
+  riconoscitore vocale di sistema (`SpeechRecognizer` da Android 13,
+  `SFSpeechRecognizer` su iOS) sulla carta è molto più rapido, perché
+  ottimizzato per quel chip. Alla prova sul campo non ha retto: su un
+  nubia NX713J con Android 13 chiude l'ascolto dopo i primi secondi e
+  restituisce **15 parole su 36 secondi di audio**, contro le 127 di
+  Whisper, anche usando la sessione segmentata, spezzoni da 25 secondi e
+  soglie di silenzio portate a 10 minuti. Il codice resta nell'app come
+  opzione da attivare a mano, nascosta dietro un avviso, per chi avesse un
+  telefono che la implementa meglio; **il motore predefinito è Whisper** e
+  chi aveva scelto il motore di sistema viene riportato una volta sola a
+  Whisper all'aggiornamento. Quando una trascrizione risulta troppo corta
+  per la durata dell'audio, la schermata del risultato lo segnala.
 - **Trascrizione visibile mentre procede** — oltre 2 minuti l'audio viene
   diviso in blocchi da ~90 secondi, tagliati **sui silenzi** per non
   spezzare le parole, e il testo di ogni blocco compare appena pronto sotto

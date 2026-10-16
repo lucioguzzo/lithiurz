@@ -92,8 +92,29 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
 
   final SharedPreferences _prefs;
 
-  static Future<SettingsRepository> open() async =>
-      SettingsRepository(await SharedPreferences.getInstance());
+  static Future<SettingsRepository> open() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await _migrate(prefs);
+    return SettingsRepository(prefs);
+  }
+
+  /// Chiave della migrazione una tantum che riporta a Whisper chi aveva
+  /// scelto il motore del telefono.
+  static const String _kSystemEngineDemoted = 'system_engine_demoted_v1';
+
+  /// Il riconoscitore di sistema è stato retrocesso a opzione
+  /// sperimentale: sui telefoni provati si ferma dopo i primi secondi.
+  /// Chi lo aveva attivo torna una volta sola al motore predefinito e può
+  /// riattivarlo dalle impostazioni, dove ora è accompagnato dall'avviso.
+  static Future<void> _migrate(SharedPreferences p) async {
+    if (p.getBool(_kSystemEngineDemoted) ?? false) return;
+    if (p.getString(_kTranscriptionEngine) ==
+        TranscriptionEngineId.sistema.id) {
+      await p.setString(
+          _kTranscriptionEngine, TranscriptionEngineId.predefinito.id);
+    }
+    await p.setBool(_kSystemEngineDemoted, true);
+  }
 
   static const String _kTranscriptionEngine = 'transcription_engine';
   static const String _kModel = 'model_name';

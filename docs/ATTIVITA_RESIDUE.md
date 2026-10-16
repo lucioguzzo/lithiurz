@@ -16,17 +16,39 @@ importanza.
 | 7 | **Informativa privacy pubblicata su web** | Google e Apple pretendono un URL raggiungibile; il testo è già in `PRIVACY.md` e nell'app |
 | 8 | **Distribuire il backend** e puntarci l'app (`BRIEF_BACKEND_URL`) | Senza, il riassunto cloud non è disponibile e l'app ripiega sul locale |
 
-## Da provare sul telefono, appena possibile
+## Motori di trascrizione: stato delle prove
 
-- **Motore di sistema su Android** — il codice Kotlin
+- **Motore di sistema su Android — provato, bocciato.** Il codice Kotlin
   (`SystemSpeechPlugin`) usa `SpeechRecognizer` su dispositivo con sessione
-  segmentata e sorgente da file, API disponibili da Android 13. Scritto ma
-  **mai eseguito**: qui non c'è né emulatore né telefono. Da verificare:
-  che la sessione segmentata restituisca davvero tutto il blocco e non si
-  fermi alla prima pausa, e che la lingua italiana offline sia presente.
+  segmentata e sorgente da file (API da Android 13). Provato su un nubia
+  NX713J con Android 13: trascrive solo i primi secondi di ogni file. Su
+  36 secondi di audio ha prodotto **15 parole**, contro le 127 di Whisper
+  sullo stesso file. Tre tentativi di correzione, tutti nel codice
+  attuale, non hanno cambiato il risultato:
+  1. ignorare `onPartialResults` (sono revisioni cumulative, non testo
+     nuovo) e accumulare solo `onSegmentResults`;
+  2. non chiudere la sessione su `onResults`, che in modalità segmentata
+     arriva a ogni segmento, ma attendere `onEndOfSegmentedSession`;
+  3. portare `EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS` e le
+     soglie gemelle a 600 000 ms e ridurre gli spezzoni a 25 secondi.
+  Conclusione: su quel telefono l'implementazione OEM applica comunque un
+  proprio limite di sessione. Il motore è stato **retrocesso a opzione
+  sperimentale** (interruttore nascosto nelle impostazioni, con avviso;
+  migrazione una tantum che riporta a Whisper chi lo aveva scelto) e non
+  riceverà altro lavoro finché non si potrà provarlo su altri dispositivi.
+  Chi volesse riprenderlo parta da lì: serve una prova su almeno tre
+  telefoni di marche diverse per capire se il limite è di quel chip o
+  dell'API.
 - **Motore di sistema su iOS** — `SystemSpeechPlugin.swift` con
   `SFSpeechRecognizer` e `requiresOnDeviceRecognition`. **Mai compilato**:
-  serve un Mac.
+  serve un Mac. Vale la stessa cautela: va considerato sperimentale finché
+  non è provato su un dispositivo vero.
+- **Accuratezza di Whisper Small q5_1** — sul parlato italiano reale il
+  testo è comprensibile ma contiene errori di parola. Leve non ancora
+  provate, in ordine di costo: modello `small-q8_0` (circa 260 MB, meno
+  compresso, stessa velocità di decodifica a parità di memoria),
+  riassunto nel cloud (il backend è scritto, va distribuito), modello
+  `medium` (1,5 GB: sconsigliato su telefono).
 
 ## Importanti, non bloccanti
 
