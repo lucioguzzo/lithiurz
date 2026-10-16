@@ -68,6 +68,9 @@ class _ModelsScreenState extends State<ModelsScreen> {
           if (mounted) setState(() => _progress[option.id] = p.fraction);
         },
       );
+      // Il rilevatore del parlato pesa circa 1 MB e riduce di molto le
+      // frasi ripetute: si scarica insieme al modello.
+      await s.models.downloadVad(token: token);
       if (!mounted) return;
       setState(() {
         _progress.remove(option.id);

@@ -46,6 +46,15 @@ class ModelOption {
 
   static const List<ModelOption> all = <ModelOption>[small];
 
+  /// Rilevatore del parlato (Silero), circa 1 MB.
+  ///
+  /// Toglie silenzi e rumore prima della decodifica: è lì che whisper
+  /// entra negli anelli e ripete la stessa frase per righe intere.
+  static const String vadFileName = 'ggml-silero-v5.1.2.bin';
+  static final Uri vadUri = Uri.parse(
+    'https://huggingface.co/ggml-org/whisper-vad/resolve/main/$vadFileName',
+  );
+
   /// Modelli non più offerti: se sono rimasti sul telefono da una versione
   /// precedente vanno cancellati, occupano spazio per niente.
   static const List<String> legacyFileNames = <String>[
@@ -161,6 +170,49 @@ class ModelManager {
       if (tmp.existsSync()) await tmp.delete();
       if (e is AppFailure) rethrow;
       throw AppFailure('Download del modello non riuscito.', cause: e);
+    }
+  }
+
+  /// Percorso locale del rilevatore del parlato.
+  Future<String> vadPath() async =>
+      '${await WhisperController.getModelDir()}/${ModelOption.vadFileName}';
+
+  /// `null` se il rilevatore non è stato scaricato: la trascrizione
+  /// funziona lo stesso, solo senza la pulizia dei silenzi.
+  Future<String?> installedVadPath() async {
+    final String path = await vadPath();
+    final File f = File(path);
+    return f.existsSync() && f.lengthSync() > 100 * 1024 ? path : null;
+  }
+
+  /// Scarica il rilevatore del parlato. Pesa poco e un errore non è
+  /// bloccante: in caso di problemi si prosegue senza.
+  Future<bool> downloadVad({CancellationToken? token}) async {
+    if (await installedVadPath() != null) return true;
+    final String target = await vadPath();
+    final File tmp = File('$target.part');
+    IOSink? sink;
+    try {
+      final HttpClient client = _client ??= HttpClient()
+        ..connectionTimeout = const Duration(seconds: 30);
+      final HttpClientRequest request = await client.getUrl(ModelOption.vadUri);
+      final HttpClientResponse response = await request.close();
+      if (response.statusCode != 200) return false;
+      sink = tmp.openWrite();
+      await for (final List<int> chunk in response) {
+        if (token?.isCancelled ?? false) throw const CancelledException();
+        sink.add(chunk);
+      }
+      await sink.flush();
+      await sink.close();
+      sink = null;
+      await tmp.rename(target);
+      return true;
+    } on Object catch (e) {
+      debugPrint('Rilevatore del parlato non scaricato: $e');
+      await sink?.close();
+      if (tmp.existsSync()) await tmp.delete();
+      return false;
     }
   }
 

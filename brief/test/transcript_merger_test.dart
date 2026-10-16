@@ -53,6 +53,65 @@ void main() {
     expect(merger.merge(<String>[a, a]), a);
   });
 
+  group('collapseRepetitions', () {
+    // Caso reale: su un vocale con pause whisper è entrato in un anello e
+    // ha ripetuto la stessa frase quattro volte di fila.
+    const String anello =
+        'Il problema è che se prendo lo screenshot della chat, '
+        'ignorando il fatto che tu stai a sinistra dello schermo e a destra '
+        'per te viceversa, fa confusione, '
+        'ignorando il fatto che tu stai a sinistra dello schermo e a destra '
+        'per te viceversa, fa confusione, '
+        'ignorando il fatto che tu stai a sinistra dello schermo e a destra '
+        'per te viceversa, fa confusione.';
+
+    test('riduce a una sola copia la frase ripetuta a ciclo', () {
+      final String pulito = TranscriptMerger.collapseRepetitions(anello);
+      final int occorrenze =
+          'ignorando'.allMatches(pulito.toLowerCase()).length;
+      expect(occorrenze, 1);
+      expect(pulito, contains('Il problema è che'));
+      expect(pulito, contains('fa confusione'));
+    });
+
+    test('la pulizia avviene anche passando da merge', () {
+      final String unito = merger.merge(<String>[anello]);
+      expect('viceversa'.allMatches(unito.toLowerCase()).length, 1);
+    });
+
+    test('non tocca le ripetizioni brevi del parlato', () {
+      const String parlato = 'No, no, no. Sì sì, va bene.';
+      expect(TranscriptMerger.collapseRepetitions(parlato), parlato);
+    });
+
+    test('non tocca un testo senza ripetizioni', () {
+      const String testo =
+          'Ti confermo la riunione di giovedì alle dieci in sede. '
+          'Porta il preventivo aggiornato.';
+      expect(TranscriptMerger.collapseRepetitions(testo), testo);
+    });
+
+    test('riduce anche una ripetizione lunghissima', () {
+      const String frase = 'questo è un esempio di frase ripetuta molte volte';
+      final String loop = List<String>.filled(8, frase).join(' ');
+      final String pulito = TranscriptMerger.collapseRepetitions(loop);
+      expect(pulito, frase);
+    });
+
+    test('tiene le ripetizioni non contigue, che possono essere reali', () {
+      const String testo = 'Ci vediamo domani in ufficio. Porta il contratto. '
+          'Ci vediamo domani in ufficio.';
+      final String pulito = TranscriptMerger.collapseRepetitions(testo);
+      expect(pulito, contains('Porta il contratto'));
+      expect('Ci vediamo'.allMatches(pulito).length, 2);
+    });
+
+    test('un testo troppo corto resta intatto', () {
+      expect(TranscriptMerger.collapseRepetitions('sì sì'), 'sì sì');
+      expect(TranscriptMerger.collapseRepetitions(''), '');
+    });
+  });
+
   test('normalize elimina spazi prima della punteggiatura', () {
     expect(
       TranscriptMerger.normalize('Ciao  ,  come stai ?'),

@@ -111,6 +111,11 @@ class TranscriptionService {
       );
     }
 
+    // Il rilevatore del parlato toglie silenzi e rumore prima della
+    // decodifica: è su quelli che whisper entra negli anelli e ripete la
+    // stessa frase. Se non è stato scaricato si procede lo stesso.
+    final String? vadPath = await _models.installedVadPath();
+
     final int totalChunks = job.chunks.length;
     try {
       for (final AudioChunk chunk in job.chunks) {
@@ -151,6 +156,8 @@ class TranscriptionService {
           // propaghi per tutta la registrazione.
           maxContext: totalChunks > 1 ? 0 : null,
           keepModelLoaded: totalChunks > 1,
+          vadModelPath: vadPath,
+          vadSpeechPadMs: 100,
           onProgress: (int percent) {
             onUpdate(ProcessingUpdate(
               stage: ProcessingStage.trascrizione,

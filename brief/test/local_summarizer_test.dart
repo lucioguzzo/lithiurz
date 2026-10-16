@@ -75,6 +75,33 @@ void main() {
       }
     });
 
+    test('non ripete la stessa frase nei punti chiave', () {
+      // Caso reale: la trascrizione conteneva un anello di ripetizioni e i
+      // punti principali risultavano tutti uguali.
+      const String ripetuto =
+          'Il problema è che prendendo lo screenshot della chat si fa '
+          'confusione fra i lati. '
+          'Ignorando il fatto che tu stai a sinistra dello schermo e a '
+          'destra per te viceversa, si fa confusione. '
+          'Ignorando il fatto che tu stai a sinistra dello schermo e a '
+          'destra per te viceversa, si fa confusione. '
+          'Non capisce chi sei tu quando legge il testo. '
+          'Ignorando il fatto che tu stai a sinistra dello schermo e a '
+          'destra per te viceversa, si fa confusione.';
+
+      final SummaryBundle bundle = summarizer.summarize(ripetuto);
+
+      final List<String> normalizzati = <String>[
+        for (final String p in bundle.keyPoints)
+          p.toLowerCase().replaceAll(RegExp(r'[^a-zàèéìòù ]'), ''),
+      ];
+      expect(normalizzati.toSet().length, normalizzati.length,
+          reason: 'i punti chiave non devono ripetersi');
+      final int conIgnorando =
+          normalizzati.where((String p) => p.contains('ignorando')).length;
+      expect(conIgnorando, lessThanOrEqualTo(1));
+    });
+
     test('su testo vuoto restituisce un riassunto vuoto senza errori', () {
       final SummaryBundle bundle = summarizer.summarize('   ');
       expect(bundle.isEmpty, isTrue);

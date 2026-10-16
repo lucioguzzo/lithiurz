@@ -66,17 +66,20 @@ class LocalSummarizer {
       SummaryStyle.dettagliato => 8,
     };
 
-    final List<_Scored> best = (List<_Scored>.of(scored)
-          ..sort((_Scored a, _Scored b) => b.score.compareTo(a.score)))
-        .take(wanted.clamp(1, sentences.length))
-        .toList()
-      ..sort((_Scored a, _Scored b) => a.index.compareTo(b.index));
+    final List<_Scored> best = _withoutNearDuplicates(
+      List<_Scored>.of(scored)
+        ..sort((_Scored a, _Scored b) => b.score.compareTo(a.score)),
+      wanted.clamp(1, sentences.length),
+    )..sort((_Scored a, _Scored b) => a.index.compareTo(b.index));
 
-    final List<_Scored> topPoints = (List<_Scored>.of(scored)
-          ..sort((_Scored a, _Scored b) => b.score.compareTo(a.score)))
-        .take(style == SummaryStyle.dettagliato ? 8 : 5)
-        .toList()
-      ..sort((_Scored a, _Scored b) => a.index.compareTo(b.index));
+    // Una trascrizione con frasi ripetute produceva punti chiave tutti
+    // uguali: si scartano i quasi-duplicati prima di scegliere.
+    final List<_Scored> candidates = List<_Scored>.of(scored)
+      ..sort((_Scored a, _Scored b) => b.score.compareTo(a.score));
+    final List<_Scored> topPoints = _withoutNearDuplicates(
+      candidates,
+      style == SummaryStyle.dettagliato ? 8 : 5,
+    )..sort((_Scored a, _Scored b) => a.index.compareTo(b.index));
 
     return SummaryBundle(
       style: style,
@@ -130,6 +133,30 @@ class LocalSummarizer {
       if (actions.length >= 8) break;
     }
     return actions;
+  }
+
+  /// Prende al più [limit] frasi, saltando quelle troppo simili a una già
+  /// scelta (stesse parole per almeno l'ottanta per cento).
+  static List<_Scored> _withoutNearDuplicates(
+    List<_Scored> ordered,
+    int limit,
+  ) {
+    final List<_Scored> kept = <_Scored>[];
+    final List<Set<String>> keptWords = <Set<String>>[];
+    for (final _Scored candidate in ordered) {
+      if (kept.length >= limit) break;
+      final Set<String> words = _words(candidate.text).toSet();
+      if (words.isEmpty) continue;
+      final bool duplicate = keptWords.any((Set<String> other) {
+        final int common = words.intersection(other).length;
+        final int smallest = words.length < other.length ? words.length : other.length;
+        return smallest > 0 && common / smallest >= 0.8;
+      });
+      if (duplicate) continue;
+      kept.add(candidate);
+      keptWords.add(words);
+    }
+    return kept;
   }
 
   static Map<String, int> _frequencies(List<String> sentences) {
