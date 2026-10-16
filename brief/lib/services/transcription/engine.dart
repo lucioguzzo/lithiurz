@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:whisper_ggml/whisper_ggml.dart';
 
+import '../../core/constants.dart';
 import '../../core/failures.dart';
 import 'model_manager.dart';
 
@@ -35,6 +36,14 @@ enum TranscriptionEngineId {
 /// prepara [MediaTools], così i motori non si occupano di conversioni.
 abstract class TranscriptionEngine {
   TranscriptionEngineId get id;
+
+  /// Durata preferita dei blocchi in cui spezzare l'audio.
+  ///
+  /// Non è un dettaglio estetico: il riconoscitore di sistema è tarato sul
+  /// dettato e tende a considerare finito il discorso alle pause lunghe,
+  /// quindi lavora meglio su spezzoni brevi, uno per sessione. whisper
+  /// invece rende meglio su blocchi più lunghi, dove ha più contesto.
+  Duration get preferredChunkLength;
 
   /// `true` se il motore è utilizzabile adesso su questo dispositivo.
   Future<bool> isAvailable();
@@ -72,6 +81,9 @@ class WhisperEngine implements TranscriptionEngine {
 
   @override
   TranscriptionEngineId get id => TranscriptionEngineId.whisper;
+
+  @override
+  Duration get preferredChunkLength => AudioLimits.chunkTarget;
 
   @override
   Future<bool> isAvailable() => models.isInstalled(ModelOption.small);
@@ -120,6 +132,12 @@ class SystemSpeechEngine implements TranscriptionEngine {
 
   @override
   TranscriptionEngineId get id => TranscriptionEngineId.sistema;
+
+  /// Spezzoni brevi: una sessione di riconoscimento per ciascuno. Se il
+  /// motore chiude in anticipo su una pausa si perdono pochi secondi,
+  /// non metà registrazione.
+  @override
+  Duration get preferredChunkLength => const Duration(seconds: 25);
 
   @override
   Future<bool> isAvailable() async {

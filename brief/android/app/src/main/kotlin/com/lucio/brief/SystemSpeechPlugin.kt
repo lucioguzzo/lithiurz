@@ -161,12 +161,13 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
             override fun onEndOfSegmentedSession() = finish(null, null)
 
             override fun onResults(results: Bundle?) {
-                // In sessione segmentata il testo arriva da onSegmentResults:
-                // prenderlo anche qui lo duplicherebbe. Serve solo come
-                // ripiego sui dispositivi che non segmentano.
                 if (sawSegmentResults) {
-                    finish(null, null)
+                    // In sessione segmentata questo arriva a OGNI spezzone:
+                    // chiudere qui troncava la trascrizione dopo il primo.
+                    // La sessione finisce solo con onEndOfSegmentedSession.
+                    armWatchdog()
                 } else {
+                    // Dispositivo che non segmenta: questo è il definitivo.
                     addSegment(results)
                     finish(null, null)
                 }
@@ -208,6 +209,15 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
             putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_ENCODING, AudioFormat.ENCODING_PCM_16BIT)
             putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_SAMPLING_RATE, SAMPLE_RATE)
             putExtra(RecognizerIntent.EXTRA_AUDIO_SOURCE_CHANNEL_COUNT, 1)
+            // Il riconoscitore è tarato sul dettato: senza questi valori
+            // considera finito il discorso alla prima pausa e smette di
+            // leggere il file.
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, SILENCE_MS)
+            putExtra(
+                RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,
+                SILENCE_MS,
+            )
+            putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, SILENCE_MS)
         }
 
         recognizer.startListening(intent)
@@ -267,5 +277,8 @@ class SystemSpeechPlugin(private val context: Context) : MethodChannel.MethodCal
 
         /** Attesa massima senza novità prima di consegnare il parziale. */
         private const val WATCHDOG_MS = 15_000L
+
+        /** Pausa oltre la quale il riconoscitore chiuderebbe da solo. */
+        private const val SILENCE_MS = 600_000
     }
 }

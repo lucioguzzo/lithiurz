@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
-import '../../core/constants.dart';
 import '../../core/failures.dart';
 import '../../domain/audio_source.dart';
 import '../../domain/processing.dart';
@@ -90,7 +89,8 @@ class TranscriptionService {
         detail: 'Ripresa: ${job.remaining} blocchi mancanti',
       ));
     } else {
-      final List<AudioChunk> chunks = await _planFor(source, token, onUpdate);
+      final List<AudioChunk> chunks =
+          await _planFor(source, token, onUpdate, engine);
       job = TranscriptionJob(
         audioPath: source.path,
         displayName: source.displayName,
@@ -200,9 +200,13 @@ class TranscriptionService {
     AudioSource source,
     CancellationToken token,
     void Function(ProcessingUpdate) onUpdate,
+    TranscriptionEngine engine,
   ) async {
-    if (source.duration <= AudioLimits.chunkThreshold) {
-      return planChunks(total: source.duration);
+    final Duration target = engine.preferredChunkLength;
+    // Sopra il doppio del blocco preferito conviene dividere: sotto, il
+    // ritaglio costerebbe più di quanto renda.
+    if (source.duration <= target * 2) {
+      return planChunks(total: source.duration, target: target);
     }
     onUpdate(const ProcessingUpdate(
       stage: ProcessingStage.preparazione,
@@ -212,7 +216,15 @@ class TranscriptionService {
     final List<SilenceWindow> silences =
         await _tools.detectSilences(source.path);
     token.throwIfCancelled();
-    return planChunks(total: source.duration, silences: silences);
+    return planChunks(
+      total: source.duration,
+      target: target,
+      // Con blocchi corti il confine non può spostarsi di molto.
+      drift: target ~/ 6,
+      threshold: target,
+      minTail: target ~/ 4,
+      silences: silences,
+    );
   }
 
   List<String> _orderedTexts(TranscriptionJob job) {

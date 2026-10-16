@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:brief/core/failures.dart';
 import 'package:brief/data/settings.dart';
 import 'package:brief/services/transcription/engine.dart';
+import 'package:brief/services/transcription/model_manager.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +42,22 @@ void main() {
       await repo.update(repo.value
           .copyWith(transcriptionEngine: TranscriptionEngineId.sistema));
       expect(repo.value.engine, engineRiassunto);
+    });
+  });
+
+  group('lunghezza dei blocchi', () {
+    test('il motore di sistema vuole spezzoni brevi', () {
+      // Una sessione di riconoscimento per spezzone: se chiude in anticipo
+      // su una pausa si perdono pochi secondi, non metà registrazione.
+      final SystemSpeechEngine sistema = SystemSpeechEngine();
+      expect(sistema.preferredChunkLength,
+          lessThanOrEqualTo(const Duration(seconds: 30)));
+    });
+
+    test('whisper preferisce blocchi più lunghi', () {
+      final WhisperEngine whisper = WhisperEngine(models: ModelManager());
+      expect(whisper.preferredChunkLength,
+          greaterThan(const Duration(seconds: 30)));
     });
   });
 

@@ -46,7 +46,7 @@ Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
 # App
 cd brief
 flutter pub get
-flutter test                 # 121 test unitari
+flutter test                 # 123 test unitari
 flutter build apk --debug    # Android
 
 # Backend
@@ -112,7 +112,7 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 | Elemento | Stato |
 |----------|-------|
 | `flutter analyze` | ✅ nessun problema |
-| Test Dart (`flutter test`) | ✅ 121 test |
+| Test Dart (`flutter test`) | ✅ 123 test |
 | Test backend (`pytest`) | ✅ 39 test |
 | Build APK Android (debug) | ✅ compilata, con `libwhisper.so` e FFmpeg a bordo |
 | Build APK Android (release, R8 attivo) | ✅ compilata: 41 MB per arm64-v8a |
