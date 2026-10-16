@@ -20,9 +20,9 @@ Android degli ultimi anni.
 Copia l'APK sul telefono (cavo USB, Google Drive, Telegram…), aprilo e
 consenti l'installazione da "origini sconosciute".
 
-Alla prima trascrizione l'app chiede di scaricare il modello (circa
-150 MB per Base). Si scarica una volta sola; dopo funziona anche senza
-connessione.
+Alla prima trascrizione l'app chiede di scaricare il modello Small
+compresso (181 MB) e il rilevatore di parlato (poco più di 1 MB). Si
+scaricano una volta sola; dopo l'app funziona anche senza connessione.
 
 ## Due avvertenze
 
