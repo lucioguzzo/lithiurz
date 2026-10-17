@@ -115,6 +115,9 @@ l'app.
 
 ## Messa in esercizio
 
+Guida completa, dal server vuoto all'app collegata:
+[`docs/DEPLOY.md`](../docs/DEPLOY.md). In sintesi:
+
 - Terminare sempre il TLS davanti al servizio (reverse proxy o piattaforma):
   l'app accetta **solo HTTPS**.
 - Montare un volume per `/dati`, altrimenti le quote si azzerano a ogni

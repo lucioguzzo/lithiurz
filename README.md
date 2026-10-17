@@ -37,7 +37,7 @@ Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
 |-------------|-----------|
 | `brief/` | App Flutter (Android + iOS) |
 | `backend/`  | Servizio FastAPI per i riassunti, con quote e tetto di spesa |
-| `docs/`     | Architettura, compilazione, iOS, privacy, pubblicazione, attività residue |
+| `docs/`     | Architettura, compilazione, messa online del backend, iOS, privacy, pubblicazione, attività residue |
 | `app/`      | Progetto precedente (Baby Cry Translator), non toccato |
 
 ## Avvio rapido
@@ -141,5 +141,8 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
 | Build APK Android (release, R8 attivo) | ✅ compilata: 41 MB per arm64-v8a |
 | Build iOS | ❌ **non compilata**: richiede macOS e Xcode. Il codice e i file
 della Share Extension ci sono, i passaggi manuali sono in [`docs/IOS.md`](docs/IOS.md) |
+
+Per mettere online il backend (serve al cloud, non al funzionamento
+locale): [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 Cosa manca per andare in produzione: [`docs/ATTIVITA_RESIDUE.md`](docs/ATTIVITA_RESIDUE.md).

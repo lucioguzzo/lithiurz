@@ -1,0 +1,47 @@
+# Messa in esercizio su un server proprio (VPS).
+#
+# Due contenitori: il servizio e un reverse proxy che ottiene da solo il
+# certificato HTTPS. L'app accetta solo HTTPS, quindi il proxy non è un
+# optional.
+#
+#   cp ../.env.example ../.env   # e compilarlo
+#   BRIEF_DOMINIO=api.tuodominio.it docker compose up -d
+#
+services:
+  brief:
+    build:
+      context: ..
+    image: brief-backend:locale
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    volumes:
+      # Solo numeri: contatori di utilizzo e spesa. Nessun testo, nessun
+      # audio. Va comunque su un volume, altrimenti le quote si azzerano
+      # a ogni riavvio e il tetto di spesa non serve a niente.
+      - dati:/dati
+    # Nessuna porta pubblicata: al servizio si arriva solo dal proxy.
+    expose:
+      - "8000"
+
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - brief
+    environment:
+      # Il dominio che punta a questo server. Caddy ci ottiene sopra un
+      # certificato Let's Encrypt al primo avvio.
+      BRIEF_DOMINIO: ${BRIEF_DOMINIO:?serve il dominio, es. api.tuodominio.it}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-dati:/data
+      - caddy-config:/config
+
+volumes:
+  dati:
+  caddy-dati:
+  caddy-config:

@@ -1,0 +1,29 @@
+# Reverse proxy con HTTPS automatico (Let's Encrypt).
+# Il dominio arriva dalla variabile BRIEF_DOMINIO del compose.
+
+{$BRIEF_DOMINIO} {
+	encode zstd gzip
+
+	# I blocchi audio viaggiano in multipart: il limite qui deve stare
+	# sopra BRIEF_MAX_AUDIO_BYTES (12 MB) con un po' di margine per
+	# l'imbustamento, altrimenti il proxy rifiuta prima del servizio.
+	request_body {
+		max_size 16MB
+	}
+
+	reverse_proxy brief:8000 {
+		# Una trascrizione lunga può richiedere minuti: il proxy non
+		# deve chiudere prima che il fornitore risponda.
+		transport http {
+			response_header_timeout 5m
+			read_timeout 5m
+		}
+	}
+
+	log {
+		# Nei log del proxy finiscono percorsi e codici, mai i corpi
+		# delle richieste: l'audio e il testo non devono comparire.
+		output stdout
+		format console
+	}
+}
