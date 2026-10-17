@@ -8,15 +8,16 @@ allineate**. Gli store richiedono anche un URL pubblico raggiungibile.
 
 | Dato | Dove sta | Quanto resta | Esce dal dispositivo? |
 |---|---|---|---|
-| Audio condiviso | cartella privata dell'app | cancellato a fine elaborazione (salvo scelta contraria) | **mai** |
-| File temporanei dei blocchi | cartella temporanea | cancellati subito dopo ogni blocco | mai |
+| Audio condiviso | cartella privata dell'app | cancellato a fine elaborazione (salvo scelta contraria) | solo se si attiva la trascrizione nel cloud |
+| File temporanei dei blocchi | cartella temporanea | cancellati subito dopo ogni blocco | come sopra: inviati al server solo con il motore cloud |
 | Trascrizione | SQLite locale | finché l'utente non la cancella; disattivabile | solo se si sceglie il riassunto cloud |
 | Riassunto | SQLite locale | come sopra | no |
 | Identificativo dispositivo | SharedPreferences | fino alla disinstallazione | sì, al solo backend, per le quote |
 | Contatori di utilizzo | SQLite sul server | storico numerico | — |
 
 Il backend **non registra** nei log né il testo ricevuto né il riassunto
-prodotto: solo lunghezza, numero di blocchi e costo stimato.
+prodotto, e non scrive mai l'audio su disco: tiene solo numeri (lunghezza,
+secondi di audio, numero di blocchi, costo stimato).
 
 ## Basi giuridiche (GDPR)
 
@@ -26,6 +27,16 @@ prodotto: solo lunghezza, numero di blocchi e costo stimato.
 - **Riassunto cloud**: *consenso* (art. 6.1.a). L'app lo chiede in modo
   esplicito, spiega cosa viene inviato e consente di revocarlo. Senza
   consenso il cloud non viene mai contattato.
+- **Trascrizione nel cloud**: *consenso* separato (art. 6.1.a), chiesto a
+  parte perché l'oggetto è diverso: non un testo già trascritto ma la
+  registrazione, cioè la voce — un dato che può rivelare molto di più e
+  che spesso contiene anche la voce di terzi. L'app lo chiede con un
+  avviso dedicato, lo mostra datato nelle impostazioni e lo revoca
+  spegnendo l'interruttore. Il motore è disattivato finché non lo si
+  accende.
+- **Voce di terzi**: chi trascrive la registrazione di un'altra persona ne
+  tratta i dati. L'avviso dell'app lo dice esplicitamente; nell'informativa
+  pubblicata va ricordato che la responsabilità è dell'utente.
 - **Pubblicità**: consenso tramite una CMP conforme (Google UMP). **Non è
   ancora integrata**: va aggiunta prima di pubblicare nello SEE
   (vedi `ATTIVITA_RESIDUE.md`).
@@ -53,6 +64,22 @@ Chi pubblica l'app è titolare. Vanno indicati nell'informativa:
 L'app mostra l'elenco completo delle licenze da *Impostazioni → Privacy e
 dati → Licenze dei componenti* (`showLicensePage` di Flutter).
 
+## Fornitori coinvolti quando il cloud è attivo
+
+| Fornitore | Cosa riceve | Quando |
+|---|---|---|
+| Backend di BRIEF (titolare) | testo del riassunto, oppure blocchi audio | solo col motore/riassunto cloud attivo |
+| Google (API Gemini) | blocchi audio, per restituirne il testo | solo con la trascrizione nel cloud |
+| Fornitore dei riassunti | testo trascritto | solo col riassunto cloud |
+
+**Vincolo dei termini Gemini.** Per gli utenti di SEE, Svizzera e Regno
+Unito l'API va usata **solo nella versione a pagamento**
+([termini](https://ai.google.dev/gemini-api/terms)): sul piano gratuito
+Google può usare i contenuti per migliorare i propri prodotti e sottoporli
+a revisione umana, il che è incompatibile con questa informativa. Prima di
+pubblicare: chiave di un progetto con fatturazione attiva, e verifica che
+l'accordo di trattamento dei dati di Google Cloud copra il trasferimento.
+
 ## Dove i modelli vengono scaricati
 
 I modelli ggml arrivano da Hugging Face
@@ -63,7 +90,10 @@ proprio dominio.
 
 ## Schede privacy degli store
 
-**Google Play — Sicurezza dei dati.** Dichiarare: nessuna raccolta di audio;
+**Google Play — Sicurezza dei dati.** Da aggiornare ora che esiste la
+trascrizione nel cloud: dichiarare **registrazioni audio condivise** (non
+raccolte in modo persistente) con il titolare e il suo fornitore, solo con
+consenso e per la funzionalità richiesta;
 "testo generato dall'utente" **condiviso** (non raccolto in modo
 persistente) solo con consenso, per la funzionalità dell'app; identificativi
 raccolti per prevenire gli abusi; dati pubblicitari secondo AdMob. Dati in

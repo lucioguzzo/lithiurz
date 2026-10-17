@@ -410,6 +410,9 @@ class _TranscriptTab extends StatelessWidget {
             TranscriptionEngineId.whisper =>
               'Trascrizione eseguita sul dispositivo con ${AppInfo.fullName} '
                   '(whisper.cpp, modello ${note.modelName} compresso).',
+            TranscriptionEngineId.cloud =>
+              'Trascrizione eseguita nel cloud: l\'audio è stato inviato al '
+                  'server di ${AppInfo.name} e non vi è stato conservato.',
           },
           style: theme.textTheme.labelSmall?.copyWith(
             color: theme.colorScheme.onSurfaceVariant,

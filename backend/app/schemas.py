@@ -10,7 +10,8 @@ Style = Literal["breve", "standard", "dettagliato"]
 
 
 class SummarizeRequest(BaseModel):
-    # Solo testo: l'audio non arriva mai al server.
+    # Il riassunto riceve solo testo: l'audio passa, quando l'utente lo
+    # sceglie, dall'endpoint di trascrizione.
     text: str = Field(min_length=1)
     style: Style = "standard"
     language: str = "it"
@@ -32,6 +33,14 @@ class SummarizeResponse(BaseModel):
     estimated_cost_usd: float = 0.0
 
 
+class TranscribeResponse(BaseModel):
+    text: str
+    provider: str
+    model: str
+    seconds: float
+    estimated_cost_usd: float = 0.0
+
+
 class StatusResponse(BaseModel):
     service_enabled: bool
     provider: str
@@ -42,3 +51,7 @@ class StatusResponse(BaseModel):
     device_requests_limit: int
     rate_limit_per_window: int
     rate_limit_window_seconds: int
+    transcription_provider: str = "echo"
+    transcription_model: str = ""
+    device_audio_seconds_today: float = 0.0
+    device_audio_seconds_limit: int = 0

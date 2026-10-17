@@ -12,10 +12,19 @@ class PrivacyScreen extends StatelessWidget {
 ${AppInfo.fullName} è pensata per trattare il minimo indispensabile dei tuoi dati.
 
 AUDIO
-L'audio che condividi viene copiato in una cartella privata dell'app e
-trascritto sul dispositivo con whisper.cpp. Non viene caricato su internet.
-Al termine dell'elaborazione il file viene eliminato, a meno che tu non
-attivi "Conserva l'audio originale".
+L'audio che condividi viene copiato in una cartella privata dell'app.
+Con il motore predefinito (Whisper) viene trascritto sul dispositivo e non
+lascia mai il telefono. Al termine dell'elaborazione il file viene
+eliminato, a meno che tu non attivi "Conserva l'audio originale".
+
+Esiste una sola eccezione, spenta di default e attivabile solo da te:
+"Trascrizione nel cloud". Se la accendi, e dopo un consenso esplicito che
+ti viene chiesto una volta, la registrazione viene inviata in HTTPS al
+nostro server, che la gira a Google (Gemini) per ottenerne il testo.
+L'audio viene solo inoltrato: non è salvato su disco né scritto nei
+registri, e il fornitore non lo usa per addestrare i propri modelli.
+Puoi revocare il consenso in qualunque momento dalle impostazioni e
+tornare alla trascrizione sul dispositivo.
 
 TRASCRIZIONE E RIASSUNTO
 La trascrizione resta sul dispositivo. Se scegli il riassunto "cloud", e solo
@@ -40,7 +49,9 @@ identificativi pubblicitari secondo le proprie informative. Non vengono mai
 condivisi con l'inserzionista l'audio, le trascrizioni o i riassunti.
 
 LOG
-Audio, trascrizioni e riassunti non vengono scritti nei log del server.
+Audio, trascrizioni e riassunti non vengono scritti nei log del server:
+vengono registrati solo numeri (durata, dimensione, costo stimato) per
+applicare le quote.
 
 DIRITTI
 Puoi cancellare in qualunque momento tutti i dati trattati, direttamente

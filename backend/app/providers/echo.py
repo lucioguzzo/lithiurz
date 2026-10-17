@@ -9,7 +9,7 @@ from __future__ import annotations
 import json
 import re
 
-from .base import Completion, Provider
+from .base import Completion, Provider, Transcriber, Transcription
 
 _QUOTED = re.compile(r'"""\s*(.*?)\s*"""', re.DOTALL)
 
@@ -38,5 +38,30 @@ class EchoProvider(Provider):
         return Completion(
             text=text,
             input_tokens=max(1, len(prompt) // 4),
+            output_tokens=max(1, len(text) // 4),
+        )
+
+
+class EchoTranscriber(Transcriber):
+    """Finto trascrittore: non chiama nessuno.
+
+    Restituisce una frase che descrive l'audio ricevuto, così la catena
+    (quote, costi, ricucitura dei blocchi, interfaccia) è verificabile
+    senza chiavi e senza spendere.
+    """
+
+    name = "echo"
+    model = "echo-locale"
+
+    async def transcribe(
+        self, audio: bytes, mime_type: str, language: str
+    ) -> Transcription:
+        text = (
+            f"Trascrizione di prova di {len(audio)} byte di audio "
+            f"({mime_type}, lingua {language})."
+        )
+        return Transcription(
+            text=text,
+            input_tokens=max(1, len(audio) // 1000),
             output_tokens=max(1, len(text) // 4),
         )

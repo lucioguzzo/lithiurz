@@ -5,7 +5,10 @@ Esiste per tre motivi: **non mettere chiavi API dentro l'app**, **tenere i
 costi sotto controllo** e **poter cambiare fornitore** senza aggiornare
 l'app.
 
-Riceve **solo testo**. L'audio resta sul telefono.
+Riceve **solo testo** per i riassunti. Riceve anche **audio**, ma solo per
+la trascrizione nel cloud, che nell'app è spenta di default e si attiva
+con un consenso esplicito: in quel caso il blocco audio viene inoltrato al
+fornitore e non viene mai scritto su disco né nei log.
 
 ## Endpoint
 
@@ -14,6 +17,7 @@ Riceve **solo testo**. L'audio resta sul telefono.
 | `GET` | `/health` | Stato di vita del processo |
 | `GET` | `/v1/status` | Stato del servizio e quota residua del dispositivo |
 | `POST` | `/v1/summarize` | Riassume un testo |
+| `POST` | `/v1/transcribe` | Trascrive un blocco audio (WAV) |
 | `POST` | `/admin/kill-switch?enabled=…` | Spegne o riaccende il cloud (richiede `x-admin-token`) |
 
 ### `POST /v1/summarize`
@@ -43,11 +47,52 @@ Codici di errore che l'app sa gestire: `429` (quota o frequenza), `503`
 (servizio sospeso o budget esaurito), `403` (app non autorizzata), `413`
 (testo troppo lungo). In tutti i casi l'app ripiega sul riassunto locale.
 
+### `POST /v1/transcribe`
+
+`multipart/form-data` con il campo `file` (un blocco WAV PCM 16 bit mono a
+16 kHz, quello che l'app prepara con ffmpeg) e il campo `language`.
+Intestazioni come sopra.
+
+```json
+{
+  "text": "…",
+  "provider": "gemini",
+  "model": "gemini-3.8-flash",
+  "seconds": 90.0,
+  "estimated_cost_usd": 0.0022
+}
+```
+
+La durata viene **letta dall'intestazione del WAV**, non dichiarata dal
+client: è su quella che si applicano le quote, e un client potrebbe
+dichiarare zero secondi. Errori: `415` (non è un WAV leggibile), `413`
+(blocco troppo grande), `429` (quota giornaliera di audio o frequenza),
+`503` (servizio sospeso).
+
+Il fornitore è un modello generalista, non un riconoscitore vocale: il
+prompt gli impone di restituire **solo** il parlato, senza preamboli né
+traduzioni, e di rispondere con un marcatore convenuto quando nell'audio
+non c'è voce — che il provider converte in testo vuoto.
+
+### Gemini e l'Europa
+
+I [termini dell'API Gemini](https://ai.google.dev/gemini-api/terms)
+prevedono che un'app rivolta a utenti di SEE, Svizzera o Regno Unito usi
+**solo servizi a pagamento**: per BRIEF serve quindi la chiave di un
+progetto Google Cloud con fatturazione attiva. Il codice è identico nei
+due casi. Sul piano gratuito, inoltre, Google può usare i contenuti per
+migliorare i propri prodotti, cosa incompatibile con l'informativa
+dell'app.
+
+Costo indicativo: l'audio conta 32 token al secondo, quindi un'ora sono
+115.200 token in ingresso — fra i 4 e i 13 centesimi di dollaro a seconda
+del modello scelto.
+
 ## Controllo dei costi
 
 1. tetto alla dimensione della richiesta;
 2. limite di frequenza per dispositivo (finestra scorrevole);
-3. quota giornaliera per dispositivo (richieste e caratteri);
+3. quota giornaliera per dispositivo (richieste, caratteri e secondi di audio);
 4. costo stimato sui token realmente consumati e sommato giorno per giorno;
 5. **interruttore automatico** al superamento del budget giornaliero;
 6. interruttore manuale via `/admin/kill-switch`.

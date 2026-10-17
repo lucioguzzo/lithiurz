@@ -16,6 +16,7 @@ class AppSettings {
     this.summaryStyle = SummaryStyle.standard,
     this.engine = SummaryEngine.locale,
     this.cloudConsentAt,
+    this.audioCloudConsentAt,
     this.historyEnabled = true,
     this.keepAudio = false,
     this.adsEnabled = true,
@@ -36,6 +37,12 @@ class AppSettings {
 
   /// Data del consenso all'invio del testo al cloud (null = mai dato).
   final DateTime? cloudConsentAt;
+
+  /// Data del consenso all'invio dell'**audio** al cloud per la
+  /// trascrizione. È separato da [cloudConsentAt] di proposito: mandare la
+  /// propria voce è un passo diverso dal mandare un testo già trascritto,
+  /// e va consentito a parte.
+  final DateTime? audioCloudConsentAt;
   final bool historyEnabled;
   final bool keepAudio;
   final bool adsEnabled;
@@ -46,6 +53,12 @@ class AppSettings {
 
   bool get cloudAllowed =>
       engine == SummaryEngine.cloud && cloudConsentAt != null;
+
+  /// La trascrizione nel cloud richiede il motore scelto, il consenso e
+  /// un server a cui rivolgersi.
+  bool get audioCloudAllowed =>
+      transcriptionEngine == TranscriptionEngineId.cloud &&
+      audioCloudConsentAt != null;
 
   /// BRIEF usa solo Small: i modelli più leggeri sbagliavano troppo.
   WhisperModel get whisperModel => WhisperModel.small;
@@ -58,6 +71,8 @@ class AppSettings {
     SummaryEngine? engine,
     DateTime? cloudConsentAt,
     bool clearConsent = false,
+    DateTime? audioCloudConsentAt,
+    bool clearAudioConsent = false,
     bool? historyEnabled,
     bool? keepAudio,
     bool? adsEnabled,
@@ -74,6 +89,9 @@ class AppSettings {
         engine: engine ?? this.engine,
         cloudConsentAt:
             clearConsent ? null : (cloudConsentAt ?? this.cloudConsentAt),
+        audioCloudConsentAt: clearAudioConsent
+            ? null
+            : (audioCloudConsentAt ?? this.audioCloudConsentAt),
         historyEnabled: historyEnabled ?? this.historyEnabled,
         keepAudio: keepAudio ?? this.keepAudio,
         adsEnabled: adsEnabled ?? this.adsEnabled,
@@ -122,6 +140,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
   static const String _kStyle = 'summary_style';
   static const String _kEngine = 'summary_engine';
   static const String _kConsent = 'cloud_consent_at';
+  static const String _kAudioConsent = 'audio_cloud_consent_at';
   static const String _kHistory = 'history_enabled';
   static const String _kKeepAudio = 'keep_audio';
   static const String _kAds = 'ads_enabled';
@@ -137,6 +156,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
 
   static AppSettings _read(SharedPreferences p) {
     final int? consent = p.getInt(_kConsent);
+    final int? audioConsent = p.getInt(_kAudioConsent);
     return AppSettings(
       // Un'installazione precedente può avere salvato 'tiny' o 'base':
       // quei modelli non esistono più, si riparte da Small.
@@ -148,6 +168,9 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
       engine: SummaryEngine.fromId(p.getString(_kEngine)),
       cloudConsentAt:
           consent == null ? null : DateTime.fromMillisecondsSinceEpoch(consent),
+      audioCloudConsentAt: audioConsent == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(audioConsent),
       historyEnabled: p.getBool(_kHistory) ?? true,
       keepAudio: p.getBool(_kKeepAudio) ?? false,
       adsEnabled: p.getBool(_kAds) ?? true,
@@ -171,6 +194,10 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
       next.cloudConsentAt == null
           ? _prefs.remove(_kConsent)
           : _prefs.setInt(_kConsent, next.cloudConsentAt!.millisecondsSinceEpoch),
+      next.audioCloudConsentAt == null
+          ? _prefs.remove(_kAudioConsent)
+          : _prefs.setInt(
+              _kAudioConsent, next.audioCloudConsentAt!.millisecondsSinceEpoch),
       _prefs.setBool(_kHistory, next.historyEnabled),
       _prefs.setBool(_kKeepAudio, next.keepAudio),
       _prefs.setBool(_kAds, next.adsEnabled),

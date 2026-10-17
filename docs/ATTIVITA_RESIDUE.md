@@ -53,6 +53,30 @@ importanza.
   testo) e il modello `medium` (1,5 GB, tempi tripli: sconsigliato su
   telefono).
 
+## Trascrizione nel cloud: cosa è provato e cosa no
+
+- **Scritta e verificata senza chiave**: endpoint `/v1/transcribe`, quote
+  in secondi di audio, lettura della durata dall'intestazione WAV, forma
+  della richiesta a Gemini e lettura della risposta nelle sue tre forme
+  possibili, motore lato app con tutti i suoi errori. 63 test Python e
+  145 Dart, tutti verdi.
+- **Mai chiamata davvero**: qui non c'è una chiave Gemini e non c'è un
+  server pubblico, quindi **nessuna richiesta reale è partita verso
+  Google**. La forma della richiesta segue la documentazione dell'API
+  `interactions` (modello, `input` con parte testo e parte audio in
+  base64, intestazione `x-goog-api-key`); la risposta viene letta in modo
+  tollerante — `output_text`, passo `model_output`, oppure il vecchio
+  `candidates[].content.parts[]` — proprio perché il campo esatto non è
+  stato visto in esercizio. **Prima prova vera: controllare che il testo
+  arrivi e che `estimated_cost_usd` sia sensato.**
+- **Qualità da misurare**: l'ipotesi è che un modello grande sbagli molto
+  meno di Small q8_0 sull'italiano parlato. Va verificata sullo stesso
+  audio, contando gli errori.
+- **Da valutare dopo la prima prova**: se Gemini aggiunge commenti o
+  preamboli nonostante il prompt, conviene passare a un riconoscitore
+  vocale dedicato (Groq con `whisper-large-v3-turbo`, 0,04 $/ora): il
+  backend è già astratto sul `Transcriber`, serve una sola classe nuova.
+
 ## Importanti, non bloccanti
 
 - **Messaggio di consenso UMP/GDPR per la pubblicità** — AdMob in Europa

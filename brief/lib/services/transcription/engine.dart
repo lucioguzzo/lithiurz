@@ -24,7 +24,13 @@ enum TranscriptionEngineId {
 
   /// whisper.cpp con il modello Small compresso: funziona ovunque, ma
   /// impiega all'incirca il tempo dell'audio. È il motore predefinito.
-  whisper('whisper', 'Whisper (modello scaricato)');
+  whisper('whisper', 'Whisper (modello scaricato)'),
+
+  /// Trascrizione eseguita dal backend di BRIEF, che interroga un modello
+  /// grande (Gemini). È il più accurato, ma è l'unico che fa uscire
+  /// l'audio dal telefono: richiede connessione, un server configurato e
+  /// il consenso esplicito dell'utente.
+  cloud('cloud', 'Cloud (server di BRIEF)');
 
   const TranscriptionEngineId(this.id, this.label,
       {this.experimental = false});

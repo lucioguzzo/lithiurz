@@ -8,6 +8,7 @@ import 'services/pipeline/processing_controller.dart';
 import 'services/share/share_intake_service.dart';
 import 'services/summary/summary_api_client.dart';
 import 'services/summary/summary_service.dart';
+import 'services/transcription/cloud_engine.dart';
 import 'services/transcription/engine.dart';
 import 'services/transcription/model_manager.dart';
 import 'services/transcription/transcription_service.dart';
@@ -22,6 +23,7 @@ class AppServices {
     required this.notes,
     required this.models,
     required this.systemEngine,
+    required this.cloudEngine,
     required this.transcription,
     required this.share,
     required this.tts,
@@ -37,6 +39,9 @@ class AppServices {
 
   /// Serve alle impostazioni per dire se il motore del telefono c'è.
   final SystemSpeechEngine systemEngine;
+
+  /// Serve alle impostazioni per dire se il cloud è configurato.
+  final CloudTranscriptionEngine cloudEngine;
 
   final TranscriptionService transcription;
   final ShareIntakeService share;
@@ -68,9 +73,17 @@ class AppServices {
     final ModelManager models = ModelManager();
     final SystemSpeechEngine systemEngine = SystemSpeechEngine();
     final WhisperEngine whisperEngine = WhisperEngine(models: models);
+    final CloudTranscriptionEngine cloudEngine = CloudTranscriptionEngine(
+      baseUrl: resolveBackendUrl,
+      deviceId: settings.deviceId(),
+    );
 
     TranscriptionEngine engineFor(TranscriptionEngineId id) =>
-        id == TranscriptionEngineId.sistema ? systemEngine : whisperEngine;
+        switch (id) {
+          TranscriptionEngineId.sistema => systemEngine,
+          TranscriptionEngineId.cloud => cloudEngine,
+          TranscriptionEngineId.whisper => whisperEngine,
+        };
 
     final TranscriptionService transcription = TranscriptionService(
       models: models,
@@ -93,6 +106,7 @@ class AppServices {
       notes: notes,
       models: models,
       systemEngine: systemEngine,
+      cloudEngine: cloudEngine,
       transcription: transcription,
       share: ShareIntakeService(),
       tts: TtsService(),

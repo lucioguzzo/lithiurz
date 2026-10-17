@@ -24,6 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _noteCount = 0;
   bool _systemEngineAvailable = false;
   String? _systemEngineReason;
+  bool _cloudEngineConfigured = false;
 
   @override
   void initState() {
@@ -36,6 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final int bytes = await s.models.installedBytes();
     final int count = await s.notes.count();
     final bool systemOk = await s.systemEngine.isAvailable();
+    final bool cloudOk = s.cloudEngine.isConfigured;
     final String? reason =
         systemOk ? null : await s.systemEngine.unavailableReason();
     if (mounted) {
@@ -44,6 +46,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _noteCount = count;
         _systemEngineAvailable = systemOk;
         _systemEngineReason = reason;
+        _cloudEngineConfigured = cloudOk;
       });
     }
   }
@@ -63,7 +66,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Text(
             'Per generare il riassunto con un modello linguistico viene '
             'inviato al nostro server soltanto il testo della trascrizione.\n\n'
-            '• L\'audio non lascia mai il telefono.\n'
+            '• Per il riassunto viene inviato solo il testo: nessun audio, '
+            'qualunque sia il motore di trascrizione scelto.\n'
             '• Il testo è usato solo per produrre il riassunto e non viene '
             'conservato dopo la risposta.\n'
             '• Il server applica limiti di utilizzo giornalieri.\n\n'
@@ -84,6 +88,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
     return ok ?? false;
+  }
+
+  /// L'audio che esce dal telefono è un passo diverso dal testo: ha un
+  /// consenso suo, con scritto per esteso che cosa viene inviato e dove.
+  Future<bool> _askAudioCloudConsent() async {
+    final bool? ok = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Trascrizione nel cloud'),
+        content: const SingleChildScrollView(
+          child: Text(
+            'Con questo motore la registrazione viene inviata al server di '
+            'BRIEF, che la fa trascrivere da un modello di Google (Gemini) '
+            'e restituisce il testo.\n\n'
+            '• Viene inviato l\'audio, non solo il testo: è la differenza '
+            'rispetto al riassunto nel cloud.\n'
+            '• L\'audio viene inoltrato e basta: il server non lo salva su '
+            'disco e non lo scrive nei registri.\n'
+            '• Serve la connessione a internet e valgono limiti giornalieri '
+            'di utilizzo.\n'
+            '• Whisper continua a funzionare senza connessione e senza '
+            'inviare niente: puoi tornarci quando vuoi.\n\n'
+            'Non usare questo motore per registrazioni riservate o che '
+            'riguardano altre persone senza il loro consenso.',
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('No, resto in locale'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Acconsento'),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  /// Accende o spegne la trascrizione nel cloud, chiedendo il consenso la
+  /// prima volta e revocandolo quando si torna indietro.
+  Future<void> _setCloudEngine(AppSettings set, bool on) async {
+    if (!on) {
+      await _set(set.copyWith(
+        transcriptionEngine: TranscriptionEngineId.whisper,
+        clearAudioConsent: true,
+      ));
+      return;
+    }
+    if (set.audioCloudConsentAt == null && !await _askAudioCloudConsent()) {
+      return;
+    }
+    if (!mounted) return;
+    await _set(set.copyWith(
+      transcriptionEngine: TranscriptionEngineId.cloud,
+      audioCloudConsentAt: DateTime.now(),
+    ));
   }
 
   Future<void> _editBackendUrl() async {
@@ -173,6 +236,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                   Gaps.h8,
+                  Theme(
+                    data: theme.copyWith(dividerColor: Colors.transparent),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      childrenPadding: const EdgeInsets.only(bottom: 8),
+                      initiallyExpanded: set.transcriptionEngine ==
+                          TranscriptionEngineId.cloud,
+                      title: Text(
+                        'Trascrizione nel cloud · più precisa',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      subtitle: Text(
+                        set.transcriptionEngine == TranscriptionEngineId.cloud
+                            ? 'Attiva'
+                            : 'Disattivata · l\'audio resta sul telefono',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      children: <Widget>[
+                        _EngineWarning(
+                          icon: Icons.cloud_upload_outlined,
+                          text: 'Manda la registrazione al server di BRIEF, '
+                              'che la fa trascrivere da un modello molto più '
+                              'grande di quello che sta in un telefono: è la '
+                              'scelta più accurata e la più rapida. In '
+                              'cambio, è l\'unica in cui l\'audio esce dal '
+                              'dispositivo, e serve la connessione.',
+                        ),
+                        if (!_cloudEngineConfigured)
+                          _EngineWarning(
+                            icon: Icons.info_outline,
+                            text: s.cloudEngine.unavailableReason() ?? '',
+                          ),
+                        SwitchListTile(
+                          contentPadding: EdgeInsets.zero,
+                          dense: true,
+                          title: const Text('Trascrivi nel cloud'),
+                          subtitle: set.audioCloudConsentAt != null
+                              ? Text(
+                                  'Consenso dato il '
+                                  '${Fmt.dateTime(set.audioCloudConsentAt!)}',
+                                  style: theme.textTheme.bodySmall,
+                                )
+                              : null,
+                          value: set.transcriptionEngine ==
+                              TranscriptionEngineId.cloud,
+                          onChanged: _cloudEngineConfigured
+                              ? (bool on) => _setCloudEngine(set, on)
+                              : null,
+                        ),
+                      ],
+                    ),
+                  ),
                   Theme(
                     // L'ExpansionTile disegnerebbe due righe divisorie
                     // proprie, che qui si sommerebbero a quella della

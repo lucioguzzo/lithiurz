@@ -81,6 +81,17 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   nuovo arriva in un file `.part` e prende il posto del vecchio solo
   quando è completo, così una connessione che cade non lascia senza
   modello.
+- **Trascrizione nel cloud, facoltativa** — terzo motore, spento di
+  default: il blocco audio va in HTTPS al backend di BRIEF, che lo fa
+  trascrivere a Gemini e restituisce il testo. È la scelta più accurata,
+  perché il modello è di un ordine di grandezza più grande di quanto stia
+  in un telefono, ma è **l'unica in cui l'audio esce dal dispositivo**:
+  per accenderla servono un server configurato e un consenso esplicito,
+  separato da quello del riassunto, revocabile in qualsiasi momento. Il
+  server inoltra l'audio senza salvarlo e registra solo numeri (durata,
+  costo stimato) per applicare le quote. I termini di Google impongono il
+  piano a pagamento per gli utenti europei; costa fra i 4 e i 13 centesimi
+  di dollaro per ora di audio.
 - **Motore del telefono: opzione sperimentale, non consigliata** — il
   riconoscitore vocale di sistema (`SpeechRecognizer` da Android 13,
   `SFSpeechRecognizer` su iOS) sulla carta è molto più rapido, perché

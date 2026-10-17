@@ -1,7 +1,11 @@
-"""API dei riassunti di BRIEF.
+"""API di BRIEF: riassunti e, su richiesta esplicita, trascrizione.
 
-Riceve solo testo. Protegge la chiave del fornitore IA, applica quote,
-limiti di frequenza e un tetto di spesa con disattivazione automatica.
+Protegge le chiavi dei fornitori, applica quote, limiti di frequenza e un
+tetto di spesa con disattivazione automatica.
+
+Il riassunto riceve solo testo. La trascrizione riceve audio, ma solo
+quando è l'utente ad attivarla nell'app: l'audio viene inoltrato al
+fornitore e non viene mai scritto su disco né nei log.
 """
 
 from __future__ import annotations
@@ -10,14 +14,29 @@ import logging
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import (
+    Depends,
+    FastAPI,
+    File,
+    Form,
+    Header,
+    HTTPException,
+    Request,
+    UploadFile,
+)
 from fastapi.responses import JSONResponse
 
+from .audio import AudioError, read_wav_info
 from .config import Settings, get_settings
-from .providers import build_provider
-from .providers.base import Provider, ProviderError
+from .providers import build_provider, build_transcriber
+from .providers.base import Provider, ProviderError, Transcriber
 from .quota import QuotaError, QuotaGuard, estimate_tokens
-from .schemas import StatusResponse, SummarizeRequest, SummarizeResponse
+from .schemas import (
+    StatusResponse,
+    SummarizeRequest,
+    SummarizeResponse,
+    TranscribeResponse,
+)
 from .storage import UsageStore
 from .summarize import summarize_text
 
@@ -36,16 +55,20 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     app.state.store = store
     app.state.guard = QuotaGuard(settings, store)
     app.state.provider = build_provider(settings)
+    app.state.transcriber = build_transcriber(settings)
     logger.info(
-        "Avvio: provider=%s modello=%s budget=%.2f USD/giorno",
+        "Avvio: riassunti=%s/%s trascrizione=%s/%s budget=%.2f USD/giorno",
         app.state.provider.name,
         app.state.provider.model,
+        app.state.transcriber.name,
+        app.state.transcriber.model,
         settings.daily_budget_usd,
     )
     try:
         yield
     finally:
         await app.state.provider.aclose()
+        await app.state.transcriber.aclose()
         store.close()
 
 
@@ -63,6 +86,10 @@ def get_guard(request: Request) -> QuotaGuard:
 
 def get_provider(request: Request) -> Provider:
     return request.app.state.provider
+
+
+def get_transcriber(request: Request) -> Transcriber:
+    return request.app.state.transcriber
 
 
 def get_app_settings(request: Request) -> Settings:
@@ -94,6 +121,7 @@ async def health() -> dict[str, str]:
 
 @app.get("/v1/status", response_model=StatusResponse)
 async def status(
+    request: Request,
     x_device_id: str = Header(default=""),
     x_app_token: str | None = Header(default=None),
     guard: QuotaGuard = Depends(get_guard),
@@ -101,7 +129,9 @@ async def status(
     settings: Settings = Depends(get_app_settings),
 ) -> StatusResponse:
     check_app_token(settings, x_app_token)
-    requests_today, _ = guard.store.device_usage(x_device_id or "sconosciuto")
+    device = x_device_id or "sconosciuto"
+    requests_today, _ = guard.store.device_usage(device)
+    transcriber: Transcriber = request.app.state.transcriber
     return StatusResponse(
         service_enabled=guard.service_enabled(),
         provider=provider.name,
@@ -112,6 +142,12 @@ async def status(
         device_requests_limit=settings.daily_requests_per_device,
         rate_limit_per_window=settings.rate_limit_requests,
         rate_limit_window_seconds=settings.rate_limit_window_seconds,
+        transcription_provider=transcriber.name,
+        transcription_model=transcriber.model,
+        device_audio_seconds_today=round(
+            guard.store.device_audio_seconds(device), 1
+        ),
+        device_audio_seconds_limit=settings.daily_audio_seconds_per_device,
     )
 
 
@@ -156,6 +192,58 @@ async def summarize(
         provider=provider.name,
         model=provider.model,
         chunks=result.chunks,
+        estimated_cost_usd=round(cost, 6),
+    )
+
+
+@app.post("/v1/transcribe", response_model=TranscribeResponse)
+async def transcribe(
+    file: UploadFile = File(...),
+    language: str = Form(default="it"),
+    x_device_id: str = Header(default=""),
+    x_app_token: str | None = Header(default=None),
+    guard: QuotaGuard = Depends(get_guard),
+    transcriber: Transcriber = Depends(get_transcriber),
+    settings: Settings = Depends(get_app_settings),
+) -> TranscribeResponse:
+    """Trascrive un blocco audio.
+
+    L'app invia un blocco alla volta: così l'avanzamento resta visibile,
+    una richiesta che fallisce non butta via l'intera registrazione e
+    nessun file supera i limiti di dimensione del fornitore.
+    """
+    check_app_token(settings, x_app_token)
+
+    # Si legge in memoria: niente file temporanei, niente audio su disco.
+    payload = await file.read()
+    if not payload:
+        raise HTTPException(status_code=400, detail="Blocco audio vuoto.")
+
+    try:
+        seconds = read_wav_info(payload).seconds
+    except AudioError as exc:
+        # La durata serve per le quote: senza, non si serve la richiesta.
+        raise HTTPException(status_code=415, detail=str(exc)) from exc
+
+    guard.check_audio(x_device_id, len(payload), seconds)
+
+    result = await transcriber.transcribe(payload, "audio/wav", language)
+    out_tokens = result.output_tokens or estimate_tokens(result.text)
+    cost = guard.record_audio(x_device_id, seconds, out_tokens)
+
+    logger.info(
+        "Trascrizione: device=%s… secondi=%.1f byte=%d costo=%.5f USD",
+        x_device_id[:6],
+        seconds,
+        len(payload),
+        cost,
+    )
+
+    return TranscribeResponse(
+        text=result.text,
+        provider=transcriber.name,
+        model=transcriber.model,
+        seconds=round(seconds, 2),
         estimated_cost_usd=round(cost, 6),
     )
 

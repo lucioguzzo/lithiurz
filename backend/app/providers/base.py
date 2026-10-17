@@ -34,3 +34,26 @@ class Provider(abc.ABC):
 
     async def aclose(self) -> None:  # pragma: no cover - default inerte
         return None
+
+
+@dataclass(frozen=True)
+class Transcription:
+    text: str
+    input_tokens: int
+    output_tokens: int
+
+
+class Transcriber(abc.ABC):
+    """Chi sa trasformare un blocco audio in testo."""
+
+    name: str = "base"
+    model: str = ""
+
+    @abc.abstractmethod
+    async def transcribe(
+        self, audio: bytes, mime_type: str, language: str
+    ) -> Transcription:
+        """Restituisce il testo parlato nell'audio, senza commenti."""
+
+    async def aclose(self) -> None:  # pragma: no cover - default inerte
+        return None

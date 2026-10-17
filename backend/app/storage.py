@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS device_usage (
     day       TEXT NOT NULL,
     requests  INTEGER NOT NULL DEFAULT 0,
     chars     INTEGER NOT NULL DEFAULT 0,
+    audio_seconds REAL NOT NULL DEFAULT 0,
     PRIMARY KEY (device_id, day)
 );
 
@@ -54,7 +55,25 @@ class UsageStore:
         self._conn.row_factory = sqlite3.Row
         with self._lock:
             self._conn.executescript(SCHEMA)
+            self._migrate()
             self._conn.commit()
+
+    def _migrate(self) -> None:
+        """Aggiunge le colonne comparse dopo la prima versione.
+
+        Un database creato dalla versione che faceva solo riassunti non ha
+        `audio_seconds`: va aggiunta, non ricreata, per non perdere i
+        contatori del giorno.
+        """
+        existing = {
+            row["name"]
+            for row in self._conn.execute("PRAGMA table_info(device_usage)")
+        }
+        if "audio_seconds" not in existing:
+            self._conn.execute(
+                "ALTER TABLE device_usage ADD COLUMN "
+                "audio_seconds REAL NOT NULL DEFAULT 0"
+            )
 
     # -- lettura ---------------------------------------------------------
 
@@ -66,6 +85,15 @@ class UsageStore:
                 (device_id, day),
             ).fetchone()
         return (row["requests"], row["chars"]) if row else (0, 0)
+
+    def device_audio_seconds(self, device_id: str, day: str | None = None) -> float:
+        day = day or utc_day()
+        with self._lock:
+            row = self._conn.execute(
+                "SELECT audio_seconds FROM device_usage WHERE device_id=? AND day=?",
+                (device_id, day),
+            ).fetchone()
+        return float(row["audio_seconds"]) if row else 0.0
 
     def spend_today(self, day: str | None = None) -> float:
         day = day or utc_day()
@@ -111,18 +139,21 @@ class UsageStore:
         in_tokens: int,
         out_tokens: int,
         day: str | None = None,
+        audio_seconds: float = 0.0,
     ) -> None:
         day = day or utc_day()
         with self._lock:
             self._conn.execute(
                 """
-                INSERT INTO device_usage(device_id, day, requests, chars)
-                VALUES (?, ?, 1, ?)
+                INSERT INTO device_usage(device_id, day, requests, chars,
+                                         audio_seconds)
+                VALUES (?, ?, 1, ?, ?)
                 ON CONFLICT(device_id, day) DO UPDATE SET
                     requests = requests + 1,
-                    chars = chars + excluded.chars
+                    chars = chars + excluded.chars,
+                    audio_seconds = audio_seconds + excluded.audio_seconds
                 """,
-                (device_id, day, chars),
+                (device_id, day, chars, audio_seconds),
             )
             self._conn.execute(
                 """

@@ -106,15 +106,26 @@ annullamento, nessun recupero se il sistema sospende l'app. Perciò:
    confrontata con la testa del blocco successivo (minimo 3 parole, a meno
    di maiuscole e punteggiatura) e la ripetizione viene rimossa.
 
-### I due motori
+### I tre motori
 
 `TranscriptionEngine` è l'interfaccia che la pipeline conosce: riceve un WAV
 già pronto e restituisce testo. Le implementazioni sono `WhisperEngine`
-(whisper.cpp) e `SystemSpeechEngine` (canale nativo `brief/system_speech` →
-`SpeechRecognizer` su Android, `SFSpeechRecognizer` su iOS). Ogni motore
+(whisper.cpp), `SystemSpeechEngine` (canale nativo `brief/system_speech` →
+`SpeechRecognizer` su Android, `SFSpeechRecognizer` su iOS) e
+`CloudTranscriptionEngine` (POST `v1/transcribe` al backend). Ogni motore
 dichiara anche la durata di blocco che preferisce, perché i vincoli sono
 diversi: whisper rende meglio con più contesto (90 s), il riconoscitore di
-sistema è tarato sul dettato e lavora a spezzoni brevi (25 s).
+sistema è tarato sul dettato e lavora a spezzoni brevi (25 s), il cloud
+preferisce blocchi lunghi (3 minuti) perché ogni blocco è una richiesta di
+rete e spezzettare moltiplicherebbe i tempi morti — restando sotto i
+limiti di dimensione del fornitore.
+
+Il motore cloud è l'unico che fa uscire l'audio dal telefono, quindi ha un
+consenso suo (`audioCloudConsentAt`), distinto da quello del riassunto: il
+testo già trascritto e la propria voce non sono la stessa cosa. Lato
+server la durata di ogni blocco viene **riletta dall'intestazione del
+WAV**, perché le quote non possono dipendere da un numero dichiarato dal
+client.
 
 Il motore di sistema è marcato `experimental`: alla prova sul campo
 (nubia NX713J, Android 13) chiude l'ascolto dopo i primi secondi e rende 15
