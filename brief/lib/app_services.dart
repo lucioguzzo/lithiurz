@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'core/constants.dart';
 import 'data/note_repository.dart';
 import 'data/settings.dart';
 import 'services/ads/ads_service.dart';
@@ -56,9 +57,12 @@ class AppServices {
     required SettingsRepository settings,
     required NoteRepository notes,
   }) async {
+    // L'indirizzo scelto a mano vince su quello cucito nella build: così
+    // una build già pronta resta modificabile da chi vuole il proprio
+    // server, senza che nessun altro debba configurare niente.
     String resolveBackendUrl() => settings.value.backendUrl.isNotEmpty
         ? settings.value.backendUrl
-        : const String.fromEnvironment('BRIEF_BACKEND_URL');
+        : BuildConfig.backendUrl;
 
     final SummaryApiClient client = SummaryApiClient(
       baseUrl: resolveBackendUrl(),

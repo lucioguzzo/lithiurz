@@ -81,6 +81,13 @@ Se vuoi solo l'APK senza compilare nulla sul tuo computer:
   nuovo arriva in un file `.part` e prende il posto del vecchio solo
   quando è completo, così una connessione che cade non lascia senza
   modello.
+- **Pronta all'uso appena installata** — l'indirizzo del server si cuce
+  nella build (`--dart-define=BRIEF_BACKEND_URL=…`), così chi installa
+  l'app non deve configurare niente: al primo avvio sceglie fra *cloud*
+  (pronto subito) e *solo sul telefono* (scarica il modello), e ha
+  finito. Una build senza quel parametro resta perfettamente usabile, ma
+  locale: l'opzione cloud non viene nemmeno mostrata, perché non
+  potrebbe funzionare.
 - **Trascrizione nel cloud, facoltativa** — terzo motore, spento di
   default: il blocco audio va in HTTPS al backend di BRIEF, che lo fa
   trascrivere a Gemini e restituisce il testo. È la scelta più accurata,

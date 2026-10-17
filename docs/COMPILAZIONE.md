@@ -17,7 +17,7 @@
 cd brief
 flutter pub get
 flutter analyze          # deve restituire "No issues found!"
-flutter test             # 123 test unitari
+flutter test             # 150 test unitari
 ```
 
 ### Android
@@ -28,7 +28,31 @@ flutter build apk --release                     # APK firmato (vedi sotto)
 flutter build appbundle --release               # AAB per il Play Store
 ```
 
-Con i propri identificativi AdMob e il backend:
+### APK già pronto all'uso
+
+Questa è la differenza fra un APK che chiede all'utente di configurare un
+server e uno che funziona appena installato: l'indirizzo viene **cucito
+nella build**.
+
+```bash
+flutter build apk --release --split-per-abi \
+  --dart-define=BRIEF_BACKEND_URL=https://api.tuodominio.it \
+  --dart-define=BRIEF_APP_TOKEN=token-pubblico-dell-app \
+  --dart-define=ADMOB_BANNER_ANDROID=ca-app-pub-XXXX/YYYY
+```
+
+Con `BRIEF_BACKEND_URL` valorizzato, chi installa l'app vede al primo
+avvio due pulsanti — *Usa il cloud* (consigliato) o *Resta in locale* — e
+da lì in poi non deve toccare nient'altro: nessun indirizzo da incollare,
+nessun modello da scaricare se sceglie il cloud. Senza quel parametro
+l'opzione cloud non viene nemmeno mostrata, perché non potrebbe
+funzionare.
+
+`BRIEF_APP_TOKEN` **non è un segreto**: finisce dentro l'APK e chiunque
+può estrarlo. Serve a scremare il traffico casuale; i limiti veri sono le
+quote per dispositivo applicate dal server.
+
+Per lo store, lo stesso con `appbundle`:
 
 ```bash
 flutter build appbundle --release \
@@ -36,6 +60,10 @@ flutter build appbundle --release \
   --dart-define=BRIEF_APP_TOKEN=token-pubblico-dell-app \
   --dart-define=ADMOB_BANNER_ANDROID=ca-app-pub-XXXX/YYYY
 ```
+
+Lo stesso si ottiene da GitHub senza installare niente: *Actions* →
+*BRIEF — APK di release* → *Run workflow*, scrivendo l'URL del backend
+nel campo apposito.
 
 **Firma.** Senza `android/key.properties` la build di release usa le chiavi
 di debug: funziona sul telefono ma **non è pubblicabile**. Per firmarla

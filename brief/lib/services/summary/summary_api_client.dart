@@ -17,7 +17,7 @@ class SummaryApiClient {
     required String baseUrl,
     required this.deviceId,
     http.Client? client,
-    this.appToken = const String.fromEnvironment('BRIEF_APP_TOKEN'),
+    this.appToken = BuildConfig.appToken,
     this.timeout = const Duration(seconds: 120),
   })  : _baseUrl = baseUrl,
         _client = client ?? http.Client();

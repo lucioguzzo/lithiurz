@@ -19,6 +19,25 @@ class AppInfo {
   static const String copyright = '© $copyrightYear $copyrightOwner';
 }
 
+/// Valori decisi al momento della compilazione (`--dart-define`).
+///
+/// È così che si consegna un APK già pronto: l'indirizzo del server è
+/// cucito nella build, l'utente non deve impostare niente. Senza questi
+/// valori l'app resta perfettamente funzionante, ma solo in locale.
+class BuildConfig {
+  /// Server di BRIEF da usare quando l'utente non ne ha indicato un altro.
+  static const String backendUrl =
+      String.fromEnvironment('BRIEF_BACKEND_URL');
+
+  /// Token pubblico dell'app. **Non è un segreto**: chiunque può
+  /// estrarlo dall'APK. Serve solo a scremare il traffico casuale; i
+  /// limiti veri sono le quote per dispositivo applicate dal server.
+  static const String appToken = String.fromEnvironment('BRIEF_APP_TOKEN');
+
+  /// `true` se questa build arriva con un server già configurato.
+  static bool get hasBackend => backendUrl.trim().isNotEmpty;
+}
+
 /// Limiti di accettazione dei file audio in ingresso.
 class AudioLimits {
   /// Oltre questa dimensione il file viene rifiutato subito (500 MB).

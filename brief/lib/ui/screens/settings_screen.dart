@@ -467,11 +467,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       title: const Text('Server'),
                       subtitle: Text(
                         set.backendUrl.isEmpty
-                            ? (const String.fromEnvironment(
-                                        'BRIEF_BACKEND_URL')
-                                    .isEmpty
-                                ? 'Non configurato: userò il riassunto locale'
-                                : 'Predefinito della build')
+                            ? (BuildConfig.hasBackend
+                                ? 'Già configurato in questa versione'
+                                : 'Non configurato: userò il riassunto locale')
                             : set.backendUrl,
                       ),
                       trailing: const Icon(Icons.edit_outlined),

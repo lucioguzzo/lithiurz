@@ -17,6 +17,7 @@ class AppSettings {
     this.engine = SummaryEngine.locale,
     this.cloudConsentAt,
     this.audioCloudConsentAt,
+    this.onboardedAt,
     this.historyEnabled = true,
     this.keepAudio = false,
     this.adsEnabled = true,
@@ -43,6 +44,11 @@ class AppSettings {
   /// propria voce è un passo diverso dal mandare un testo già trascritto,
   /// e va consentito a parte.
   final DateTime? audioCloudConsentAt;
+
+  /// Quando l'utente ha completato la schermata di benvenuto. `null`
+  /// significa primo avvio: è lì che si sceglie come trascrivere, una
+  /// volta sola, senza dover andare a cercare le impostazioni.
+  final DateTime? onboardedAt;
   final bool historyEnabled;
   final bool keepAudio;
   final bool adsEnabled;
@@ -73,6 +79,7 @@ class AppSettings {
     bool clearConsent = false,
     DateTime? audioCloudConsentAt,
     bool clearAudioConsent = false,
+    DateTime? onboardedAt,
     bool? historyEnabled,
     bool? keepAudio,
     bool? adsEnabled,
@@ -92,6 +99,7 @@ class AppSettings {
         audioCloudConsentAt: clearAudioConsent
             ? null
             : (audioCloudConsentAt ?? this.audioCloudConsentAt),
+        onboardedAt: onboardedAt ?? this.onboardedAt,
         historyEnabled: historyEnabled ?? this.historyEnabled,
         keepAudio: keepAudio ?? this.keepAudio,
         adsEnabled: adsEnabled ?? this.adsEnabled,
@@ -141,6 +149,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
   static const String _kEngine = 'summary_engine';
   static const String _kConsent = 'cloud_consent_at';
   static const String _kAudioConsent = 'audio_cloud_consent_at';
+  static const String _kOnboarded = 'onboarded_at';
   static const String _kHistory = 'history_enabled';
   static const String _kKeepAudio = 'keep_audio';
   static const String _kAds = 'ads_enabled';
@@ -157,6 +166,7 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
   static AppSettings _read(SharedPreferences p) {
     final int? consent = p.getInt(_kConsent);
     final int? audioConsent = p.getInt(_kAudioConsent);
+    final int? onboarded = p.getInt(_kOnboarded);
     return AppSettings(
       // Un'installazione precedente può avere salvato 'tiny' o 'base':
       // quei modelli non esistono più, si riparte da Small.
@@ -171,6 +181,9 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
       audioCloudConsentAt: audioConsent == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(audioConsent),
+      onboardedAt: onboarded == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(onboarded),
       historyEnabled: p.getBool(_kHistory) ?? true,
       keepAudio: p.getBool(_kKeepAudio) ?? false,
       adsEnabled: p.getBool(_kAds) ?? true,
@@ -198,6 +211,10 @@ class SettingsRepository extends ValueNotifier<AppSettings> {
           ? _prefs.remove(_kAudioConsent)
           : _prefs.setInt(
               _kAudioConsent, next.audioCloudConsentAt!.millisecondsSinceEpoch),
+      next.onboardedAt == null
+          ? _prefs.remove(_kOnboarded)
+          : _prefs.setInt(
+              _kOnboarded, next.onboardedAt!.millisecondsSinceEpoch),
       _prefs.setBool(_kHistory, next.historyEnabled),
       _prefs.setBool(_kKeepAudio, next.keepAudio),
       _prefs.setBool(_kAds, next.adsEnabled),

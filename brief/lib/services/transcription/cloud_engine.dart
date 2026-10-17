@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 
+import '../../core/constants.dart';
 import '../../core/failures.dart';
 import 'engine.dart';
 
@@ -23,7 +24,7 @@ class CloudTranscriptionEngine implements TranscriptionEngine {
     required this.baseUrl,
     required this.deviceId,
     http.Client? client,
-    this.appToken = const String.fromEnvironment('BRIEF_APP_TOKEN'),
+    this.appToken = BuildConfig.appToken,
     this.timeout = const Duration(seconds: 180),
   }) : _client = client ?? http.Client();
 

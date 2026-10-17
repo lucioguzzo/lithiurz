@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       backend_url:
-        description: "URL del backend dei riassunti (vuoto = solo locale)"
+        description: "URL del backend, es. https://api.tuodominio.it (vuoto = APK solo locale)"
         required: false
         default: ''
 
@@ -55,6 +55,12 @@ jobs:
 
       - run: flutter pub get
       - run: flutter test
+
+      - name: Avviso se l'APK esce senza server
+        run: |
+          if [ -z "${{ github.event.inputs.backend_url }}" ]; then
+            echo "::warning::Nessun backend indicato: l'APK funzionerà solo in locale (Whisper sul telefono) e la trascrizione nel cloud resterà disattivabile. Per un APK già pronto all'uso, rilancia indicando l'URL del server."
+          fi
 
       - name: APK di release (uno per architettura)
         run: |

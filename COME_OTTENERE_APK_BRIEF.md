@@ -4,9 +4,12 @@ Non serve installare niente sul tuo computer: l'APK lo compila GitHub.
 
 1. Vai su **Actions** nel repository.
 2. Scegli **BRIEF — APK di release** nell'elenco a sinistra.
-3. Premi **Run workflow**. Se hai già un backend per i riassunti, incolla
-   il suo indirizzo nel campo; altrimenti lascialo vuoto: l'app userà il
-   riassunto locale, che funziona senza internet.
+3. Premi **Run workflow** e **incolla l'indirizzo del tuo backend** nel
+   campo (per esempio `https://api.tuodominio.it`): è quello che rende
+   l'APK pronto all'uso, senza niente da configurare per chi lo installa.
+   Se lo lasci vuoto l'app funziona lo stesso, ma solo in locale: Whisper
+   sul telefono, con il modello da scaricare al primo utilizzo.
+   Come mettere online il backend: [`docs/DEPLOY.md`](docs/DEPLOY.md).
 4. Aspetta la fine della compilazione (la prima volta ~15 minuti).
 5. In fondo alla pagina della build, sotto **Artifacts**, scarica
    `brief-release-apk`.
@@ -20,9 +23,12 @@ Android degli ultimi anni.
 Copia l'APK sul telefono (cavo USB, Google Drive, Telegram…), aprilo e
 consenti l'installazione da "origini sconosciute".
 
-Alla prima trascrizione l'app chiede di scaricare il modello Small
-compresso (252 MB) e il rilevatore di parlato (poco più di 1 MB). Si
-scaricano una volta sola; dopo l'app funziona anche senza connessione.
+Al primo avvio l'app chiede una cosa sola: se trascrivere nel cloud
+(pronto subito, serve internet) o solo sul telefono. Scegliendo il
+telefono, alla prima trascrizione scarica il modello Small compresso
+(252 MB) e il rilevatore di parlato (poco più di 1 MB): si scaricano una
+volta sola e dopo tutto funziona anche senza connessione. La scelta si
+cambia quando si vuole dalle impostazioni.
 
 ## Due avvertenze
 

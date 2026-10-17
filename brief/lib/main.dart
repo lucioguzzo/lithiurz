@@ -8,6 +8,7 @@ import 'data/settings.dart';
 import 'services/share/share_intake_service.dart';
 import 'services/transcription/model_manager.dart';
 import 'ui/screens/home_screen.dart';
+import 'ui/screens/onboarding_screen.dart';
 import 'ui/theme.dart';
 
 Future<void> main() async {
@@ -68,7 +69,11 @@ class BRIEFApp extends StatelessWidget {
               ThemeModeSetting.scuro => ThemeMode.dark,
               ThemeModeSetting.sistema => ThemeMode.system,
             },
-            home: const HomeScreen(),
+            // Primo avvio: si sceglie una volta come trascrivere, poi
+            // non si vede più.
+            home: settings.onboardedAt == null
+                ? const OnboardingScreen()
+                : const HomeScreen(),
           );
         },
       ),
