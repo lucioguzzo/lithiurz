@@ -75,11 +75,13 @@ class ChatApi(private val json: Json) {
                             ?: continue
                         chunk.error?.let { throw ApiException(it.message ?: "Errore del provider") }
                         val delta = chunk.choices.firstOrNull()?.delta ?: continue
+                        // send() e non trySend(): se la UI è in ritardo i token
+                        // aspettano invece di essere scartati.
                         (delta.reasoningContent ?: delta.reasoning)?.takeIf { it.isNotEmpty() }?.let {
-                            trySend(StreamEvent.Reasoning(it))
+                            send(StreamEvent.Reasoning(it))
                         }
                         delta.content?.takeIf { it.isNotEmpty() }?.let {
-                            trySend(StreamEvent.Content(it))
+                            send(StreamEvent.Content(it))
                         }
                     }
                 }
