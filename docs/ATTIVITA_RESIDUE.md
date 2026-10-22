@@ -43,6 +43,37 @@ importanza.
   `SFSpeechRecognizer` e `requiresOnDeviceRecognition`. **Mai compilato**:
   serve un Mac. Vale la stessa cautela: va considerato sperimentale finché
   non è provato su un dispositivo vero.
+- **Whistle (Cactus Compute), 16,9 MB — provato e misurato, non adottato.**
+  Modello speech-to-text uscito a ottobre 2026, Apache 2.0, motore C++ su
+  CPU con build già pronte per Android e iOS. Misurato qui sullo stesso
+  materiale del modello attuale (12 frasi di FLEURS italiano, 142 s di
+  voce umana, riferimenti pubblicati, testi normalizzati senza
+  punteggiatura):
+
+  | Motore | Dimensione | WER italiano | Velocità (CPU del server) |
+  |---|---|---|---|
+  | Whistle | 16,9 MB | **15,8%** | 6,3× il tempo reale |
+  | Whisper small q8_0 (attuale) | 252 MB | **8,3%** | 3,2× il tempo reale |
+
+  Sbaglia **circa il doppio** delle parole di quello che l'app già
+  scarica. È 15 volte più piccolo e il doppio più rapido, ma la
+  dimensione e la velocità non sono i problemi aperti: l'accuratezza lo
+  è. Quindi no, non sostituisce Small.
+
+  Resta annotato per due casi che potrebbero presentarsi: se i 252 MB di
+  download diventassero il vero ostacolo all'adozione (Whistle è l'unica
+  cosa che dà "offline, subito, minuscolo"), o per un'anteprima istantanea
+  mentre il motore vero lavora. In entrambi i casi servirebbero binding
+  FFI scritti a mano sulla sua API C — non esiste un pacchetto Flutter —
+  e va ricordato il suo limite di 30 secondi per passata, oltre alle
+  segnalazioni di ripetizioni su audio lunghi.
+
+  Il banco di prova è in [`tools/wer_italiano.py`](../tools/wer_italiano.py):
+  ripetibile su qualunque motore nuovo, compreso il cloud, con due
+  comandi. Avvertenza d'uso: FLEURS è parlato letto in condizioni pulite,
+  un vocale di WhatsApp è più difficile — i numeri servono a confrontare
+  i motori fra loro, non a promettere una percentuale all'utente.
+
 - **Accuratezza di Whisper Small** — sul parlato italiano reale il testo è
   comprensibile ma contiene errori di parola. Il modello è passato da
   `small-q5_1` (181 MB) a **`small-q8_0`** (252 MB): quantizzazione più

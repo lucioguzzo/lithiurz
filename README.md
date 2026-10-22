@@ -37,6 +37,7 @@ Identificatori tecnici allineati al nome: pacchetto Dart `brief`,
 |-------------|-----------|
 | `brief/` | App Flutter (Android + iOS) |
 | `backend/`  | Servizio FastAPI per i riassunti, con quote e tetto di spesa |
+| `tools/`    | Banco di prova del WER italiano, per confrontare i motori |
 | `docs/`     | Architettura, compilazione, messa online del backend, iOS, privacy, pubblicazione, attività residue |
 | `app/`      | Progetto precedente (Baby Cry Translator), non toccato |
 
