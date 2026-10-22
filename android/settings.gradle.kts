@@ -12,5 +12,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Lith"
+rootProject.name = "GuzzoBot"
 include(":app")

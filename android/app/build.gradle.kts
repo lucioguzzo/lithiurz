@@ -7,15 +7,15 @@ plugins {
 }
 
 android {
-    namespace = "com.lucio.lith"
+    namespace = "com.lucio.guzzobot"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.lucio.lith"
+        applicationId = "com.lucio.guzzobot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
     }
 
     buildTypes {
@@ -62,6 +62,8 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.security.crypto)
     implementation(libs.okhttp)
+    implementation(libs.androidx.exifinterface)
+    implementation(libs.pdfbox.android)
     implementation(libs.kotlinx.serialization.json)
     debugImplementation(libs.androidx.compose.ui.tooling)
     testImplementation(libs.junit)

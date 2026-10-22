@@ -1,4 +1,4 @@
-name: Build Lith APK
+name: Build GUZZOBOT APK
 
 on:
   push:
@@ -28,5 +28,5 @@ jobs:
       - name: Carica APK
         uses: actions/upload-artifact@v4
         with:
-          name: lith-apk
+          name: guzzobot-apk
           path: android/app/build/outputs/apk/release/app-release.apk

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Lith</string>
+    <string name="app_name">GUZZOBOT</string>
 
     <string name="new_chat">Nuova chat</string>
     <string name="recents">Recenti</string>
@@ -59,4 +59,35 @@
     <string name="delete_all_confirm">Eliminare tutte le conversazioni? L\'operazione non è reversibile.</string>
     <string name="error_generic">Qualcosa è andato storto</string>
     <string name="regenerating">Rigenerazione…</string>
+    <string name="attach">Allega</string>
+    <string name="attach_photo">Foto dalla galleria</string>
+    <string name="attach_camera">Scatta una foto</string>
+    <string name="attach_document">Documento</string>
+    <string name="attach_audio">File audio</string>
+    <string name="record_audio">Registra una nota vocale</string>
+    <string name="recording">Registrazione in corso</string>
+    <string name="recording_stop">Tocca per fermare</string>
+    <string name="generate_image">Genera un\'immagine</string>
+    <string name="listen">Ascolta</string>
+    <string name="listen_stop">Ferma la voce</string>
+    <string name="remove">Rimuovi</string>
+    <string name="play">Riproduci</string>
+    <string name="pause">Pausa</string>
+    <string name="mic_denied">Serve il permesso del microfono per registrare</string>
+    <string name="multimodal">Multimodale</string>
+    <string name="multimodal_hint">Ogni modalità usa il modello che scegli qui. Se il modello in chat non vede le immagini, le fa leggere al modello vision e ne riceve la descrizione.</string>
+    <string name="vision_model">Modello che legge immagini e PDF scansionati</string>
+    <string name="transcribe_model">Modello che trascrive gli audio</string>
+    <string name="image_model">Modello che genera immagini</string>
+    <string name="speech_model">Modello che legge ad alta voce</string>
+    <string name="speech_voice">Voce</string>
+    <string name="image_size">Dimensione delle immagini generate</string>
+    <string name="force_native_vision">Manda le immagini al modello in chat</string>
+    <string name="force_native_vision_hint">Attiva se il tuo modello vede le immagini ma non viene riconosciuto automaticamente.</string>
+    <string name="none_selected">Nessuno</string>
+    <string name="pick_model">Scegli un modello</string>
+    <string name="native_vision_on">Il modello in chat vede le immagini</string>
+    <string name="attachment_image">Immagine</string>
+    <string name="attachment_document">Documento</string>
+    <string name="attachment_audio">Audio</string>
 </resources>
