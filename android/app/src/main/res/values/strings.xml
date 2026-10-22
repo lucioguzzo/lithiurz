@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">Lith</string>
+
+    <string name="new_chat">Nuova chat</string>
+    <string name="recents">Recenti</string>
+    <string name="settings">Impostazioni</string>
+    <string name="composer_hint">Scrivi un messaggio…</string>
+    <string name="send">Invia</string>
+    <string name="stop">Interrompi</string>
+    <string name="copy">Copia</string>
+    <string name="copied">Copiato</string>
+    <string name="retry">Rigenera</string>
+    <string name="edit">Modifica</string>
+    <string name="delete">Elimina</string>
+    <string name="rename">Rinomina</string>
+    <string name="share">Condividi</string>
+    <string name="cancel">Annulla</string>
+    <string name="save">Salva</string>
+    <string name="menu">Menu</string>
+    <string name="search_chats">Cerca nelle chat</string>
+    <string name="no_chats">Nessuna conversazione</string>
+    <string name="thinking">Ragionamento</string>
+    <string name="thinking_in_progress">Sto ragionando…</string>
+
+    <string name="greeting_morning">Buongiorno</string>
+    <string name="greeting_afternoon">Buon pomeriggio</string>
+    <string name="greeting_evening">Buonasera</string>
+    <string name="greeting_night">Buonanotte</string>
+    <string name="empty_subtitle">Di cosa parliamo oggi?</string>
+    <string name="suggestion_1">Spiegami un concetto difficile in parole semplici</string>
+    <string name="suggestion_2">Aiutami a scrivere un messaggio</string>
+    <string name="suggestion_3">Riassumi questo testo</string>
+
+    <string name="providers">Provider e modelli</string>
+    <string name="providers_subtitle">Chiavi API, endpoint e modelli</string>
+    <string name="add_provider">Aggiungi provider</string>
+    <string name="provider_name">Nome</string>
+    <string name="base_url">Base URL</string>
+    <string name="api_key">Chiave API</string>
+    <string name="api_key_saved">Chiave salvata sul dispositivo (cifrata)</string>
+    <string name="models">Modelli (uno per riga)</string>
+    <string name="fetch_models">Scarica elenco modelli</string>
+    <string name="default_model">Modello predefinito</string>
+    <string name="system_prompt">Prompt di sistema</string>
+    <string name="temperature">Temperatura</string>
+    <string name="max_tokens">Token massimi in risposta</string>
+    <string name="history_limit">Messaggi di contesto inviati</string>
+    <string name="theme">Tema</string>
+    <string name="theme_system">Sistema</string>
+    <string name="theme_light">Chiaro</string>
+    <string name="theme_dark">Scuro</string>
+    <string name="show_reasoning">Mostra il ragionamento dei modelli</string>
+    <string name="choose_model">Scegli il modello</string>
+    <string name="no_key_warning">Imposta una chiave API nelle impostazioni per iniziare.</string>
+    <string name="open_settings">Apri impostazioni</string>
+    <string name="about">Informazioni</string>
+    <string name="about_text">Client di chat indipendente. Si collega direttamente al provider che configuri: nessun server intermedio, le conversazioni restano sul telefono.</string>
+    <string name="delete_all">Elimina tutte le conversazioni</string>
+    <string name="delete_all_confirm">Eliminare tutte le conversazioni? L\'operazione non è reversibile.</string>
+    <string name="error_generic">Qualcosa è andato storto</string>
+    <string name="regenerating">Rigenerazione…</string>
+</resources>
