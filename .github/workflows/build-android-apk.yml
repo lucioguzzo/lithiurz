@@ -11,6 +11,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.GUZZOBOT_KEYSTORE_BASE64 }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,8 +23,25 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Senza i segreti si compila comunque, ma con la chiave di debug:
+      # quell'APK non si installa come aggiornamento sopra quello di release.
+      - name: Ripristina la chiave di firma
+        if: env.KEYSTORE_BASE64 != ''
+        working-directory: android
+        run: |
+          mkdir -p keystore
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > keystore/guzzobot-release.jks
+
+      - name: Test
+        working-directory: android
+        run: ./gradlew test --no-daemon
+
       - name: Build APK di release
         working-directory: android
+        env:
+          GUZZOBOT_STORE_PASSWORD: ${{ secrets.GUZZOBOT_STORE_PASSWORD }}
+          GUZZOBOT_KEY_ALIAS: ${{ secrets.GUZZOBOT_KEY_ALIAS }}
+          GUZZOBOT_KEY_PASSWORD: ${{ secrets.GUZZOBOT_KEY_PASSWORD }}
         run: ./gradlew assembleRelease --no-daemon
 
       - name: Carica APK

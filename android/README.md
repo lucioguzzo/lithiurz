@@ -7,9 +7,46 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-2.2.apk` c'è l'APK già compilato, firmato con la chiave
-di debug. Scaricalo sul telefono, aprilo e consenti l'installazione da origini
-sconosciute. Richiede Android 8.0 o superiore.
+In `android/dist/guzzobot-2.3.apk` c'è l'APK già compilato: un file unico,
+autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
+telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
+Android 8.0 o superiore.
+
+È un APK **universale**: contiene il codice per tutte le architetture
+(`arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`), quindi si installa su qualsiasi
+telefono o emulatore senza scegliere la variante giusta. Non è un App Bundle e
+non ha bisogno di Play Store, account, companion app o altri file.
+
+> **Chi arriva dalla 2.2 o precedenti deve prima disinstallare GUZZOBOT.**
+> Quelle versioni erano firmate con la chiave di debug; Android rifiuta un
+> aggiornamento firmato con una chiave diversa (*"App non installata"*).
+> Dalla 2.3 in poi gli aggiornamenti si installano sopra, senza disinstallare.
+
+### La chiave di firma
+
+L'APK è firmato con una chiave RSA 4096 dedicata (schemi v2 e v3; la v1 serve
+solo sotto Android 7). Android accetta un aggiornamento solo se è firmato con la
+**stessa** chiave: se la perdi, l'unico modo di aggiornare l'app è
+disinstallarla, perdendo le conversazioni salvate.
+
+La chiave **non sta nel repository** — un file `.jks` con la password accanto,
+spinto su un remoto, è un segreto esposto. Vive in due file ignorati da git:
+
+```
+android/keystore/guzzobot-release.jks
+android/keystore.properties        # storeFile, storePassword, keyAlias, keyPassword
+```
+
+Tienili da parte (password manager, backup cifrato). Per ricompilare da un'altra
+macchina basta rimetterli in quei percorsi: la build li trova da sola. Senza di
+essi il progetto compila comunque, ripiegando sulla chiave di debug — ma l'APK
+che ne esce **non** si installa come aggiornamento sopra questo.
+
+In GitHub Actions la chiave arriva da quattro segreti del repository, senza mai
+finire nel codice: `GUZZOBOT_KEYSTORE_BASE64` (il `.jks` in base64),
+`GUZZOBOT_STORE_PASSWORD`, `GUZZOBOT_KEY_ALIAS`, `GUZZOBOT_KEY_PASSWORD`. Il
+workflow ricostruisce il file prima della build e, se i segreti non ci sono,
+procede con la chiave di debug.
 
 ## Multimodale: come funziona davvero
 
@@ -139,9 +176,12 @@ echo "sdk.dir=/percorso/android-sdk" > local.properties
 ./gradlew test assembleRelease   # APK in app/build/outputs/apk/release/
 ```
 
-L'APK di release è firmato con la chiave di debug, così si installa subito da
-file. Per pubblicarlo su Play Store va sostituito con una firma propria in
-`app/build.gradle.kts`.
+L'APK di release viene firmato con la chiave in `keystore/`, o con quella di
+debug se la chiave non c'è (così il progetto compila anche per chi clona senza
+di essa). La minificazione R8 è spenta di proposito: PDFBox, Room e
+kotlinx.serialization usano la reflection e qui non c'è un dispositivo su cui
+verificare lo shrinking, quindi un APK di 21 MB è preferibile a una sorpresa a
+runtime.
 
 In alternativa, su GitHub: **Actions → Build GUZZOBOT APK → Run workflow**, poi
 scarica l'artifact `guzzobot-apk`.

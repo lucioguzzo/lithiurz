@@ -6,3 +6,5 @@ local.properties
 .cxx/
 captures/
 .kotlin/
+keystore/
+keystore.properties
