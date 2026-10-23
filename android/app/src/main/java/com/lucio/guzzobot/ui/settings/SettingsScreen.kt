@@ -57,6 +57,7 @@ fun SettingsScreen(
     viewModel: com.lucio.guzzobot.ui.chat.ChatViewModel,
     onBack: () -> Unit,
     onOpenProvider: (String) -> Unit,
+    onOpenWorkspace: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var confirmWipe by remember { mutableStateOf(false) }
@@ -225,6 +226,36 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 12.dp),
             )
+
+            Divider()
+            SectionTitle(stringResource(R.string.workspace))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenWorkspace)
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = settings.workspace.label.ifBlank {
+                            stringResource(R.string.workspace_none)
+                        },
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = stringResource(R.string.workspace_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
 
             Divider()
             SectionTitle(stringResource(R.string.multimodal))

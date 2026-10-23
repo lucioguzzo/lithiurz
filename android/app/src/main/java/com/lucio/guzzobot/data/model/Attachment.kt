@@ -80,6 +80,8 @@ object ModelCapabilities {
         "grok-2-vision", "grok-3", "grok-4", "internvl", "minicpm-v", "molmo",
         "phi-3.5-vision", "phi-4-multimodal", "mistral-small-3", "mistral-medium-3",
         "gemma-3", "step-1o", "glm-4v", "deepseek-vl", "moondream",
+        // DeepSeek-V4.1-Flash vede le immagini; la variante "pro" no.
+        "deepseek-flash", "deepseek-v4-flash-vision",
     )
 
     fun seesImages(model: String): Boolean =

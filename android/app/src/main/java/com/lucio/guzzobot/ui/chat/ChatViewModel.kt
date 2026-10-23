@@ -1,5 +1,6 @@
 package com.lucio.guzzobot.ui.chat
 
+import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,9 +27,20 @@ import com.lucio.guzzobot.data.prefs.SettingsStore
 import com.lucio.guzzobot.data.remote.ApiMessage
 import com.lucio.guzzobot.data.remote.ChatApi
 import com.lucio.guzzobot.data.remote.Content
+import com.lucio.guzzobot.data.remote.ApiToolCall
+import com.lucio.guzzobot.data.remote.ApiToolFunction
 import com.lucio.guzzobot.data.remote.StreamEvent
+import com.lucio.guzzobot.data.remote.ToolCall
+import com.lucio.guzzobot.data.model.WorkspaceConfig
+import com.lucio.guzzobot.data.model.WorkspaceMode
 import com.lucio.guzzobot.data.repo.ChatRepository
+import com.lucio.guzzobot.data.workspace.GitHubWorkspace
+import com.lucio.guzzobot.data.workspace.LocalWorkspace
+import com.lucio.guzzobot.data.workspace.Workspace
+import com.lucio.guzzobot.data.workspace.WorkspaceTools
+import com.lucio.guzzobot.service.WorkspaceService
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -45,6 +57,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
 import java.io.File
 
 data class StreamingState(
@@ -52,6 +66,12 @@ data class StreamingState(
     val model: String,
     val content: String = "",
     val reasoning: String = "",
+)
+
+/** Una modifica che aspetta il sì dell'utente. */
+data class ApprovalRequest(
+    val title: String,
+    val preview: String,
 )
 
 /** Quali modalità sono disponibili con la configurazione attuale. */
@@ -73,6 +93,8 @@ class ChatViewModel(
     private val recorder: AudioRecorder,
     val audioPlayer: AudioPlayer,
     private val deviceSpeaker: DeviceSpeaker,
+    private val context: Context,
+    private val json: Json,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -105,6 +127,9 @@ class ChatViewModel(
     private val _recording = MutableStateFlow(false)
     val recording: StateFlow<Boolean> = _recording
 
+    private val _approval = MutableStateFlow<ApprovalRequest?>(null)
+    val approval: StateFlow<ApprovalRequest?> = _approval
+
     private val _notices = MutableSharedFlow<String>(extraBufferCapacity = 4)
     val notices: SharedFlow<String> = _notices.asSharedFlow()
 
@@ -125,6 +150,10 @@ class ChatViewModel(
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Abilities())
 
     private var streamJob: Job? = null
+    private var approvalGate: CompletableDeferred<Boolean>? = null
+
+    /** "Consenti sempre" vale per la conversazione in corso, non per sempre. */
+    private var sessionAutonomy = false
 
     // --- conversazioni -----------------------------------------------------
 
@@ -132,6 +161,7 @@ class ChatViewModel(
         if (_streaming.value != null) stop()
         _conversationId.value = null
         _input.value = ""
+        sessionAutonomy = false
         clearPending()
     }
 
@@ -488,58 +518,190 @@ class ChatViewModel(
         }
     }
 
+    /**
+     * Un turno: il modello risponde, oppure chiede degli strumenti. In quel caso
+     * li eseguiamo — chiedendo conferma quando toccano i file — e gli
+     * rimandiamo i risultati, finché non arriva una risposta vera.
+     */
     private fun runStream(conversationId: Long, provider: Provider, current: AppSettings) {
         val model = current.activeModel
         val apiKey = secretStore.apiKey(provider.id)
         streamJob?.cancel()
         streamJob = viewModelScope.launch {
-            val history = buildHistory(conversationId, current)
-            _streaming.value = StreamingState(conversationId = conversationId, model = model)
-            val content = StringBuilder()
-            val reasoning = StringBuilder()
+            if (current.backgroundWork) {
+                WorkspaceService.start(context, context.getString(com.lucio.guzzobot.R.string.service_working))
+            }
             try {
-                chatApi.streamChat(
-                    baseUrl = provider.baseUrl,
-                    apiKey = apiKey,
-                    model = model,
-                    messages = history,
-                    temperature = current.temperature,
-                    maxTokens = current.maxTokens,
-                ).collect { event ->
-                    when (event) {
-                        is StreamEvent.Content -> {
-                            content.append(event.text)
-                            val snapshot = content.toString()
-                            _streaming.update { it?.copy(content = snapshot) }
+                var round = 0
+                while (round++ <= MAX_TOOL_ROUNDS) {
+                    val history = buildHistory(conversationId, current)
+                    _streaming.value = StreamingState(conversationId = conversationId, model = model)
+                    val content = StringBuilder()
+                    val reasoning = StringBuilder()
+                    var requested: List<ToolCall> = emptyList()
+                    try {
+                        chatApi.streamChat(
+                            baseUrl = provider.baseUrl,
+                            apiKey = apiKey,
+                            model = model,
+                            messages = history,
+                            temperature = current.temperature,
+                            maxTokens = current.maxTokens,
+                            tools = if (workspace(current) != null) WorkspaceTools.definitions() else null,
+                        ).collect { event ->
+                            when (event) {
+                                is StreamEvent.Content -> {
+                                    content.append(event.text)
+                                    val snapshot = content.toString()
+                                    _streaming.update { it?.copy(content = snapshot) }
+                                }
+                                is StreamEvent.Reasoning -> {
+                                    reasoning.append(event.text)
+                                    val snapshot = reasoning.toString()
+                                    _streaming.update { it?.copy(reasoning = snapshot) }
+                                }
+                                is StreamEvent.ToolRequests -> requested = event.calls
+                            }
                         }
-                        is StreamEvent.Reasoning -> {
-                            reasoning.append(event.text)
-                            val snapshot = reasoning.toString()
-                            _streaming.update { it?.copy(reasoning = snapshot) }
+                    } catch (cancel: CancellationException) {
+                        withContext(NonCancellable) {
+                            persist(conversationId, content.toString(), reasoning.toString(), model)
                         }
+                        throw cancel
+                    } catch (error: Throwable) {
+                        persist(conversationId, content.toString(), reasoning.toString(), model)
+                        repository.addMessage(
+                            conversationId = conversationId,
+                            role = Roles.ASSISTANT,
+                            content = error.message ?: "Errore sconosciuto",
+                            model = model,
+                            isError = true,
+                        )
+                        break
+                    } finally {
+                        _streaming.value = null
+                    }
+
+                    if (requested.isEmpty()) {
+                        persist(conversationId, content.toString(), reasoning.toString(), model)
+                        break
+                    }
+                    if (round > MAX_TOOL_ROUNDS) {
+                        repository.addMessage(
+                            conversationId = conversationId,
+                            role = Roles.ASSISTANT,
+                            content = "Mi sono fermato dopo $MAX_TOOL_ROUNDS giri di strumenti.",
+                            model = model,
+                            isError = true,
+                        )
+                        break
+                    }
+
+                    repository.addMessage(
+                        conversationId = conversationId,
+                        role = Roles.ASSISTANT,
+                        content = content.toString(),
+                        reasoning = reasoning.toString(),
+                        model = model,
+                        toolCalls = encodeToolCalls(requested),
+                    )
+                    requested.forEach { call ->
+                        val outcome = executeTool(call, current)
+                        repository.addMessage(
+                            conversationId = conversationId,
+                            role = Roles.TOOL,
+                            content = outcome.first,
+                            isError = outcome.second,
+                            toolCallId = call.id,
+                            toolName = WorkspaceTools.describe(call),
+                        )
                     }
                 }
-                persist(conversationId, content.toString(), reasoning.toString(), model)
-            } catch (cancel: CancellationException) {
-                withContext(NonCancellable) {
-                    persist(conversationId, content.toString(), reasoning.toString(), model)
-                }
-                throw cancel
-            } catch (error: Throwable) {
-                persist(conversationId, content.toString(), reasoning.toString(), model)
-                repository.addMessage(
-                    conversationId = conversationId,
-                    role = Roles.ASSISTANT,
-                    content = error.message ?: "Errore sconosciuto",
-                    model = model,
-                    isError = true,
-                )
             } finally {
                 _streaming.value = null
+                _busy.value = null
                 streamJob = null
+                WorkspaceService.stop(context)
             }
         }
     }
+
+    /** Esegue uno strumento, passando dal permesso quando tocca i file. */
+    private suspend fun executeTool(call: ToolCall, current: AppSettings): Pair<String, Boolean> {
+        val workspace = workspace(current)
+            ?: return "Nessuna area di lavoro configurata." to true
+        if (WorkspaceTools.modifies(call.name) && !current.autonomousTools && !sessionAutonomy) {
+            val allowed = requestApproval(call)
+            if (!allowed) return "L'utente ha rifiutato l'operazione." to true
+        }
+        _busy.value = WorkspaceTools.describe(call) + "…"
+        return try {
+            WorkspaceTools.execute(workspace, call) to false
+        } catch (error: Throwable) {
+            (error.message ?: "Operazione non riuscita") to true
+        } finally {
+            _busy.value = null
+        }
+    }
+
+    private suspend fun requestApproval(call: ToolCall): Boolean {
+        val gate = CompletableDeferred<Boolean>()
+        approvalGate = gate
+        _approval.value = ApprovalRequest(
+            title = WorkspaceTools.describe(call),
+            preview = WorkspaceTools.preview(call),
+        )
+        return try {
+            gate.await()
+        } finally {
+            _approval.value = null
+            approvalGate = null
+        }
+    }
+
+    fun resolveApproval(allow: Boolean, alwaysInThisChat: Boolean = false) {
+        if (allow && alwaysInThisChat) sessionAutonomy = true
+        approvalGate?.complete(allow)
+    }
+
+    /** L'area di lavoro attiva, o null se non è configurata. */
+    private fun workspace(current: AppSettings): Workspace? {
+        val config = current.workspace
+        if (!config.isConfigured) return null
+        return runCatching {
+            when (config.mode) {
+                WorkspaceMode.LOCAL -> LocalWorkspace(
+                    context = context,
+                    treeUri = config.localTreeUri!!,
+                    label = config.label,
+                )
+
+                WorkspaceMode.GITHUB -> GitHubWorkspace(
+                    owner = config.owner!!,
+                    repo = config.repo!!,
+                    branch = config.branch,
+                    token = secretStore.apiKey(WorkspaceConfig.GITHUB_SECRET),
+                    json = json,
+                )
+
+                WorkspaceMode.NONE -> null
+            }
+        }.getOrNull()
+    }
+
+    private fun encodeToolCalls(calls: List<ToolCall>): String = json.encodeToString(
+        ListSerializer(ApiToolCall.serializer()),
+        calls.map { call ->
+            ApiToolCall(
+                id = call.id,
+                function = ApiToolFunction(name = call.name, arguments = call.arguments),
+            )
+        },
+    )
+
+    private fun decodeToolCalls(raw: String): List<ApiToolCall> = runCatching {
+        json.decodeFromString(ListSerializer(ApiToolCall.serializer()), raw)
+    }.getOrDefault(emptyList())
 
     private suspend fun persist(conversationId: Long, content: String, reasoning: String, model: String) {
         if (content.isBlank() && reasoning.isBlank()) return
@@ -560,8 +722,10 @@ class ChatViewModel(
     private suspend fun buildHistory(conversationId: Long, current: AppSettings): List<ApiMessage> {
         val native = current.forceNativeVision || ModelCapabilities.seesImages(current.activeModel)
         val stored = repository.history(conversationId)
-            .filterNot { it.isError }
-            .filter { it.content.isNotBlank() || it.attachments.isNotEmpty() }
+            .filterNot { it.isError && it.role != Roles.TOOL }
+            .filter {
+                it.content.isNotBlank() || it.attachments.isNotEmpty() || it.toolCalls != null
+            }
             .takeLast(current.historyLimit.coerceAtLeast(2))
 
         var imageBudget = if (native) MAX_IMAGES else 0
@@ -598,16 +762,45 @@ class ChatViewModel(
             }
             val text = blocks.joinToString("\n\n").ifBlank { "(allegato)" }
             val urls = paths.mapNotNull { attachments.imageDataUrl(it) }
-            ApiMessage(
-                role = message.role,
-                content = if (urls.isEmpty()) Content.text(text) else Content.parts(text, urls),
-            )
+            when {
+                message.role == Roles.TOOL -> ApiMessage(
+                    role = Roles.TOOL,
+                    content = Content.text(message.content),
+                    toolCallId = message.toolCallId,
+                )
+
+                message.toolCalls != null -> ApiMessage(
+                    role = Roles.ASSISTANT,
+                    content = message.content.takeIf { it.isNotBlank() }?.let(Content::text),
+                    toolCalls = decodeToolCalls(message.toolCalls),
+                )
+
+                else -> ApiMessage(
+                    role = message.role,
+                    content = if (urls.isEmpty()) Content.text(text) else Content.parts(text, urls),
+                )
+            }
         }
-        val system = current.systemPrompt.trim()
+        // Un messaggio "tool" senza la richiesta che lo ha generato fa fallire la
+        // chiamata: se il taglio della cronologia l'ha lasciato orfano, via.
+        val trimmed = api.dropWhile { it.role == Roles.TOOL }
+
+        val system = buildString {
+            append(current.systemPrompt.trim())
+            workspace(current)?.let { workspace ->
+                if (isNotEmpty()) append("\n\n")
+                append(
+                    WorkspaceTools.systemPrompt(
+                        label = workspace.label,
+                        autonomous = current.autonomousTools || sessionAutonomy,
+                    ),
+                )
+            }
+        }
         return if (system.isEmpty()) {
-            api
+            trimmed
         } else {
-            listOf(ApiMessage(Roles.SYSTEM, Content.text(system))) + api
+            listOf(ApiMessage(Roles.SYSTEM, Content.text(system))) + trimmed
         }
     }
 
@@ -763,6 +956,18 @@ class ChatViewModel(
         settingsStore.setForceNativeVision(value)
     }
 
+    fun setWorkspace(config: WorkspaceConfig) = viewModelScope.launch {
+        settingsStore.setWorkspace(config)
+    }
+
+    fun setAutonomousTools(value: Boolean) = viewModelScope.launch {
+        settingsStore.setAutonomousTools(value)
+    }
+
+    fun setBackgroundWork(value: Boolean) = viewModelScope.launch {
+        settingsStore.setBackgroundWork(value)
+    }
+
     fun apiKey(providerId: String): String = secretStore.apiKey(providerId)
 
     fun setApiKey(providerId: String, key: String) = secretStore.setApiKey(providerId, key)
@@ -846,6 +1051,9 @@ class ChatViewModel(
     }
 
     companion object {
+        /** Oltre questo numero di giri di strumenti ci fermiamo da soli. */
+        private const val MAX_TOOL_ROUNDS = 8
+
         /** Quante immagini al massimo tenere nel contesto inviato. */
         private const val MAX_IMAGES = 8
 
@@ -863,6 +1071,8 @@ class ChatViewModel(
                     recorder = container.audioRecorder,
                     audioPlayer = container.audioPlayer,
                     deviceSpeaker = container.deviceSpeaker,
+                    context = container.appContext,
+                    json = container.json,
                 )
             }
         }

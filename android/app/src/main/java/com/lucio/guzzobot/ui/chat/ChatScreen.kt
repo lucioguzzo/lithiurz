@@ -95,6 +95,7 @@ fun ChatScreen(
     val abilities by viewModel.abilities.collectAsStateWithLifecycle()
     val playing by viewModel.audioPlayer.playing.collectAsStateWithLifecycle()
     val speaking by viewModel.speaking.collectAsStateWithLifecycle()
+    val approval by viewModel.approval.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -322,7 +323,9 @@ fun ChatScreen(
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                     ) {
                         items(messages, key = { it.id }) { message ->
-                            if (message.role == Roles.USER) {
+                            if (message.role == Roles.TOOL || message.toolCalls != null) {
+                                ToolRow(message)
+                            } else if (message.role == Roles.USER) {
                                 UserMessage(
                                     message = message,
                                     playingPath = playing,
@@ -440,6 +443,51 @@ fun ChatScreen(
                 onOpenSettings()
             },
             onDismiss = { showModelSheet = false },
+        )
+    }
+
+    approval?.let { request ->
+        AlertDialog(
+            onDismissRequest = { viewModel.resolveApproval(allow = false) },
+            title = { Text(stringResource(R.string.approve_title)) },
+            text = {
+                Column {
+                    Text(
+                        text = request.title,
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    if (request.preview.isNotBlank()) {
+                        Text(
+                            text = request.preview.take(1_200),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                            ),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(top = 10.dp),
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { viewModel.resolveApproval(allow = true) }) {
+                    Text(stringResource(R.string.approve_allow))
+                }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { viewModel.resolveApproval(allow = false) }) {
+                        Text(stringResource(R.string.approve_deny))
+                    }
+                    TextButton(
+                        onClick = {
+                            viewModel.resolveApproval(allow = true, alwaysInThisChat = true)
+                        },
+                    ) {
+                        Text(stringResource(R.string.approve_always))
+                    }
+                }
+            },
         )
     }
 

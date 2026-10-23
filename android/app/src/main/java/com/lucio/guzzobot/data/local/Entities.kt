@@ -39,5 +39,11 @@ data class MessageEntity(
     @ColumnInfo(defaultValue = "0") val isError: Boolean = false,
     /** Allegati del messaggio, serializzati in JSON da [AttachmentConverter]. */
     val attachments: List<Attachment> = emptyList(),
+    /** Chiamate agli strumenti chieste dal modello, in JSON (messaggi assistant). */
+    val toolCalls: String? = null,
+    /** A quale chiamata risponde il messaggio (messaggi con ruolo "tool"). */
+    val toolCallId: String? = null,
+    /** Nome dello strumento, per mostrarlo nell'elenco delle attività. */
+    val toolName: String? = null,
     val createdAt: Long,
 )

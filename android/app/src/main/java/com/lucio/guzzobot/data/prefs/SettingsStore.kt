@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.ModelRef
+import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.Providers
 import com.lucio.guzzobot.data.model.ThemeMode
@@ -42,6 +43,9 @@ class SettingsStore(context: Context, private val json: Json) {
         val speechVoice = stringPreferencesKey("speech_voice")
         val imageSize = stringPreferencesKey("image_size")
         val forceNativeVision = booleanPreferencesKey("force_native_vision")
+        val workspace = stringPreferencesKey("workspace")
+        val autonomousTools = booleanPreferencesKey("autonomous_tools")
+        val backgroundWork = booleanPreferencesKey("background_work")
     }
 
     private fun ref(raw: String?): ModelRef? = raw
@@ -70,6 +74,11 @@ class SettingsStore(context: Context, private val json: Json) {
             speechVoice = prefs[Keys.speechVoice] ?: "alloy",
             imageSize = prefs[Keys.imageSize] ?: "1024x1024",
             forceNativeVision = prefs[Keys.forceNativeVision] ?: false,
+            workspace = prefs[Keys.workspace]
+                ?.let { runCatching { json.decodeFromString<WorkspaceConfig>(it) }.getOrNull() }
+                ?: WorkspaceConfig(),
+            autonomousTools = prefs[Keys.autonomousTools] ?: false,
+            backgroundWork = prefs[Keys.backgroundWork] ?: true,
         )
     }
 
@@ -104,6 +113,18 @@ class SettingsStore(context: Context, private val json: Json) {
 
     suspend fun setForceNativeVision(value: Boolean) = store.edit {
         it[Keys.forceNativeVision] = value
+    }
+
+    suspend fun setWorkspace(config: WorkspaceConfig) = store.edit {
+        it[Keys.workspace] = json.encodeToString(config)
+    }
+
+    suspend fun setAutonomousTools(value: Boolean) = store.edit {
+        it[Keys.autonomousTools] = value
+    }
+
+    suspend fun setBackgroundWork(value: Boolean) = store.edit {
+        it[Keys.backgroundWork] = value
     }
 
     private suspend fun setRef(key: Preferences.Key<String>, value: ModelRef?) = store.edit { prefs ->

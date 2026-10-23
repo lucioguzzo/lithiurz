@@ -24,7 +24,8 @@ object Providers {
             id = "deepseek",
             name = "DeepSeek",
             baseUrl = "https://api.deepseek.com/v1",
-            models = listOf("deepseek-chat", "deepseek-reasoner"),
+            // Nomi aggiornati: deepseek-chat e deepseek-reasoner sono stati ritirati.
+            models = listOf("deepseek-flash", "deepseek-v4-pro"),
             keyUrl = "https://platform.deepseek.com/api_keys",
             builtIn = true,
         ),
@@ -115,6 +116,12 @@ data class AppSettings(
     val imageSize: String = "1024x1024",
     /** Manda le immagini al modello in chat anche se non è tra quelli noti. */
     val forceNativeVision: Boolean = false,
+    /** Dove il modello può leggere e scrivere file. */
+    val workspace: WorkspaceConfig = WorkspaceConfig(),
+    /** Se false, ogni scrittura o eliminazione passa da una conferma. */
+    val autonomousTools: Boolean = false,
+    /** Tiene vivo il lavoro quando l'app non è in primo piano. */
+    val backgroundWork: Boolean = true,
 ) {
     val activeProvider: Provider?
         get() = providers.firstOrNull { it.id == activeProviderId } ?: providers.firstOrNull()
@@ -124,4 +131,5 @@ object Roles {
     const val USER = "user"
     const val ASSISTANT = "assistant"
     const val SYSTEM = "system"
+    const val TOOL = "tool"
 }

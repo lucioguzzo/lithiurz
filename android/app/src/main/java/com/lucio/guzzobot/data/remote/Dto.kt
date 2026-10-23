@@ -2,6 +2,7 @@ package com.lucio.guzzobot.data.remote
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
@@ -16,7 +17,26 @@ import kotlinx.serialization.json.put
 @Serializable
 data class ApiMessage(
     val role: String,
-    val content: JsonElement,
+    val content: JsonElement? = null,
+    /** Le chiamate agli strumenti che il modello ha chiesto (messaggi assistant). */
+    @SerialName("tool_calls") val toolCalls: List<ApiToolCall>? = null,
+    /** A quale chiamata risponde questo messaggio (messaggi con role "tool"). */
+    @SerialName("tool_call_id") val toolCallId: String? = null,
+)
+
+@Serializable
+data class ApiToolCall(
+    val id: String? = null,
+    val type: String = "function",
+    val function: ApiToolFunction? = null,
+    /** Presente solo nei frammenti in streaming: dice a quale chiamata appartengono. */
+    val index: Int? = null,
+)
+
+@Serializable
+data class ApiToolFunction(
+    val name: String? = null,
+    val arguments: String? = null,
 )
 
 object Content {
@@ -49,6 +69,8 @@ data class ChatRequest(
     val stream: Boolean = true,
     val temperature: Double? = null,
     @SerialName("max_tokens") val maxTokens: Int? = null,
+    /** Definizioni degli strumenti, assenti quando non c'è un'area di lavoro. */
+    val tools: JsonArray? = null,
 )
 
 @Serializable
@@ -67,6 +89,7 @@ data class ChunkChoice(
 @Serializable
 data class ChunkDelta(
     val content: String? = null,
+    @SerialName("tool_calls") val toolCalls: List<ApiToolCall>? = null,
     // DeepSeek espone la catena di ragionamento qui, OpenRouter in "reasoning".
     @SerialName("reasoning_content") val reasoningContent: String? = null,
     val reasoning: String? = null,

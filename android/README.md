@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-2.4.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-3.0.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -48,6 +48,42 @@ finire nel codice: `GUZZOBOT_KEYSTORE_BASE64` (il `.jks` in base64),
 workflow ricostruisce il file prima della build e, se i segreti non ci sono,
 procede con la chiave di debug.
 
+## Area di lavoro: far lavorare GUZZOBOT sui file
+
+Oltre a rispondere, GUZZOBOT può **leggere e scrivere file**. Il modello non
+tocca nulla da solo: chiede uno strumento, l'app lo esegue e gli restituisce il
+risultato. Gli strumenti sono cinque — elencare, leggere, scrivere (più file in
+una volta), eliminare, cercare — e richiedono un modello che supporti i *tool
+calls*: DeepSeek, OpenAI, Groq e Mistral lo fanno.
+
+Due aree possibili, in **Impostazioni → Area di lavoro**:
+
+- **Cartella del telefono.** La scegli col selettore di sistema (Storage Access
+  Framework) e il permesso è persistente: resta valido dopo il riavvio. L'app
+  non vede niente fuori da quell'albero, e i percorsi con `..` vengono rifiutati.
+- **Repository GitHub.** Serve un token fine-grained con permesso di scrittura
+  sui contenuti. Legge l'albero e i file (oltre 1 MB passa dai blob) e scrive
+  **un solo commit** anche quando il modello cambia più file insieme: blob →
+  albero → commit → spostamento del branch, con la Git Data API.
+
+### Chi decide
+
+Di default **ogni scrittura o eliminazione passa da una conferma**, con il
+percorso e l'anteprima del contenuto. Dalla finestra puoi consentire la singola
+operazione, rifiutarla, oppure dire *"consenti sempre in questa chat"* — che
+vale solo per la conversazione in corso. In Impostazioni c'è anche
+l'interruttore **"Lascialo operare in autonomia"**, che toglie la conferma
+ovunque: letture e ricerche non la chiedono mai, perché non cambiano niente.
+
+### Lavorare in background
+
+Con **"Continua a lavorare in background"** attivo, una risposta lunga o una
+serie di operazioni proseguono a schermo spento, con una notifica persistente.
+Il limite non è dell'app ma di Android: un servizio di tipo `dataSync` ha **sei
+ore ogni ventiquattro**, poi il sistema chiama `onTimeout()` e va fermato.
+Un agente che lavora col telefono spento non è possibile da un'app Android:
+servirebbe un server.
+
 ## Multimodale: come funziona davvero
 
 Una app non può rendere multimodale un modello che non lo è. `deepseek-chat` e
@@ -57,6 +93,11 @@ modalità al modello capace e riportando il risultato nella conversazione, così
 puoi allegare qualsiasi cosa qualunque sia il modello in chat.
 
 In **Impostazioni → Multimodale** assegni quattro ruoli:
+
+> Nota sui modelli DeepSeek: `deepseek-chat` e `deepseek-reasoner` sono stati
+> ritirati. I preset ora puntano a **`deepseek-flash`** (DeepSeek-V4.1-Flash) e
+> **`deepseek-v4-pro`**; il primo **vede le immagini**, quindi con quello le
+> foto vanno dirette al modello in chat senza passare da un modello-ponte.
 
 | Ruolo | A cosa serve | Esempi |
 | --- | --- | --- |
@@ -205,11 +246,13 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ model/               provider, preset, impostazioni, allegati, capacità
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
+│  ├─ workspace/           cartella locale, repository GitHub, strumenti
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
 │  ├─ media/               registratore, player, sintesi vocale di sistema
 │  ├─ remote/              chat in streaming, vision, whisper, immagini, voce
 │  └─ repo/                ChatRepository
+├─ service/                servizio in primo piano per il lavoro in background
 └─ ui/
    ├─ theme/               palette crema/terracotta, tipografia serif
    ├─ chat/                chat, composer, allegati, drawer, ViewModel
@@ -219,8 +262,10 @@ android/app/src/main/java/com/lucio/guzzobot/
 
 ## Personalizzare
 
-- **Nome e icona**: `app_name` in `res/values/strings.xml`,
-  `res/drawable/ic_launcher_foreground.xml`, colore in `res/values/colors.xml`.
+- **Nome e icona**: `app_name` in `res/values/strings.xml`; il marchio è
+  `res/drawable-nodpi/logo_mark.png` (splash e intestazione del pannello) e
+  `res/mipmap-*/ic_launcher_foreground.png` (icona), su fondo
+  `ic_launcher_background` in `res/values/colors.xml`.
 - **Colori**: `ui/theme/Color.kt` e `Theme.kt`.
 - **Provider preconfigurati**: `data/model/Models.kt`.
 - **Modelli riconosciuti come vision**: `ModelCapabilities` in

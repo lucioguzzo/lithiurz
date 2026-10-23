@@ -29,7 +29,7 @@ class AttachmentConverter {
 
 @Database(
     entities = [ConversationEntity::class, MessageEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false,
 )
 @TypeConverters(AttachmentConverter::class)
@@ -43,9 +43,17 @@ abstract class GuzzoBotDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN toolCalls TEXT")
+                db.execSQL("ALTER TABLE messages ADD COLUMN toolCallId TEXT")
+                db.execSQL("ALTER TABLE messages ADD COLUMN toolName TEXT")
+            }
+        }
+
         fun create(context: Context): GuzzoBotDatabase =
             Room.databaseBuilder(context, GuzzoBotDatabase::class.java, "guzzobot.db")
-                .addMigrations(MIGRATION_1_2)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                 .fallbackToDestructiveMigration()
                 .build()
     }

@@ -21,7 +21,17 @@ import java.util.concurrent.TimeUnit
 sealed interface StreamEvent {
     data class Content(val text: String) : StreamEvent
     data class Reasoning(val text: String) : StreamEvent
+
+    /** Il modello chiede di eseguire degli strumenti prima di rispondere. */
+    data class ToolRequests(val calls: List<ToolCall>) : StreamEvent
 }
+
+/** Una chiamata a uno strumento, ricomposta dai frammenti dello streaming. */
+data class ToolCall(
+    val id: String,
+    val name: String,
+    val arguments: String,
+)
 
 class ApiException(message: String) : IOException(message)
 
@@ -42,6 +52,7 @@ class ChatApi(private val json: Json) {
         messages: List<ApiMessage>,
         temperature: Float?,
         maxTokens: Int?,
+        tools: kotlinx.serialization.json.JsonArray? = null,
     ): Flow<StreamEvent> = callbackFlow {
         val payload = ChatRequest(
             model = model,
@@ -49,6 +60,7 @@ class ChatApi(private val json: Json) {
             stream = true,
             temperature = temperature?.toDouble(),
             maxTokens = maxTokens?.takeIf { it > 0 },
+            tools = tools,
         )
         val request = Request.Builder()
             .url(endpoint(baseUrl, "chat/completions"))
@@ -64,6 +76,9 @@ class ChatApi(private val json: Json) {
                         throw ApiException(errorMessage(response.code, response.body?.string()))
                     }
                     val source = response.body?.source() ?: throw ApiException("Risposta vuota")
+                    // I frammenti di una chiamata a strumento arrivano spezzati:
+                    // si ricompongono per indice prima di consegnarli.
+                    val pendingTools = linkedMapOf<Int, PartialToolCall>()
                     while (!source.exhausted()) {
                         val line = source.readUtf8Line() ?: break
                         val data = when {
@@ -86,7 +101,19 @@ class ChatApi(private val json: Json) {
                         delta.content?.takeIf { it.isNotEmpty() }?.let {
                             send(StreamEvent.Content(it))
                         }
+                        delta.toolCalls?.forEach { fragment ->
+                            val slot = pendingTools.getOrPut(fragment.index ?: pendingTools.size) {
+                                PartialToolCall()
+                            }
+                            fragment.id?.let { slot.id = it }
+                            fragment.function?.name?.let { slot.name = it }
+                            fragment.function?.arguments?.let { slot.arguments.append(it) }
+                        }
                     }
+                    val requested = pendingTools.values
+                        .filter { it.name.isNotBlank() }
+                        .map { StreamEventToolCall(it) }
+                    if (requested.isNotEmpty()) send(StreamEvent.ToolRequests(requested))
                 }
                 close()
             } catch (e: Throwable) {
@@ -276,6 +303,18 @@ class ChatApi(private val json: Json) {
         }
         return listOfNotNull("HTTP $code", hint, detail).joinToString(" · ")
     }
+
+    private class PartialToolCall(
+        var id: String = "",
+        var name: String = "",
+        val arguments: StringBuilder = StringBuilder(),
+    )
+
+    private fun StreamEventToolCall(partial: PartialToolCall) = ToolCall(
+        id = partial.id.ifBlank { "call_${partial.name}" },
+        name = partial.name,
+        arguments = partial.arguments.toString(),
+    )
 
     private companion object {
         val JSON_MEDIA = "application/json; charset=utf-8".toMediaType()

@@ -13,11 +13,13 @@ import com.lucio.guzzobot.data.model.AttachmentKind
 import com.lucio.guzzobot.ui.chat.ChatViewModel
 import com.lucio.guzzobot.ui.settings.ProviderScreen
 import com.lucio.guzzobot.ui.settings.SettingsScreen
+import com.lucio.guzzobot.ui.settings.WorkspaceScreen
 
 object Routes {
     const val CHAT = "chat"
     const val SETTINGS = "settings"
     const val PROVIDER = "provider"
+    const val WORKSPACE = "workspace"
 }
 
 @Composable
@@ -58,7 +60,11 @@ fun GuzzoBotNavHost(
                 onOpenProvider = { providerId ->
                     navController.navigate("${Routes.PROVIDER}/$providerId")
                 },
+                onOpenWorkspace = { navController.navigate(Routes.WORKSPACE) },
             )
+        }
+        composable(Routes.WORKSPACE) {
+            WorkspaceScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable(
             route = "${Routes.PROVIDER}/{id}",

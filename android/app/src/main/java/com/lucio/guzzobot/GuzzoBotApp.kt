@@ -14,7 +14,9 @@ import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import kotlinx.serialization.json.Json
 
 /** Dipendenze costruite a mano: l'app è piccola e non serve un framework DI. */
-class AppContainer(app: Application) {
+class AppContainer(private val app: Application) {
+    val appContext: android.content.Context get() = app
+
     val json: Json = Json {
         ignoreUnknownKeys = true
         explicitNulls = false

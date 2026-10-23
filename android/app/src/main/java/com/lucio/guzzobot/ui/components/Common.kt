@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -90,4 +91,20 @@ private fun Dot(alpha: Float) {
     androidx.compose.foundation.Canvas(modifier = Modifier.size(6.dp)) {
         drawCircle(color = Color.Gray.copy(alpha = alpha))
     }
+}
+
+/** Il marchio dell'app: la G con gli occhiali, sul suo fondo nero arrotondato. */
+@Composable
+fun GuzzoBotLogo(
+    modifier: Modifier = Modifier,
+    size: Dp = 28.dp,
+    corner: Dp = size / 4,
+) {
+    androidx.compose.foundation.Image(
+        painter = painterResource(R.drawable.logo_mark),
+        contentDescription = null,
+        modifier = modifier
+            .size(size)
+            .clip(androidx.compose.foundation.shape.RoundedCornerShape(corner)),
+    )
 }

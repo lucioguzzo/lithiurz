@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.lucio.guzzobot.BuildConfig
 import com.lucio.guzzobot.R
-import com.lucio.guzzobot.ui.components.Spark
+import com.lucio.guzzobot.ui.components.GuzzoBotLogo
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -74,7 +74,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                 .alpha(fade.value)
                 .scale(grow.value),
         ) {
-            Spark(size = 44.dp)
+            GuzzoBotLogo(size = 112.dp, corner = 28.dp)
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall.copy(

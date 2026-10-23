@@ -95,4 +95,26 @@
     <string name="copyright">© 2026 Lucio Salvatore Guzzo · All rights reserved</string>
     <string name="back_exit_warning">Press back again to exit</string>
     <string name="version_label">Version %1$s</string>
+    <string name="service_working">Working…</string>
+    <string name="service_channel">Work in progress</string>
+    <string name="workspace">Workspace</string>
+    <string name="workspace_none">None</string>
+    <string name="workspace_local">Phone folder</string>
+    <string name="workspace_github">GitHub repository</string>
+    <string name="workspace_pick_folder">Choose the folder</string>
+    <string name="workspace_hint">Give GUZZOBOT somewhere to read and write files. The model must support tools: DeepSeek, OpenAI, Groq and Mistral do.</string>
+    <string name="github_token">GitHub token (fine-grained)</string>
+    <string name="github_owner">Owner</string>
+    <string name="github_repo">Repository</string>
+    <string name="github_branch">Branch</string>
+    <string name="autonomous_tools">Let it work on its own</string>
+    <string name="autonomous_tools_hint">On: it writes and deletes without asking. Off: every change needs your approval, with a preview.</string>
+    <string name="background_work">Keep working in the background</string>
+    <string name="background_work_hint">A persistent notification while it works. Android allows at most six hours in twenty-four.</string>
+    <string name="approve_title">Approve this change?</string>
+    <string name="approve_allow">Allow</string>
+    <string name="approve_always">Always allow in this chat</string>
+    <string name="approve_deny">Deny</string>
+    <string name="tool_activity">File operations</string>
+    <string name="workspace_active">Workspace: %1$s</string>
 </resources>

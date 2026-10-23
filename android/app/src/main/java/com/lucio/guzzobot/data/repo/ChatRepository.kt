@@ -36,6 +36,9 @@ class ChatRepository(private val dao: ChatDao) {
         model: String? = null,
         isError: Boolean = false,
         attachments: List<Attachment> = emptyList(),
+        toolCalls: String? = null,
+        toolCallId: String? = null,
+        toolName: String? = null,
     ): Long {
         val id = dao.insertMessage(
             MessageEntity(
@@ -46,6 +49,9 @@ class ChatRepository(private val dao: ChatDao) {
                 model = model,
                 isError = isError,
                 attachments = attachments,
+                toolCalls = toolCalls,
+                toolCallId = toolCallId,
+                toolName = toolName,
                 createdAt = System.currentTimeMillis(),
             ),
         )

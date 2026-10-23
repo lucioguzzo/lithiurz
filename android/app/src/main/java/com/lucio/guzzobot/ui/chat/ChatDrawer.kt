@@ -40,7 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.local.ConversationEntity
-import com.lucio.guzzobot.ui.components.Spark
+import com.lucio.guzzobot.ui.components.GuzzoBotLogo
 
 @Composable
 fun ChatDrawer(
@@ -65,7 +65,7 @@ fun ChatDrawer(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spark(size = 22.dp)
+            GuzzoBotLogo(size = 30.dp, corner = 9.dp)
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineSmall,
