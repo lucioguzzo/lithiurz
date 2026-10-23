@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-2.1.apk` c'è l'APK già compilato, firmato con la chiave
+In `android/dist/guzzobot-2.2.apk` c'è l'APK già compilato, firmato con la chiave
 di debug. Scaricalo sul telefono, aprilo e consenti l'installazione da origini
 sconosciute. Richiede Android 8.0 o superiore.
 
@@ -35,14 +35,15 @@ Cosa succede quando alleghi qualcosa:
   `image_url`, ridimensionata a 1152px e ruotata secondo l'EXIF. Altrimenti la
   legge il modello vision e la sua descrizione entra nel messaggio: DeepSeek
   ragiona su quella. La descrizione viene calcolata una volta sola e salvata.
-- **Documento.** PDF, DOCX, XLSX, PPTX, testo, markdown, CSV, JSON, XML e i
-  formati di codice vengono letti **sul telefono** e il testo entra nel
-  messaggio, troncato a 120.000 caratteri: PDFBox per i PDF, lettura diretta
-  dello zip XML per i formati Office. Di un XLSX si ricostruisce ogni foglio
-  riga per riga, col nome del foglio e le celle separate da tabulazione; di un
-  PPTX il testo di ogni slide più le note del relatore. Se un PDF è scansionato
-  e non contiene testo, le pagine vengono renderizzate come immagini e
-  trascritte dal modello vision.
+- **Documento.** PDF, DOCX, XLSX, PPTX, **DOC, XLS, PPT**, testo, markdown,
+  CSV, JSON, XML e i formati di codice vengono letti **sul telefono** e il testo
+  entra nel messaggio, troncato a 120.000 caratteri. PDFBox per i PDF, lettura
+  diretta dello zip XML per i formati Office moderni, un lettore OLE2 scritto
+  qui per quelli pre-2007 (vedi sotto). Di un foglio di calcolo si ricostruisce
+  ogni scheda riga per riga, col nome della scheda e le celle separate da
+  tabulazione; di una presentazione il testo di ogni slide più le note del
+  relatore. Se un PDF è scansionato e non contiene testo, le pagine vengono
+  renderizzate come immagini e trascritte dal modello vision.
 - **Audio.** Registri una nota vocale col microfono o alleghi un file: viene
   trascritto dal modello di trascrizione e il testo entra nel messaggio.
 - **Video.** Viene smontato in due parti sul telefono: da 2 a 8 **fotogrammi**
@@ -63,6 +64,32 @@ Per non far esplodere i costi, nella richiesta viaggiano al massimo le 8
 immagini più recenti (fotogrammi compresi); le più vecchie restano come
 riferimento testuale. Descrizioni e trascrizioni si calcolano una volta sola e
 restano salvate col messaggio.
+
+## I vecchi formati Office
+
+`.doc`, `.xls` e `.ppt` (Office 97-2003) non sono zip ma contenitori binari
+OLE2: un piccolo file system con settori, tabella di allocazione e directory.
+GUZZOBOT li legge con un parser scritto per l'app, senza dipendenze aggiuntive
+(Apache POI non è utilizzabile su Android):
+
+- **.doc** — il flusso `WordDocument` contiene i caratteri, ma l'ordine vero sta
+  nella *piece table* del flusso `Table`, perché Word salva in modo
+  incrementale. Il parser la segue pezzo per pezzo, gestendo sia i pezzi a un
+  byte (CP1252) sia quelli UTF-16, e ripulisce i caratteri di controllo: fine
+  cella, interruzioni, codici di campo. Se la piece table manca, ripiega sul
+  testo principale da `fcMin` a `fcMac`.
+- **.xls** — il flusso `Workbook` è una sequenza di record BIFF8: nomi delle
+  schede dai `BOUNDSHEET`, testi dalla tabella condivisa `SST` (ricomposta
+  attraverso i record `CONTINUE`, dove una stringa spezzata riparte con un
+  nuovo byte di opzioni), valori dai record `LABELSST`, `LABEL`, `RK`, `MULRK`,
+  `NUMBER`, `BOOLERR` e `FORMULA`.
+- **.ppt** — albero di record: si leggono solo i container delle slide, si
+  saltano i master (che contengono i segnaposto "Click to edit…") e le note
+  vengono legate alla slide giusta tramite il loro identificatore.
+
+I test usano `.doc`, `.xls` e `.ppt` **veri**, prodotti dai filtri "MS Office
+97" di LibreOffice, più un documento Word costruito con due pezzi in ordine
+invertito per verificare la piece table.
 
 ## Il resto
 
@@ -130,6 +157,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
+│  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
 │  ├─ media/               registratore, player, sintesi vocale di sistema
 │  ├─ remote/              chat in streaming, vision, whisper, immagini, voce
 │  └─ repo/                ChatRepository
@@ -154,7 +182,8 @@ android/app/src/main/java/com/lucio/guzzobot/
 Le tabelle markdown sono mostrate come testo semplice. Un video viene capito dai
 fotogrammi e dal parlato, non fotogramma per fotogramma: movimenti rapidi tra
 due campioni possono sfuggire. L'audio viene sempre trascritto, non inviato come
-forma d'onda ai modelli che accettano audio nativo. I vecchi formati `.doc`,
-`.xls` e `.ppt` (pre-2007, non zip) non vengono letti. Nessuna sincronizzazione
-tra dispositivi, per scelta: se disinstalli l'app, le conversazioni se ne vanno
-con lei.
+forma d'onda ai modelli che accettano audio nativo. Dei vecchi formati Office si
+estrae il testo, non la formattazione: di un `.xls` si perdono formule (resta il
+valore calcolato) e formati numerici, di un `.ppt` la disposizione delle forme.
+Nessuna sincronizzazione tra dispositivi, per scelta: se disinstalli l'app, le
+conversazioni se ne vanno con lei.

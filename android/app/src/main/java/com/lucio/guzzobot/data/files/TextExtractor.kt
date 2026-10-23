@@ -1,5 +1,6 @@
 package com.lucio.guzzobot.data.files
 
+import com.lucio.guzzobot.data.files.office.LegacyOffice
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.text.PDFTextStripper
 import java.io.File
@@ -43,13 +44,17 @@ object TextExtractor {
         mime == "application/vnd.openxmlformats-officedocument.presentationml.presentation" ||
             name.endsWith(".pptx", ignoreCase = true)
 
+    /** I formati Office pre-2007 (.doc, .xls, .ppt): contenitori binari OLE2. */
+    fun isLegacyOffice(mime: String, name: String): Boolean = LegacyOffice.looksLegacy(mime, name)
+
     fun isSupported(mime: String, name: String): Boolean =
         looksTextual(mime, name) || isPdf(mime, name) || isDocx(mime, name) ||
-            isXlsx(mime, name) || isPptx(mime, name)
+            isXlsx(mime, name) || isPptx(mime, name) || isLegacyOffice(mime, name)
 
     /** Restituisce il testo trovato, stringa vuota se il documento non ne contiene. */
     fun extract(file: File, mime: String, name: String): String = when {
         isPdf(mime, name) -> fromPdf(file)
+        isLegacyOffice(mime, name) -> LegacyOffice.extract(file)
         isDocx(mime, name) -> fromDocx(file)
         isXlsx(mime, name) -> fromXlsx(file)
         isPptx(mime, name) -> fromPptx(file)
