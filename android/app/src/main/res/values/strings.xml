@@ -90,4 +90,7 @@
     <string name="attachment_image">Immagine</string>
     <string name="attachment_document">Documento</string>
     <string name="attachment_audio">Audio</string>
+    <string name="attach_video">Video</string>
+    <string name="attachment_video">Video</string>
+    <string name="open_video">Apri il video</string>
 </resources>

@@ -170,6 +170,7 @@ class ChatViewModel(
         _busy.value = when (kind) {
             AttachmentKind.DOCUMENT -> "Leggo il documento…"
             AttachmentKind.AUDIO -> "Preparo l'audio…"
+            AttachmentKind.VIDEO -> "Estraggo fotogrammi e audio dal video…"
             else -> "Preparo l'immagine…"
         }
         try {
@@ -186,7 +187,9 @@ class ChatViewModel(
                 return@launch
             }
             _pending.update { it + attachment }
-            if (kind == AttachmentKind.AUDIO) transcribeAttachment(attachment)
+            val hasSpeech = kind == AttachmentKind.AUDIO ||
+                (kind == AttachmentKind.VIDEO && attachment.audioPath != null)
+            if (hasSpeech) transcribeAttachment(attachment)
         } catch (error: Throwable) {
             notice(error.message ?: "Non riesco ad allegare il file")
         } finally {
@@ -260,25 +263,36 @@ class ChatViewModel(
             return
         }
         val provider = current.providers.firstOrNull { it.id == ref.providerId } ?: return
+        // Di un video si trascrive la traccia audio estratta, non il filmato.
+        val source = File(attachment.audioPath ?: attachment.path)
+        if (!source.exists()) return
+        if (source.length() > MAX_TRANSCRIPTION_BYTES) {
+            notice("L'audio è troppo lungo per la trascrizione: il limite è 24 MB")
+            return
+        }
         _busy.value = "Trascrivo l'audio con ${ref.model}…"
         try {
             val text = chatApi.transcribe(
                 baseUrl = provider.baseUrl,
                 apiKey = secretStore.apiKey(provider.id),
                 model = ref.model,
-                file = File(attachment.path),
-                mime = attachment.mime,
+                file = source,
+                mime = if (attachment.audioPath != null) "audio/mp4" else attachment.mime,
             )
             if (text.isBlank()) {
                 notice("La trascrizione è vuota")
                 return
             }
             _pending.update { list ->
-                list.map {
-                    if (it.id == attachment.id) {
-                        it.copy(text = text, note = "trascritto con ${ref.model}")
+                list.map { item ->
+                    if (item.id == attachment.id) {
+                        item.copy(
+                            text = text,
+                            note = listOfNotNull(item.note, "trascritto con ${ref.model}")
+                                .joinToString(" · "),
+                        )
                     } else {
-                        it
+                        item
                     }
                 }
             }
@@ -337,12 +351,14 @@ class ChatViewModel(
         if (files.isEmpty()) return files
         val native = current.forceNativeVision || ModelCapabilities.seesImages(current.activeModel)
         val needsReading = files.filter { file ->
-            !file.hasText && (file.isImage || file.pageImages.isNotEmpty())
+            !file.hasVisionText && file.visualPaths.isNotEmpty()
         }
         if (native || needsReading.isEmpty()) return files
 
         val ref = current.visionRef
         if (ref == null || !usable(current, ref)) {
+            // Un video con l'audio già trascritto resta utile anche senza vision.
+            if (needsReading.all { it.hasText }) return files
             notice(
                 "${current.activeModel} non legge le immagini. Scegli un modello vision " +
                     "nelle impostazioni: lo userò per descriverle.",
@@ -360,8 +376,9 @@ class ChatViewModel(
                     val index = updated.indexOfFirst { it.id == file.id }
                     if (index >= 0) {
                         updated[index] = updated[index].copy(
-                            text = description,
-                            note = "letto da ${ref.model}",
+                            visionText = description,
+                            note = listOfNotNull(updated[index].note, "letto da ${ref.model}")
+                                .joinToString(" · "),
                         )
                     }
                 }
@@ -381,12 +398,26 @@ class ChatViewModel(
         model: String,
         attachment: Attachment,
     ): String {
-        val images = if (attachment.pageImages.isNotEmpty()) {
-            attachment.pageImages
-        } else {
-            listOf(attachment.path)
+        val images = attachment.visualPaths
+        if (images.isEmpty()) return ""
+
+        // Un video va letto in un colpo solo: i fotogrammi hanno senso in sequenza.
+        if (attachment.isVideo) {
+            val urls = images.mapNotNull { attachments.imageDataUrl(it) }
+            if (urls.isEmpty()) return ""
+            val note = attachment.note?.let { " ($it)" }.orEmpty()
+            val prompt = "Questi sono ${urls.size} fotogrammi in ordine cronologico di un " +
+                "video" + note + ". Descrivi cosa accade: soggetti, azioni, cambi di scena, " +
+                "testo leggibile. Resta fattuale."
+            return chatApi.complete(
+                baseUrl = provider.baseUrl,
+                apiKey = apiKey,
+                model = model,
+                messages = listOf(ApiMessage(Roles.USER, Content.parts(prompt, urls))),
+            )
         }
-        val isDocument = attachment.pageImages.isNotEmpty()
+
+        val isDocument = attachment.kind == AttachmentKind.DOCUMENT
         val instruction = if (isDocument) {
             "Trascrivi fedelmente tutto il testo di questa pagina, mantenendo la struttura. " +
                 "Se ci sono tabelle, rendile in markdown."
@@ -410,6 +441,7 @@ class ChatViewModel(
     }
 
     private fun defaultPrompt(files: List<Attachment>): String = when {
+        files.any { it.isVideo } -> "Cosa succede in questo video?"
         files.any { it.isAudio } -> "Ascolta e rispondi a questa nota vocale."
         files.any { it.kind == AttachmentKind.DOCUMENT } -> "Analizza questo documento."
         files.any { it.isImage } -> "Cosa vedi in questa immagine?"
@@ -442,7 +474,9 @@ class ChatViewModel(
         viewModelScope.launch {
             repository.deleteFrom(message.conversationId, message.id)
             _input.value = message.content
-            _pending.value = message.attachments.filterNot { it.kind == AttachmentKind.GENERATED_IMAGE }
+            _pending.value = message.attachments.filterNot {
+                it.kind == AttachmentKind.GENERATED_IMAGE || it.kind == AttachmentKind.GENERATED_AUDIO
+            }
         }
     }
 
@@ -534,19 +568,24 @@ class ChatViewModel(
             val blocks = mutableListOf<String>()
             if (message.content.isNotBlank()) blocks += message.content
             message.attachments.forEach { attachment ->
-                val sent = attachment.isImage && attachment.path in paths
+                val sentNatively = attachment.visualPaths.any { it in paths }
+                if (attachment.hasText) {
+                    blocks += "[${label(attachment)}: ${attachment.name}]\n${attachment.text}"
+                }
+                if (attachment.hasVisionText) {
+                    blocks += "[${visionLabel(attachment)}: ${attachment.name}]\n" +
+                        attachment.visionText
+                }
                 when {
-                    attachment.hasText && !sent ->
-                        blocks += "[${label(attachment)}: ${attachment.name}]\n${attachment.text}"
-
                     attachment.kind == AttachmentKind.GENERATED_IMAGE ->
                         blocks += "[immagine generata: ${attachment.name}]"
 
                     attachment.isAudio && !attachment.hasText ->
                         blocks += "[audio allegato: ${attachment.name}, non trascritto]"
 
-                    !sent && attachment.isImage ->
-                        blocks += "[immagine allegata: ${attachment.name}, non descritta]"
+                    !sentNatively && !attachment.hasVisionText &&
+                        attachment.visualPaths.isNotEmpty() ->
+                        blocks += "[allegato visivo: ${attachment.name}, non descritto]"
                 }
             }
             val text = blocks.joinToString("\n\n").ifBlank { "(allegato)" }
@@ -565,20 +604,23 @@ class ChatViewModel(
     }
 
     private fun imagePaths(message: MessageEntity): List<String> =
-        message.attachments.flatMap { attachment ->
-            when {
-                attachment.kind == AttachmentKind.IMAGE -> listOf(attachment.path)
-                attachment.pageImages.isNotEmpty() && !attachment.hasText -> attachment.pageImages
-                else -> emptyList()
-            }
-        }
+        message.attachments
+            .filterNot { it.hasVisionText }
+            .flatMap { it.visualPaths }
 
     private fun label(attachment: Attachment): String = when (attachment.kind) {
         AttachmentKind.DOCUMENT -> "documento"
         AttachmentKind.AUDIO -> "trascrizione audio"
-        AttachmentKind.IMAGE -> "descrizione immagine"
+        AttachmentKind.VIDEO -> "trascrizione dell'audio del video"
+        AttachmentKind.IMAGE -> "immagine"
         AttachmentKind.GENERATED_IMAGE -> "immagine generata"
         AttachmentKind.GENERATED_AUDIO -> "audio generato"
+    }
+
+    private fun visionLabel(attachment: Attachment): String = when (attachment.kind) {
+        AttachmentKind.VIDEO -> "descrizione del video"
+        AttachmentKind.DOCUMENT -> "testo letto dalle pagine"
+        else -> "descrizione immagine"
     }
 
     // --- generazione -------------------------------------------------------
@@ -797,7 +839,10 @@ class ChatViewModel(
 
     companion object {
         /** Quante immagini al massimo tenere nel contesto inviato. */
-        private const val MAX_IMAGES = 4
+        private const val MAX_IMAGES = 8
+
+        /** I servizi di trascrizione rifiutano file più grandi di così. */
+        private const val MAX_TRANSCRIPTION_BYTES = 24_000_000L
 
         fun factory(container: AppContainer) = viewModelFactory {
             initializer {

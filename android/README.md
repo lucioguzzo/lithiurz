@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-2.0.apk` c'è l'APK già compilato, firmato con la chiave
+In `android/dist/guzzobot-2.1.apk` c'è l'APK già compilato, firmato con la chiave
 di debug. Scaricalo sul telefono, aprilo e consenti l'installazione da origini
 sconosciute. Richiede Android 8.0 o superiore.
 
@@ -35,22 +35,34 @@ Cosa succede quando alleghi qualcosa:
   `image_url`, ridimensionata a 1152px e ruotata secondo l'EXIF. Altrimenti la
   legge il modello vision e la sua descrizione entra nel messaggio: DeepSeek
   ragiona su quella. La descrizione viene calcolata una volta sola e salvata.
-- **Documento.** PDF, DOCX, testo, markdown, CSV, JSON, XML e i formati di
-  codice vengono letti **sul telefono** (PDFBox per i PDF, lo zip XML per i
-  DOCX) e il testo entra nel messaggio, troncato a 120.000 caratteri. Se un PDF
-  è scansionato e non contiene testo, le pagine vengono renderizzate come
-  immagini e trascritte dal modello vision.
+- **Documento.** PDF, DOCX, XLSX, PPTX, testo, markdown, CSV, JSON, XML e i
+  formati di codice vengono letti **sul telefono** e il testo entra nel
+  messaggio, troncato a 120.000 caratteri: PDFBox per i PDF, lettura diretta
+  dello zip XML per i formati Office. Di un XLSX si ricostruisce ogni foglio
+  riga per riga, col nome del foglio e le celle separate da tabulazione; di un
+  PPTX il testo di ogni slide più le note del relatore. Se un PDF è scansionato
+  e non contiene testo, le pagine vengono renderizzate come immagini e
+  trascritte dal modello vision.
 - **Audio.** Registri una nota vocale col microfono o alleghi un file: viene
   trascritto dal modello di trascrizione e il testo entra nel messaggio.
+- **Video.** Viene smontato in due parti sul telefono: da 2 a 8 **fotogrammi**
+  distribuiti sulla durata e la **traccia audio**, estratta senza
+  ricodificarla. I fotogrammi vanno al modello vision in un'unica richiesta (in
+  ordine cronologico, così può raccontare cosa accade) o diretti al modello in
+  chat se li vede; l'audio va al modello di trascrizione. Nel messaggio
+  finiscono entrambi: descrizione del video e parlato. Limiti: 400 MB per file,
+  24 MB per la traccia audio da trascrivere.
 - **Genera immagine.** Dal menu `+`: il testo nel composer diventa il prompt,
   l'immagine prodotta resta nella conversazione e si condivide da un tocco.
 - **Ascolta.** Sotto ogni risposta: usa il modello di voce se configurato,
   altrimenti la sintesi vocale del telefono (gratis e offline).
 - **Condividi verso GUZZOBOT.** L'app compare nel menu "Condividi" di Android
-  per testo, immagini, PDF e audio.
+  per testo, immagini, PDF, audio e video.
 
-Per non far esplodere i costi, nella richiesta viaggiano al massimo le 4
-immagini più recenti; le più vecchie restano come riferimento testuale.
+Per non far esplodere i costi, nella richiesta viaggiano al massimo le 8
+immagini più recenti (fotogrammi compresi); le più vecchie restano come
+riferimento testuale. Descrizioni e trascrizioni si calcolano una volta sola e
+restano salvate col messaggio.
 
 ## Il resto
 
@@ -117,7 +129,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ model/               provider, preset, impostazioni, allegati, capacità
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
-│  ├─ files/               import allegati, estrazione testo, PDF→immagini
+│  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  ├─ media/               registratore, player, sintesi vocale di sistema
 │  ├─ remote/              chat in streaming, vision, whisper, immagini, voce
 │  └─ repo/                ChatRepository
@@ -139,8 +151,10 @@ android/app/src/main/java/com/lucio/guzzobot/
 
 ## Limiti noti
 
-Niente video. Le tabelle markdown sono mostrate come testo semplice. XLSX e PPTX
-non vengono letti (PDF, DOCX e testo sì). L'audio viene sempre trascritto, non
-inviato come forma d'onda ai modelli che accettano audio nativo. Nessuna
-sincronizzazione tra dispositivi, per scelta: se disinstalli l'app, le
-conversazioni se ne vanno con lei.
+Le tabelle markdown sono mostrate come testo semplice. Un video viene capito dai
+fotogrammi e dal parlato, non fotogramma per fotogramma: movimenti rapidi tra
+due campioni possono sfuggire. L'audio viene sempre trascritto, non inviato come
+forma d'onda ai modelli che accettano audio nativo. I vecchi formati `.doc`,
+`.xls` e `.ppt` (pre-2007, non zip) non vengono letti. Nessuna sincronizzazione
+tra dispositivi, per scelta: se disinstalli l'app, le conversazioni se ne vanno
+con lei.

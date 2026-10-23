@@ -128,6 +128,10 @@ fun ChatScreen(
         ActivityResultContracts.OpenDocument(),
     ) { uri -> uri?.let { viewModel.attach(it, AttachmentKind.AUDIO) } }
 
+    val videoPicker = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument(),
+    ) { uri -> uri?.let { viewModel.attach(it, AttachmentKind.VIDEO) } }
+
     val micPermission = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { granted ->
@@ -135,6 +139,16 @@ fun ChatScreen(
             viewModel.startRecording()
         } else {
             scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.mic_denied)) }
+        }
+    }
+
+    fun openVideo(attachment: com.lucio.guzzobot.data.model.Attachment) {
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(viewModel.shareUri(attachment), attachment.mime)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        runCatching { context.startActivity(intent) }.onFailure {
+            scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.open_video)) }
         }
     }
 
@@ -281,6 +295,7 @@ fun ChatScreen(
                                     onEdit = { viewModel.editMessage(message) },
                                     onPlay = viewModel::togglePlayback,
                                     onShare = { shareFile(context, viewModel.shareUri(it), it.mime) },
+                                    onOpenVideo = ::openVideo,
                                 )
                             } else {
                                 AssistantMessage(
@@ -296,6 +311,7 @@ fun ChatScreen(
                                     playingPath = playing,
                                     onPlay = viewModel::togglePlayback,
                                     onShare = { shareFile(context, viewModel.shareUri(it), it.mime) },
+                                    onOpenVideo = ::openVideo,
                                     onSpeak = {
                                         if (speaking) viewModel.stopSpeaking() else viewModel.speak(message)
                                     },
@@ -344,11 +360,17 @@ fun ChatScreen(
                     arrayOf(
                         "application/pdf",
                         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
                         "text/*",
                         "application/json",
                         "application/xml",
                     ),
                 )
+            },
+            onVideo = {
+                showAttachSheet = false
+                videoPicker.launch(arrayOf("video/*"))
             },
             onAudio = {
                 showAttachSheet = false

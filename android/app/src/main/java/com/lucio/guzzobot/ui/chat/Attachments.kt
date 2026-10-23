@@ -29,6 +29,8 @@ import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.Mic
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
+import androidx.compose.material.icons.outlined.PlayCircle
+import androidx.compose.material.icons.outlined.Videocam
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -71,15 +73,33 @@ fun PendingAttachments(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items.forEach { attachment ->
+            val preview = when {
+                attachment.isImage -> attachment.path
+                attachment.isVideo -> attachment.pageImages.firstOrNull()
+                else -> null
+            }
             Box {
-                if (attachment.isImage) {
-                    LocalImage(
-                        path = attachment.path,
-                        maxSide = 256,
-                        modifier = Modifier
-                            .size(72.dp)
-                            .clip(RoundedCornerShape(12.dp)),
-                    )
+                if (preview != null) {
+                    Box {
+                        LocalImage(
+                            path = preview,
+                            maxSide = 256,
+                            modifier = Modifier
+                                .size(72.dp)
+                                .clip(RoundedCornerShape(12.dp)),
+                        )
+                        if (attachment.isVideo) {
+                            Icon(
+                                imageVector = Icons.Outlined.PlayCircle,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.background,
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(4.dp)
+                                    .size(18.dp),
+                            )
+                        }
+                    }
                 } else {
                     FileChip(attachment)
                 }
@@ -118,7 +138,11 @@ private fun FileChip(attachment: Attachment) {
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
         Icon(
-            imageVector = if (attachment.isAudio) Icons.Outlined.AudioFile else Icons.Outlined.Description,
+            imageVector = when {
+                attachment.isAudio -> Icons.Outlined.AudioFile
+                attachment.isVideo -> Icons.Outlined.Videocam
+                else -> Icons.Outlined.Description
+            },
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(20.dp),
@@ -151,6 +175,7 @@ fun MessageAttachments(
     playingPath: String?,
     onPlay: (Attachment) -> Unit,
     onShare: (Attachment) -> Unit,
+    onOpenVideo: (Attachment) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     if (items.isEmpty()) return
@@ -170,6 +195,11 @@ fun MessageAttachments(
                         .aspectRatio(1f)
                         .clip(RoundedCornerShape(14.dp))
                         .clickable { viewing = attachment },
+                )
+
+                attachment.isVideo -> VideoRow(
+                    attachment = attachment,
+                    onOpen = { onOpenVideo(attachment) },
                 )
 
                 attachment.isAudio -> AudioRow(
@@ -256,6 +286,54 @@ fun MessageAttachments(
 }
 
 @Composable
+private fun VideoRow(attachment: Attachment, onOpen: () -> Unit) {
+    val frame = attachment.pageImages.firstOrNull()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth(0.7f)
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .clickable(onClick = onOpen),
+    ) {
+        if (frame != null) {
+            Box {
+                LocalImage(
+                    path = frame,
+                    maxSide = 768,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(16f / 9f),
+                )
+                Icon(
+                    imageVector = Icons.Outlined.PlayCircle,
+                    contentDescription = stringResource(R.string.open_video),
+                    tint = MaterialTheme.colorScheme.background,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(42.dp),
+                )
+            }
+        }
+        Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
+            Text(
+                text = attachment.name,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = attachment.note ?: stringResource(R.string.attachment_video),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
 private fun AudioRow(attachment: Attachment, playing: Boolean, onPlay: () -> Unit) {
     Row(
         modifier = Modifier
@@ -305,6 +383,7 @@ fun AttachmentSheet(
     onPhoto: () -> Unit,
     onCamera: () -> Unit,
     onDocument: () -> Unit,
+    onVideo: () -> Unit,
     onAudio: () -> Unit,
     onRecord: () -> Unit,
     onGenerateImage: () -> Unit,
@@ -320,6 +399,7 @@ fun AttachmentSheet(
             SheetRow(Icons.Outlined.PhotoLibrary, stringResource(R.string.attach_photo), onPhoto)
             SheetRow(Icons.Outlined.PhotoCamera, stringResource(R.string.attach_camera), onCamera)
             SheetRow(Icons.Outlined.Description, stringResource(R.string.attach_document), onDocument)
+            SheetRow(Icons.Outlined.Videocam, stringResource(R.string.attach_video), onVideo)
             SheetRow(Icons.Outlined.AudioFile, stringResource(R.string.attach_audio), onAudio)
             SheetRow(Icons.Outlined.Mic, stringResource(R.string.record_audio), onRecord)
             if (canGenerateImages) {

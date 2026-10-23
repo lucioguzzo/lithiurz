@@ -48,6 +48,7 @@ fun UserMessage(
     onEdit: () -> Unit,
     onPlay: (Attachment) -> Unit,
     onShare: (Attachment) -> Unit,
+    onOpenVideo: (Attachment) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -59,6 +60,7 @@ fun UserMessage(
                 playingPath = playingPath,
                 onPlay = onPlay,
                 onShare = onShare,
+                onOpenVideo = onOpenVideo,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
         }
@@ -98,6 +100,7 @@ fun AssistantMessage(
     playingPath: String? = null,
     onPlay: (Attachment) -> Unit = {},
     onShare: (Attachment) -> Unit = {},
+    onOpenVideo: (Attachment) -> Unit = {},
     onSpeak: () -> Unit = {},
     speaking: Boolean = false,
 ) {
@@ -126,6 +129,7 @@ fun AssistantMessage(
                 playingPath = playingPath,
                 onPlay = onPlay,
                 onShare = onShare,
+                onOpenVideo = onOpenVideo,
                 modifier = Modifier.padding(top = 8.dp),
             )
         }

@@ -30,6 +30,8 @@ class AttachmentStore(private val context: Context) {
 
     private val dir: File by lazy { File(context.filesDir, "attachments").apply { mkdirs() } }
 
+    private val videoProcessor = VideoProcessor { bitmap, maxSide -> scaleDown(bitmap, maxSide) }
+
     /** Dimensione massima del lato lungo di un'immagine inviata al modello. */
     private val maxImageSide = 1152
 
@@ -37,6 +39,10 @@ class AttachmentStore(private val context: Context) {
         val name = displayName(uri)
         val mime = context.contentResolver.getType(uri)
             ?: guessMime(name)
+        val declaredSize = fileSize(uri)
+        if (kind == AttachmentKind.VIDEO && declaredSize > MAX_VIDEO_BYTES) {
+            error("Video troppo grande: il limite è ${MAX_VIDEO_BYTES / 1_000_000} MB")
+        }
         val target = File(dir, "${UUID.randomUUID()}-${name.take(60).replace('/', '_')}")
         context.contentResolver.openInputStream(uri)?.use { input ->
             target.outputStream().use { output -> input.copyTo(output) }
@@ -78,6 +84,26 @@ class AttachmentStore(private val context: Context) {
                 }
             }
 
+            AttachmentKind.VIDEO -> {
+                val result = videoProcessor.process(
+                    source = file,
+                    frameTarget = { index ->
+                        File(dir, "frame-${System.currentTimeMillis()}-$index.jpg")
+                    },
+                    audioTarget = { File(dir, "traccia-${System.currentTimeMillis()}.m4a") },
+                )
+                val seconds = result.durationMs / 1000
+                base.copy(
+                    pageImages = result.frames.map { it.absolutePath },
+                    audioPath = result.audio?.absolutePath,
+                    note = buildString {
+                        if (seconds > 0) append("${seconds}s · ")
+                        append("${result.frames.size} fotogrammi")
+                        if (result.audio != null) append(" · audio estratto")
+                    },
+                )
+            }
+
             else -> base
         }
     }
@@ -85,6 +111,7 @@ class AttachmentStore(private val context: Context) {
     fun delete(attachment: Attachment) {
         runCatching { File(attachment.path).delete() }
         attachment.pageImages.forEach { runCatching { File(it).delete() } }
+        attachment.audioPath?.let { runCatching { File(it).delete() } }
     }
 
     fun cameraTarget(): Pair<File, Uri> {
@@ -231,6 +258,16 @@ class AttachmentStore(private val context: Context) {
         return uri.lastPathSegment?.substringAfterLast('/') ?: "allegato"
     }
 
+    private fun fileSize(uri: Uri): Long {
+        context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val index = cursor.getColumnIndex(android.provider.OpenableColumns.SIZE)
+            if (index >= 0 && cursor.moveToFirst() && !cursor.isNull(index)) {
+                return cursor.getLong(index)
+            }
+        }
+        return 0
+    }
+
     private fun guessMime(name: String): String = when (name.substringAfterLast('.', "").lowercase()) {
         "jpg", "jpeg" -> "image/jpeg"
         "png" -> "image/png"
@@ -242,6 +279,19 @@ class AttachmentStore(private val context: Context) {
         "wav" -> "audio/wav"
         "ogg", "opus" -> "audio/ogg"
         "txt", "md" -> "text/plain"
+        "mp4" -> "video/mp4"
+        "mkv" -> "video/x-matroska"
+        "webm" -> "video/webm"
+        "mov" -> "video/quicktime"
+        "3gp" -> "video/3gpp"
+        "xlsx" -> "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        "pptx" -> "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        "docx" -> "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         else -> "application/octet-stream"
+    }
+
+    private companion object {
+        /** Oltre questa dimensione un video non entra nella cartella privata senza problemi. */
+        const val MAX_VIDEO_BYTES = 400_000_000L
     }
 }

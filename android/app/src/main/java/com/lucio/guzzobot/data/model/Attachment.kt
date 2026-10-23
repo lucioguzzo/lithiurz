@@ -12,6 +12,9 @@ enum class AttachmentKind {
     /** Audio registrato o scelto dal telefono, da trascrivere. */
     AUDIO,
 
+    /** Video: ne ricaviamo fotogrammi per il modello vision e l'audio da trascrivere. */
+    VIDEO,
+
     /** Immagine prodotta dal modello. */
     GENERATED_IMAGE,
 
@@ -30,14 +33,28 @@ data class Attachment(
     val size: Long = 0,
     /** Testo estratto dal documento o trascrizione dell'audio. */
     val text: String? = null,
+    /** Descrizione o trascrizione prodotta da un modello vision. */
+    val visionText: String? = null,
     /** Nota mostrata sotto l'allegato, es. il modello che l'ha trascritto. */
     val note: String? = null,
-    /** Pagine di un PDF convertite in immagini, quando non c'è testo da estrarre. */
+    /** Pagine di un PDF o fotogrammi di un video, come immagini. */
     val pageImages: List<String> = emptyList(),
+    /** Traccia audio estratta da un video, da trascrivere. */
+    val audioPath: String? = null,
 ) {
     val isImage: Boolean get() = kind == AttachmentKind.IMAGE || kind == AttachmentKind.GENERATED_IMAGE
     val isAudio: Boolean get() = kind == AttachmentKind.AUDIO || kind == AttachmentKind.GENERATED_AUDIO
+    val isVideo: Boolean get() = kind == AttachmentKind.VIDEO
     val hasText: Boolean get() = !text.isNullOrBlank()
+    val hasVisionText: Boolean get() = !visionText.isNullOrBlank()
+
+    /** Immagini che un modello vision può guardare: l'immagine stessa o i fotogrammi. */
+    val visualPaths: List<String>
+        get() = when {
+            pageImages.isNotEmpty() -> pageImages
+            kind == AttachmentKind.IMAGE -> listOf(path)
+            else -> emptyList()
+        }
 }
 
 /** Puntatore a un modello di un provider configurato. */

@@ -26,7 +26,11 @@ class MainActivity : ComponentActivity() {
             val viewModel: ChatViewModel = viewModel(factory = ChatViewModel.factory(container))
             val settings by viewModel.settings.collectAsStateWithLifecycle()
             GuzzoBotTheme(mode = settings.themeMode) {
-                GuzzoBotNavHost(viewModel = viewModel, sharedText = shared)
+                GuzzoBotNavHost(
+                    viewModel = viewModel,
+                    sharedText = shared,
+                    sharedFile = sharedFile,
+                )
             }
         }
     }

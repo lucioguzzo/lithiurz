@@ -21,11 +21,27 @@ object Routes {
 }
 
 @Composable
-fun GuzzoBotNavHost(viewModel: ChatViewModel, sharedText: String?) {
+fun GuzzoBotNavHost(
+    viewModel: ChatViewModel,
+    sharedText: String?,
+    sharedFile: Pair<Uri, String>? = null,
+) {
     val navController = rememberNavController()
 
     LaunchedEffect(sharedText) {
         if (!sharedText.isNullOrBlank()) viewModel.setInput(sharedText)
+    }
+
+    // Un file arrivato dal menu "Condividi" di un'altra app.
+    LaunchedEffect(sharedFile) {
+        val (uri, mime) = sharedFile ?: return@LaunchedEffect
+        val kind = when {
+            mime.startsWith("image/") -> AttachmentKind.IMAGE
+            mime.startsWith("audio/") -> AttachmentKind.AUDIO
+            mime.startsWith("video/") -> AttachmentKind.VIDEO
+            else -> AttachmentKind.DOCUMENT
+        }
+        viewModel.attach(uri, kind)
     }
 
     NavHost(navController = navController, startDestination = Routes.CHAT) {
