@@ -91,4 +91,8 @@
     <string name="attach_video">Video</string>
     <string name="attachment_video">Video</string>
     <string name="open_video">Open the video</string>
+    <string name="splash_tagline">Your models, no middleman</string>
+    <string name="copyright">© 2026 Lucio Salvatore Guzzo · All rights reserved</string>
+    <string name="back_exit_warning">Press back again to exit</string>
+    <string name="version_label">Version %1$s</string>
 </resources>

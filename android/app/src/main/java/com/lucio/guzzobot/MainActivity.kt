@@ -6,11 +6,21 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucio.guzzobot.ui.GuzzoBotNavHost
 import com.lucio.guzzobot.ui.chat.ChatViewModel
+import com.lucio.guzzobot.ui.splash.SplashScreen
 import com.lucio.guzzobot.ui.theme.GuzzoBotTheme
 
 class MainActivity : ComponentActivity() {
@@ -25,12 +35,22 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: ChatViewModel = viewModel(factory = ChatViewModel.factory(container))
             val settings by viewModel.settings.collectAsStateWithLifecycle()
+            // rememberSaveable: una rotazione non fa ricomparire lo splash.
+            var splashVisible by rememberSaveable { mutableStateOf(true) }
             GuzzoBotTheme(mode = settings.themeMode) {
-                GuzzoBotNavHost(
-                    viewModel = viewModel,
-                    sharedText = shared,
-                    sharedFile = sharedFile,
-                )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    GuzzoBotNavHost(
+                        viewModel = viewModel,
+                        sharedText = shared,
+                        sharedFile = sharedFile,
+                    )
+                    AnimatedVisibility(
+                        visible = splashVisible,
+                        exit = fadeOut(tween(420)),
+                    ) {
+                        SplashScreen(onFinished = { splashVisible = false })
+                    }
+                }
             }
         }
     }

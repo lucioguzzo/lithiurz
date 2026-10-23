@@ -1,6 +1,9 @@
 package com.lucio.guzzobot.ui.chat
 
 import android.Manifest
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.foundation.border
@@ -58,6 +61,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -101,6 +105,7 @@ fun ChatScreen(
 
     var showModelSheet by remember { mutableStateOf(false) }
     var showAttachSheet by remember { mutableStateOf(false) }
+    var lastBackPress by remember { mutableStateOf(0L) }
     var cameraFile by remember { mutableStateOf<File?>(null) }
     var renaming by remember { mutableStateOf<ConversationEntity?>(null) }
 
@@ -156,6 +161,36 @@ fun ChatScreen(
         val granted = ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
             PackageManager.PERMISSION_GRANTED
         if (granted) viewModel.startRecording() else micPermission.launch(Manifest.permission.RECORD_AUDIO)
+    }
+
+    /**
+     * Indietro (tasto o gesto) non esce di colpo: chiude il pannello, ferma una
+     * risposta in corso, poi torna all'elenco delle conversazioni. Solo dalla
+     * schermata iniziale, e dopo un avviso, chiude l'app.
+     */
+    BackHandler {
+        when {
+            drawerState.isOpen -> scope.launch { drawerState.close() }
+
+            streaming != null -> viewModel.stop()
+
+            currentId != null -> {
+                viewModel.closeConversation()
+                scope.launch { drawerState.open() }
+            }
+
+            else -> {
+                val now = System.currentTimeMillis()
+                if (now - lastBackPress < 2_500) {
+                    context.findActivity()?.finish()
+                } else {
+                    lastBackPress = now
+                    scope.launch {
+                        snackbarHostState.showSnackbar(context.getString(R.string.back_exit_warning))
+                    }
+                }
+            }
+        }
     }
 
     val itemCount = messages.size + if (streaming != null) 1 else 0
@@ -532,4 +567,14 @@ private fun shareFile(context: android.content.Context, uri: android.net.Uri, mi
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     context.startActivity(Intent.createChooser(intent, null))
+}
+
+/** LocalContext può essere un wrapper: risale la catena fino all'Activity. */
+private fun Context.findActivity(): Activity? {
+    var current: Context? = this
+    while (current is ContextWrapper) {
+        if (current is Activity) return current
+        current = current.baseContext
+    }
+    return null
 }

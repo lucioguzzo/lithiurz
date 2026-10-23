@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
@@ -72,11 +73,14 @@ fun UserMessage(
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             ) {
-                Text(
-                    text = message.content,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
+                // Selezionabile: tieni premuto per prendere solo il pezzo che serve.
+                SelectionContainer {
+                    Text(
+                        text = message.content,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -110,7 +114,7 @@ fun AssistantMessage(
         }
         when {
             isError -> ErrorBubble(content)
-            content.isNotBlank() -> MarkdownText(markdown = content)
+            content.isNotBlank() -> SelectionContainer { MarkdownText(markdown = content) }
             streaming && reasoning.isNullOrBlank() -> Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
@@ -185,10 +189,14 @@ private fun ReasoningBlock(reasoning: String, streamingEmptyAnswer: Boolean) {
             .padding(bottom = 10.dp)
             .clip(RoundedCornerShape(12.dp))
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
-            .clickable { expanded = !expanded }
             .padding(horizontal = 14.dp, vertical = 10.dp),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        // Il tocco apre e chiude solo dall'intestazione: così il testo sotto
+        // resta selezionabile.
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable { expanded = !expanded },
+        ) {
             if (streamingEmptyAnswer) {
                 SparkPulse(size = 14.dp)
             }
@@ -208,12 +216,14 @@ private fun ReasoningBlock(reasoning: String, streamingEmptyAnswer: Boolean) {
             )
         }
         AnimatedVisibility(visible = expanded) {
-            Text(
-                text = reasoning,
-                style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.SansSerif),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 8.dp),
-            )
+            SelectionContainer {
+                Text(
+                    text = reasoning,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = FontFamily.SansSerif),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 8.dp),
+                )
+            }
         }
     }
 }

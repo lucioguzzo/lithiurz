@@ -135,6 +135,14 @@ class ChatViewModel(
         clearPending()
     }
 
+    /**
+      * Torna all'elenco senza toccare la bozza nel composer: serve al tasto
+      * indietro, che non deve far perdere quello che si stava scrivendo.
+      */
+    fun closeConversation() {
+        _conversationId.value = null
+    }
+
     fun openConversation(id: Long) {
         if (_streaming.value != null && _streaming.value?.conversationId != id) stop()
         _conversationId.value = id

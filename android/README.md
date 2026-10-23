@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-2.3.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-2.4.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -141,6 +141,15 @@ invertito per verificare la piece table.
 - **Markdown renderizzato**: titoli, elenchi, citazioni, link, blocchi di codice
   con etichetta del linguaggio e copia rapida.
 - **Storico conversazioni** con ricerca, rinomina, condivisione, cancellazione.
+- **Testo selezionabile**: tieni premuto su una domanda o una risposta per
+  prendere solo il pezzo che ti serve, con la barra di copia di Android. I
+  blocchi di codice hanno anche il loro pulsante di copia.
+- **Indietro per gradi**: il tasto indietro (o il gesto) chiude prima il
+  pannello laterale, poi ferma una risposta in corso, poi riporta all'elenco
+  delle conversazioni conservando la bozza nel composer; solo dalla schermata
+  iniziale, e dopo un avviso, chiude l'app.
+- **Apertura** con il nome, il glifo e il copyright, che svanisce sulla chat; un
+  tocco la salta.
 - **Impostazioni**: prompt di sistema, temperatura, token massimi, messaggi di
   contesto, tema chiaro/scuro/sistema, visibilità del ragionamento.
 

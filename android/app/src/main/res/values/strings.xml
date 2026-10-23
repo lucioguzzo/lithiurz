@@ -93,4 +93,8 @@
     <string name="attach_video">Video</string>
     <string name="attachment_video">Video</string>
     <string name="open_video">Apri il video</string>
+    <string name="splash_tagline">I tuoi modelli, nessun intermediario</string>
+    <string name="copyright">© 2026 Lucio Salvatore Guzzo · Tutti i diritti riservati</string>
+    <string name="back_exit_warning">Premi di nuovo indietro per uscire</string>
+    <string name="version_label">Versione %1$s</string>
 </resources>
