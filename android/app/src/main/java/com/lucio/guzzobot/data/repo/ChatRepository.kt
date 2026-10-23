@@ -67,6 +67,12 @@ class ChatRepository(private val dao: ChatDao) {
     suspend fun setModel(conversationId: Long, providerId: String, model: String) =
         dao.setConversationModel(conversationId, providerId, model)
 
+    suspend fun setPinned(conversationId: Long, pinned: Boolean) =
+        dao.setPinned(conversationId, pinned)
+
+    suspend fun setProject(conversationId: Long, projectId: Long?) =
+        dao.setProject(conversationId, projectId)
+
     suspend fun delete(conversationId: Long) = dao.deleteConversation(conversationId)
 
     suspend fun deleteAll() = dao.deleteAllConversations()

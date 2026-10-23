@@ -81,6 +81,9 @@ import java.util.Calendar
 fun ChatScreen(
     viewModel: ChatViewModel,
     onOpenSettings: () -> Unit,
+    onOpenAgent: () -> Unit,
+    onOpenWorkspace: () -> Unit,
+    onOpenTasks: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
@@ -98,6 +101,7 @@ fun ChatScreen(
     val approval by viewModel.approval.collectAsStateWithLifecycle()
     val agentProgress by viewModel.agentProgress.collectAsStateWithLifecycle()
     val agentMode by viewModel.agentMode.collectAsStateWithLifecycle()
+    val projects by viewModel.projects.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -228,7 +232,9 @@ fun ChatScreen(
             ) {
                 ChatDrawer(
                     conversations = conversations,
+                    projects = projects,
                     currentId = currentId,
+                    workspaceLabel = settings.workspace.label,
                     onNewChat = {
                         viewModel.newChat()
                         scope.launch { drawerState.close() }
@@ -241,6 +247,24 @@ fun ChatScreen(
                     onDelete = { viewModel.deleteConversation(it.id) },
                     onShare = { conversation ->
                         viewModel.conversationAsText(conversation.id) { share(it) }
+                    },
+                    onTogglePin = viewModel::togglePin,
+                    onAssignProject = viewModel::assignProject,
+                    onCreateProject = { name, conversationId ->
+                        viewModel.createProject(name, conversationId)
+                    },
+                    onDeleteProject = viewModel::deleteProject,
+                    onOpenAgent = {
+                        scope.launch { drawerState.close() }
+                        onOpenAgent()
+                    },
+                    onOpenWorkspace = {
+                        scope.launch { drawerState.close() }
+                        onOpenWorkspace()
+                    },
+                    onOpenTasks = {
+                        scope.launch { drawerState.close() }
+                        onOpenTasks()
                     },
                     onOpenSettings = {
                         scope.launch { drawerState.close() }

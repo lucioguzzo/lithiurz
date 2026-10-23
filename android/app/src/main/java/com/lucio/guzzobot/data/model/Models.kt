@@ -122,6 +122,9 @@ data class AppSettings(
     val autonomousTools: Boolean = false,
     /** Tiene vivo il lavoro quando l'app non è in primo piano. */
     val backgroundWork: Boolean = true,
+    /** Tetto di sicurezza dell'agente. */
+    val agentMaxSteps: Int = 60,
+    val agentMaxMinutes: Int = 25,
 ) {
     val activeProvider: Provider?
         get() = providers.firstOrNull { it.id == activeProviderId } ?: providers.firstOrNull()

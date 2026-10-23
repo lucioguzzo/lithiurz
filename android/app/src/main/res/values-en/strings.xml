@@ -134,4 +134,22 @@
     <string name="task_run_now">Run now</string>
     <string name="task_none">No scheduled tasks</string>
     <string name="task_done">Task completed</string>
+    <string name="agent_bot">Agent Bot</string>
+    <string name="agent_hub_hint">Here GUZZOBOT works towards a goal instead of answering a message: it explores, acts, verifies and fixes on its own, within the ceiling you set.</string>
+    <string name="agent_goal">Goal</string>
+    <string name="agent_goal_hint">For example: check the project tests, fix the broken ones and open a pull request</string>
+    <string name="agent_start">Start the agent</string>
+    <string name="agent_budget">Safety ceiling</string>
+    <string name="agent_steps">Maximum steps</string>
+    <string name="agent_minutes">Maximum minutes</string>
+    <string name="agent_needs_workspace">A workspace is required: pick a folder or a repository.</string>
+    <string name="pinned">Pinned</string>
+    <string name="pin">Pin to top</string>
+    <string name="unpin">Unpin</string>
+    <string name="projects">Projects</string>
+    <string name="project_new">New project</string>
+    <string name="project_name">Project name</string>
+    <string name="project_none">No project</string>
+    <string name="project_delete">Delete project</string>
+    <string name="move_to_project">Move to a project</string>
 </resources>

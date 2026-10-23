@@ -15,6 +15,18 @@ data class ConversationEntity(
     val model: String,
     val createdAt: Long,
     val updatedAt: Long,
+    /** Le conversazioni fissate restano in cima al pannello. */
+    @ColumnInfo(defaultValue = "0") val pinned: Boolean = false,
+    /** Progetto a cui appartiene, se assegnata. */
+    val projectId: Long? = null,
+)
+
+/** Un raccoglitore di conversazioni. */
+@Entity(tableName = "projects")
+data class ProjectEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val name: String,
+    val createdAt: Long,
 )
 
 @Entity(

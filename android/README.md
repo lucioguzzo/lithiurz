@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.0.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.1.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -235,6 +235,14 @@ invertito per verificare la piece table.
   (`deepseek-reasoner` e i reasoning su OpenRouter).
 - **Markdown renderizzato**: titoli, elenchi, citazioni, link, blocchi di codice
   con etichetta del linguaggio e copia rapida.
+- **Pannello laterale** con le voci principali — Nuova chat, **Agente Bot**,
+  Area di lavoro, Compiti pianificati, Impostazioni — e le conversazioni divise
+  in **Fissate**, **Progetti** e **Recenti**. Una chat si fissa in alto o si
+  sposta in un progetto dal suo menù; i progetti si creano dal pannello e,
+  eliminandoli, le conversazioni tornano fra le recenti invece di sparire.
+- **Agente Bot** è il posto da cui si comanda l'agente: stato dell'area di
+  lavoro, lancio di un obiettivo, tetto di sicurezza (passi e minuti),
+  autonomia, lavoro in background e compiti pianificati.
 - **Storico conversazioni** con ricerca, rinomina, condivisione, cancellazione.
 - **Testo selezionabile**: tieni premuto su una domanda o una risposta per
   prendere solo il pezzo che ti serve, con la barra di copia di Android. I

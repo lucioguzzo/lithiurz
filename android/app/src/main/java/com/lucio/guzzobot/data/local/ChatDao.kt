@@ -27,6 +27,12 @@ interface ChatDao {
     @Query("UPDATE conversations SET providerId = :providerId, model = :model WHERE id = :id")
     suspend fun setConversationModel(id: Long, providerId: String, model: String)
 
+    @Query("UPDATE conversations SET pinned = :pinned WHERE id = :id")
+    suspend fun setPinned(id: Long, pinned: Boolean)
+
+    @Query("UPDATE conversations SET projectId = :projectId WHERE id = :id")
+    suspend fun setProject(id: Long, projectId: Long?)
+
     @Query("DELETE FROM conversations WHERE id = :id")
     suspend fun deleteConversation(id: Long)
 
@@ -50,6 +56,22 @@ interface ChatDao {
 
     @Query("SELECT COUNT(*) FROM messages WHERE conversationId = :id")
     suspend fun messageCount(id: Long): Int
+}
+
+@Dao
+interface ProjectDao {
+
+    @Query("SELECT * FROM projects ORDER BY name COLLATE NOCASE")
+    fun observeProjects(): Flow<List<ProjectEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(project: ProjectEntity): Long
+
+    @Query("DELETE FROM projects WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("UPDATE conversations SET projectId = NULL WHERE projectId = :id")
+    suspend fun detachConversations(id: Long)
 }
 
 @Dao

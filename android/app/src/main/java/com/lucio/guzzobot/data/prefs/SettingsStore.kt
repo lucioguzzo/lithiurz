@@ -46,6 +46,8 @@ class SettingsStore(context: Context, private val json: Json) {
         val workspace = stringPreferencesKey("workspace")
         val autonomousTools = booleanPreferencesKey("autonomous_tools")
         val backgroundWork = booleanPreferencesKey("background_work")
+        val agentMaxSteps = intPreferencesKey("agent_max_steps")
+        val agentMaxMinutes = intPreferencesKey("agent_max_minutes")
     }
 
     /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
@@ -94,6 +96,8 @@ class SettingsStore(context: Context, private val json: Json) {
                 ?: WorkspaceConfig(),
             autonomousTools = prefs[Keys.autonomousTools] ?: false,
             backgroundWork = prefs[Keys.backgroundWork] ?: true,
+            agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
+            agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
         )
     }
 
@@ -140,6 +144,11 @@ class SettingsStore(context: Context, private val json: Json) {
 
     suspend fun setBackgroundWork(value: Boolean) = store.edit {
         it[Keys.backgroundWork] = value
+    }
+
+    suspend fun setAgentBudget(steps: Int, minutes: Int) = store.edit {
+        it[Keys.agentMaxSteps] = steps.coerceIn(5, 300)
+        it[Keys.agentMaxMinutes] = minutes.coerceIn(1, 120)
     }
 
     private suspend fun setRef(key: Preferences.Key<String>, value: ModelRef?) = store.edit { prefs ->

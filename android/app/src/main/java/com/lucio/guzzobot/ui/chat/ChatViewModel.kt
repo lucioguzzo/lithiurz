@@ -14,6 +14,8 @@ import com.lucio.guzzobot.data.agent.AgentRun
 import com.lucio.guzzobot.data.files.TextExtractor
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.local.MessageEntity
+import com.lucio.guzzobot.data.local.ProjectDao
+import com.lucio.guzzobot.data.local.ProjectEntity
 import com.lucio.guzzobot.data.local.ScheduledTaskEntity
 import com.lucio.guzzobot.data.local.TaskDao
 import com.lucio.guzzobot.data.media.AudioPlayer
@@ -113,6 +115,7 @@ class ChatViewModel(
     private val json: Json,
     private val agentEngine: AgentEngine,
     private val taskDao: TaskDao,
+    private val projectDao: ProjectDao,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -175,6 +178,9 @@ class ChatViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Abilities())
 
+    val projects: StateFlow<List<ProjectEntity>> =
+        projectDao.observeProjects().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val tasks: StateFlow<List<ScheduledTaskEntity>> =
         taskDao.observeTasks().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
@@ -215,6 +221,27 @@ class ChatViewModel(
         }
         repository.delete(id)
         if (_conversationId.value == id) _conversationId.value = null
+    }
+
+    fun togglePin(conversation: ConversationEntity) = viewModelScope.launch {
+        repository.setPinned(conversation.id, !conversation.pinned)
+    }
+
+    fun assignProject(conversationId: Long, projectId: Long?) = viewModelScope.launch {
+        repository.setProject(conversationId, projectId)
+    }
+
+    fun createProject(name: String, assign: Long? = null) = viewModelScope.launch {
+        if (name.isBlank()) return@launch
+        val id = projectDao.upsert(
+            ProjectEntity(name = name.trim().take(60), createdAt = System.currentTimeMillis()),
+        )
+        assign?.let { repository.setProject(it, id) }
+    }
+
+    fun deleteProject(id: Long) = viewModelScope.launch {
+        projectDao.detachConversations(id)
+        projectDao.delete(id)
     }
 
     fun renameConversation(id: Long, title: String) = viewModelScope.launch {
@@ -582,7 +609,11 @@ class ChatViewModel(
                     workspace = bundle.workspace,
                     github = bundle.github,
                     actions = bundle.actions,
-                    limits = AgentLimits(),
+                    limits = AgentLimits(
+                        maxSteps = current.agentMaxSteps,
+                        maxRounds = (current.agentMaxSteps * 2 / 3).coerceAtLeast(6),
+                        maxMinutes = current.agentMaxMinutes,
+                    ),
                     approve = { call ->
                         if (current.autonomousTools || sessionAutonomy) true else requestApproval(call)
                     },
@@ -1073,6 +1104,10 @@ class ChatViewModel(
         settingsStore.setBackgroundWork(value)
     }
 
+    fun setAgentBudget(steps: Int, minutes: Int) = viewModelScope.launch {
+        settingsStore.setAgentBudget(steps, minutes)
+    }
+
     // --- compiti pianificati ----------------------------------------------
 
     fun saveTask(task: ScheduledTaskEntity) = viewModelScope.launch {
@@ -1198,6 +1233,7 @@ class ChatViewModel(
                     json = container.json,
                     agentEngine = container.agentEngine,
                     taskDao = container.taskDao,
+                    projectDao = container.projectDao,
                 )
             }
         }

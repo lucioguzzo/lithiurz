@@ -136,4 +136,22 @@
     <string name="task_run_now">Esegui adesso</string>
     <string name="task_none">Nessun compito pianificato</string>
     <string name="task_done">Compito completato</string>
+    <string name="agent_bot">Agente Bot</string>
+    <string name="agent_hub_hint">Qui GUZZOBOT lavora a un obiettivo invece di rispondere a un messaggio: esplora, agisce, verifica e corregge da solo, entro il tetto che decidi tu.</string>
+    <string name="agent_goal">Obiettivo</string>
+    <string name="agent_goal_hint">Per esempio: controlla i test del progetto, correggi quelli rotti e aprimi una pull request</string>
+    <string name="agent_start">Avvia l\'agente</string>
+    <string name="agent_budget">Tetto di sicurezza</string>
+    <string name="agent_steps">Passi massimi</string>
+    <string name="agent_minutes">Minuti massimi</string>
+    <string name="agent_needs_workspace">Serve un\'area di lavoro: scegli una cartella o un repository.</string>
+    <string name="pinned">Fissate</string>
+    <string name="pin">Fissa in alto</string>
+    <string name="unpin">Togli dai fissati</string>
+    <string name="projects">Progetti</string>
+    <string name="project_new">Nuovo progetto</string>
+    <string name="project_name">Nome del progetto</string>
+    <string name="project_none">Nessun progetto</string>
+    <string name="project_delete">Elimina il progetto</string>
+    <string name="move_to_project">Sposta in un progetto</string>
 </resources>

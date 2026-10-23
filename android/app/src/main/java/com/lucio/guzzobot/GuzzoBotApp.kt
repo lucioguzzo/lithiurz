@@ -27,6 +27,7 @@ class AppContainer(private val app: Application) {
     private val database = GuzzoBotDatabase.create(app)
     val repository = ChatRepository(database.chatDao())
     val taskDao = database.taskDao()
+    val projectDao = database.projectDao()
     val settingsStore = SettingsStore(app, json)
     val secretStore = SecretStore(app)
     val chatApi = ChatApi(json)
