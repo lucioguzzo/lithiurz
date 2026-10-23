@@ -93,18 +93,15 @@ private fun Dot(alpha: Float) {
     }
 }
 
-/** Il marchio dell'app: la G con gli occhiali, sul suo fondo nero arrotondato. */
+/** Il marchio dell'app: la G con gli occhiali, su sfondo trasparente. */
 @Composable
 fun GuzzoBotLogo(
     modifier: Modifier = Modifier,
     size: Dp = 28.dp,
-    corner: Dp = size / 4,
 ) {
     androidx.compose.foundation.Image(
         painter = painterResource(R.drawable.logo_mark),
         contentDescription = null,
-        modifier = modifier
-            .size(size)
-            .clip(androidx.compose.foundation.shape.RoundedCornerShape(corner)),
+        modifier = modifier.size(size),
     )
 }

@@ -48,6 +48,20 @@ class SettingsStore(context: Context, private val json: Json) {
         val backgroundWork = booleanPreferencesKey("background_work")
     }
 
+    /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
+    private val retiredModels = mapOf(
+        "deepseek-chat" to "deepseek-flash",
+        "deepseek-reasoner" to "deepseek-flash",
+        "deepseek-v4-flash" to "deepseek-flash",
+    )
+
+    private fun current(model: String): String = retiredModels[model] ?: model
+
+    private fun current(providers: List<Provider>): List<Provider> = providers.map { provider ->
+        val updated = provider.models.map(::current).distinct()
+        if (updated == provider.models) provider else provider.copy(models = updated)
+    }
+
     private fun ref(raw: String?): ModelRef? = raw
         ?.takeIf { it.isNotBlank() }
         ?.let { runCatching { json.decodeFromString<ModelRef>(it) }.getOrNull() }
@@ -59,9 +73,10 @@ class SettingsStore(context: Context, private val json: Json) {
         AppSettings(
             themeMode = prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                 ?: ThemeMode.SYSTEM,
-            providers = stored?.takeIf { it.isNotEmpty() } ?: Providers.defaults,
+            providers = stored?.takeIf { it.isNotEmpty() }?.let(::current) ?: Providers.defaults,
             activeProviderId = prefs[Keys.activeProvider] ?: Providers.defaults.first().id,
-            activeModel = prefs[Keys.activeModel] ?: Providers.defaults.first().models.first(),
+            activeModel = prefs[Keys.activeModel]?.let(::current)
+                ?: Providers.defaults.first().models.first(),
             systemPrompt = prefs[Keys.systemPrompt] ?: Providers.DEFAULT_SYSTEM_PROMPT,
             temperature = prefs[Keys.temperature] ?: 0.7f,
             maxTokens = prefs[Keys.maxTokens] ?: 0,

@@ -65,7 +65,7 @@ fun ChatDrawer(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            GuzzoBotLogo(size = 30.dp, corner = 9.dp)
+            GuzzoBotLogo(size = 32.dp)
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.headlineSmall,

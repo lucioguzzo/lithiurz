@@ -71,7 +71,7 @@ import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.model.AttachmentKind
 import com.lucio.guzzobot.data.model.Roles
-import com.lucio.guzzobot.ui.components.Spark
+import com.lucio.guzzobot.ui.components.GuzzoBotLogo
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.Calendar
@@ -548,7 +548,7 @@ private fun EmptyState(onSuggestion: (String) -> Unit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spark(size = 34.dp)
+        GuzzoBotLogo(size = 76.dp)
         Text(
             text = stringResource(greeting),
             style = MaterialTheme.typography.displaySmall,

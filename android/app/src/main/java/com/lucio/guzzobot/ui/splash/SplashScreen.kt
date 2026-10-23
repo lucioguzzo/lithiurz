@@ -74,7 +74,7 @@ fun SplashScreen(onFinished: () -> Unit) {
                 .alpha(fade.value)
                 .scale(grow.value),
         ) {
-            GuzzoBotLogo(size = 112.dp, corner = 28.dp)
+            GuzzoBotLogo(size = 116.dp)
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.displaySmall.copy(
