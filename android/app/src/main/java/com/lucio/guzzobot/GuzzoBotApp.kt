@@ -1,6 +1,7 @@
 package com.lucio.guzzobot
 
 import android.app.Application
+import com.lucio.guzzobot.data.agent.AgentEngine
 import com.lucio.guzzobot.data.files.AttachmentStore
 import com.lucio.guzzobot.data.local.GuzzoBotDatabase
 import com.lucio.guzzobot.data.media.AudioPlayer
@@ -25,6 +26,7 @@ class AppContainer(private val app: Application) {
     }
     private val database = GuzzoBotDatabase.create(app)
     val repository = ChatRepository(database.chatDao())
+    val taskDao = database.taskDao()
     val settingsStore = SettingsStore(app, json)
     val secretStore = SecretStore(app)
     val chatApi = ChatApi(json)
@@ -32,6 +34,7 @@ class AppContainer(private val app: Application) {
     val audioRecorder = AudioRecorder(app)
     val audioPlayer = AudioPlayer()
     val deviceSpeaker = DeviceSpeaker(app)
+    val agentEngine = AgentEngine(repository, chatApi, json)
 }
 
 class GuzzoBotApp : Application() {

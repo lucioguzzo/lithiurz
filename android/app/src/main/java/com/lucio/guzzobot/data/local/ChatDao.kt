@@ -2,6 +2,7 @@ package com.lucio.guzzobot.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
 
@@ -49,4 +50,26 @@ interface ChatDao {
 
     @Query("SELECT COUNT(*) FROM messages WHERE conversationId = :id")
     suspend fun messageCount(id: Long): Int
+}
+
+@Dao
+interface TaskDao {
+
+    @Query("SELECT * FROM tasks ORDER BY id DESC")
+    fun observeTasks(): Flow<List<ScheduledTaskEntity>>
+
+    @Query("SELECT * FROM tasks WHERE id = :id")
+    suspend fun task(id: Long): ScheduledTaskEntity?
+
+    @Query("SELECT * FROM tasks WHERE enabled = 1")
+    suspend fun enabledTasks(): List<ScheduledTaskEntity>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun upsert(task: ScheduledTaskEntity): Long
+
+    @Query("DELETE FROM tasks WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("UPDATE tasks SET lastRunAt = :at, lastOutcome = :outcome WHERE id = :id")
+    suspend fun recordRun(id: Long, at: Long, outcome: String)
 }

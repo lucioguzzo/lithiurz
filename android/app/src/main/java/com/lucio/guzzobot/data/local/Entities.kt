@@ -47,3 +47,18 @@ data class MessageEntity(
     val toolName: String? = null,
     val createdAt: Long,
 )
+
+/** Un compito che GUZZOBOT esegue da solo a intervalli. */
+@Entity(tableName = "tasks")
+data class ScheduledTaskEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val title: String,
+    val goal: String,
+    /** Ogni quante ore ripeterlo: WorkManager non scende sotto i 15 minuti. */
+    val everyHours: Int = 24,
+    /** Senza nessuno che approvi, di norma il compito legge e riferisce soltanto. */
+    val mayWrite: Boolean = false,
+    val enabled: Boolean = true,
+    val lastRunAt: Long? = null,
+    val lastOutcome: String? = null,
+)

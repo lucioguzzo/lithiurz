@@ -58,6 +58,7 @@ fun SettingsScreen(
     onBack: () -> Unit,
     onOpenProvider: (String) -> Unit,
     onOpenWorkspace: () -> Unit,
+    onOpenTasks: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var confirmWipe by remember { mutableStateOf(false) }
@@ -246,6 +247,32 @@ fun SettingsScreen(
                     )
                     Text(
                         text = stringResource(R.string.workspace_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Outlined.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(onClick = onOpenTasks)
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.tasks),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = stringResource(R.string.tasks_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

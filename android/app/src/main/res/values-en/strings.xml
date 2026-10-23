@@ -118,4 +118,20 @@
     <string name="tool_activity">File operations</string>
     <string name="workspace_active">Workspace: %1$s</string>
     <string name="tag_vision">sees images</string>
+    <string name="agent_on">Agent mode on</string>
+    <string name="agent_off">Agent mode</string>
+    <string name="agent_working">The agent is working</string>
+    <string name="agent_progress">step %1$d of %2$d · %3$d min</string>
+    <string name="tasks">Scheduled tasks</string>
+    <string name="tasks_hint">GUZZOBOT runs the goal on its own and leaves the result in a conversation. Android guarantees the frequency, not the exact time.</string>
+    <string name="task_new">New task</string>
+    <string name="task_title">Title</string>
+    <string name="task_goal">Goal</string>
+    <string name="task_every">Every how many hours</string>
+    <string name="task_may_write">May write and commit</string>
+    <string name="task_may_write_hint">Off: it reads, analyses and reports without touching anything. The safe choice, since nobody is there to approve.</string>
+    <string name="task_enabled">Enabled</string>
+    <string name="task_run_now">Run now</string>
+    <string name="task_none">No scheduled tasks</string>
+    <string name="task_done">Task completed</string>
 </resources>

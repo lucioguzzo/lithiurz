@@ -120,4 +120,20 @@
     <string name="tool_activity">Operazioni sui file</string>
     <string name="workspace_active">Area di lavoro: %1$s</string>
     <string name="tag_vision">vede le immagini</string>
+    <string name="agent_on">Modalità agente attiva</string>
+    <string name="agent_off">Modalità agente</string>
+    <string name="agent_working">L\'agente sta lavorando</string>
+    <string name="agent_progress">passo %1$d di %2$d · %3$d min</string>
+    <string name="tasks">Compiti pianificati</string>
+    <string name="tasks_hint">GUZZOBOT esegue l\'obiettivo da solo e ti lascia il risultato in una conversazione. Android garantisce la frequenza, non l\'orario esatto.</string>
+    <string name="task_new">Nuovo compito</string>
+    <string name="task_title">Titolo</string>
+    <string name="task_goal">Obiettivo</string>
+    <string name="task_every">Ogni quante ore</string>
+    <string name="task_may_write">Può scrivere e committare</string>
+    <string name="task_may_write_hint">Spento: legge, analizza e riferisce, senza toccare nulla. È il modo sicuro, visto che nessuno è lì a dare conferme.</string>
+    <string name="task_enabled">Attivo</string>
+    <string name="task_run_now">Esegui adesso</string>
+    <string name="task_none">Nessun compito pianificato</string>
+    <string name="task_done">Compito completato</string>
 </resources>

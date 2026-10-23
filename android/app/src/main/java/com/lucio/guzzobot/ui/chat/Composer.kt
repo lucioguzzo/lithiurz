@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.unit.dp
 import com.lucio.guzzobot.R
+import androidx.compose.material.icons.outlined.AutoAwesome
 import com.lucio.guzzobot.data.model.Attachment
 import com.lucio.guzzobot.ui.components.SparkPulse
 
@@ -55,6 +56,10 @@ fun Composer(
     onStopRecording: () -> Unit,
     onCancelRecording: () -> Unit,
     busy: String?,
+    agentAvailable: Boolean,
+    agentMode: Boolean,
+    onAgentModeChange: (Boolean) -> Unit,
+    agentProgress: AgentProgress?,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -93,6 +98,79 @@ fun Composer(
                         style = MaterialTheme.typography.labelLarge,
                     )
                 }
+            }
+        }
+
+        agentProgress?.let { progress ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                SparkPulse(size = 14.dp)
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.agent_working),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.agent_progress,
+                            progress.steps,
+                            progress.maxSteps,
+                            progress.minutes,
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+
+        if (agentAvailable && agentProgress == null) {
+            Row(
+                modifier = Modifier
+                    .padding(bottom = 8.dp, start = 2.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(
+                        if (agentMode) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.14f)
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        },
+                    )
+                    .clickable { onAgentModeChange(!agentMode) }
+                    .padding(horizontal = 12.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.AutoAwesome,
+                    contentDescription = null,
+                    tint = if (agentMode) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    modifier = Modifier.size(15.dp),
+                )
+                Text(
+                    text = stringResource(
+                        if (agentMode) R.string.agent_on else R.string.agent_off,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = if (agentMode) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                )
             }
         }
 

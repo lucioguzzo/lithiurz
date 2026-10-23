@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-3.2.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.0.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -74,6 +74,57 @@ operazione, rifiutarla, oppure dire *"consenti sempre in questa chat"* — che
 vale solo per la conversazione in corso. In Impostazioni c'è anche
 l'interruttore **"Lascialo operare in autonomia"**, che toglie la conferma
 ovunque: letture e ricerche non la chiedono mai, perché non cambiano niente.
+
+### Modalità agente
+
+L'interruttore **Agente**, accanto al composer, cambia il modo di lavorare: il
+messaggio non è una domanda ma un **obiettivo**. L'agente esplora, decide,
+agisce, controlla il risultato e corregge, da solo, finché non dichiara di aver
+finito (`agent_finish`), si blocca e chiede (`agent_blocked`), o esaurisce il
+tetto di sicurezza: **60 passi, 40 giri di modello, 25 minuti**, con stop
+immediato dalla freccia del composer. Quattro errori di fila lo fermano: se
+qualcosa non torna, insistere non serve. Ogni operazione resta nella
+conversazione, quindi il registro di cosa ha fatto è la chat stessa.
+
+Due accorgimenti perché le corse lunghe restino sensate: i risultati più
+vecchi degli strumenti vengono abbreviati nella richiesta (gli ultimi otto
+passi restano per intero), e se il modello smette di agire senza concludere
+viene richiamato all'ordine, al massimo tre volte.
+
+### Verificare il lavoro: la CI come banco di prova
+
+Sul telefono non esistono shell né compilatore, quindi un agente di codice non
+potrebbe provare quello che scrive. La via d'uscita è il cloud: con un'area di
+lavoro GitHub l'agente ha anche gli strumenti `git_branch`, `ci_run`,
+`ci_status` e `pr_open`, e il flusso che gli viene chiesto di seguire è:
+
+1. crea un branch, così il ramo principale resta intatto;
+2. scrive le modifiche (un solo commit per gruppo di file);
+3. avvia il workflow con `ci_run`;
+4. aspetta l'esito con `ci_status` — l'attesa avviene nell'app, non facendo
+   spendere al modello un giro per volta — e riceve conclusione, lavori falliti
+   e **le righe utili dei log**, non migliaia di righe;
+5. se è rosso corregge e ripete; a verde apre la pull request.
+
+Il token GitHub deve avere i permessi **Contents: read & write**, **Pull
+requests: read & write** e **Actions: read & write**; il workflow deve
+prevedere `workflow_dispatch`.
+
+### Compiti pianificati
+
+In **Impostazioni → Compiti pianificati** si danno a GUZZOBOT obiettivi
+ricorrenti — "ogni mattina controlla i commit nuovi e dimmi se la build è
+rotta". Girano con WorkManager, sopravvivono al riavvio e lasciano il risultato
+in una conversazione, con una notifica alla fine.
+
+Due limiti dichiarati: Android garantisce la **frequenza** (minimo 15 minuti),
+non l'orario esatto, e col telefono in Doze slitta; un worker viene fermato
+dopo **dieci minuti**, quindi il budget di un compito pianificato è più stretto
+(25 passi, 8 minuti) e, se non basta, l'agente lo dice e si riprende dall'app.
+
+Di default un compito pianificato è **in sola lettura**: legge, analizza e
+riferisce. Il permesso di scrivere e committare è un interruttore per singolo
+compito, perché lì nessuno è davanti allo schermo a dare conferme.
 
 ### Lavorare in background
 
@@ -249,13 +300,15 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ model/               provider, preset, impostazioni, allegati, capacità
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
-│  ├─ workspace/           cartella locale, repository GitHub, strumenti
+│  ├─ agent/               ciclo dell'agente, budget, prompt di sistema
+│  ├─ workspace/           cartella locale, repository GitHub, Actions, strumenti
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
 │  ├─ media/               registratore, player, sintesi vocale di sistema
 │  ├─ remote/              chat in streaming, vision, whisper, immagini, voce
 │  └─ repo/                ChatRepository
 ├─ service/                servizio in primo piano per il lavoro in background
+├─ work/                   compiti pianificati con WorkManager
 └─ ui/
    ├─ theme/               palette crema/terracotta, tipografia serif
    ├─ chat/                chat, composer, allegati, drawer, ViewModel

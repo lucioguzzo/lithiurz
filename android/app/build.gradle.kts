@@ -29,8 +29,8 @@ android {
         applicationId = "com.lucio.guzzobot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 9
-        versionName = "3.2"
+        versionCode = 10
+        versionName = "4.0"
     }
 
     signingConfigs {
@@ -100,6 +100,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.documentfile)
+    implementation(libs.androidx.work)
     implementation(libs.pdfbox.android)
     implementation(libs.kotlinx.serialization.json)
     debugImplementation(libs.androidx.compose.ui.tooling)

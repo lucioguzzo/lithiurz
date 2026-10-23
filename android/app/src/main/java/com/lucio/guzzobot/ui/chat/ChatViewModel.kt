@@ -8,9 +8,14 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.lucio.guzzobot.AppContainer
 import com.lucio.guzzobot.data.files.AttachmentStore
+import com.lucio.guzzobot.data.agent.AgentEngine
+import com.lucio.guzzobot.data.agent.AgentLimits
+import com.lucio.guzzobot.data.agent.AgentRun
 import com.lucio.guzzobot.data.files.TextExtractor
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.local.MessageEntity
+import com.lucio.guzzobot.data.local.ScheduledTaskEntity
+import com.lucio.guzzobot.data.local.TaskDao
 import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
 import com.lucio.guzzobot.data.media.DeviceSpeaker
@@ -35,11 +40,12 @@ import com.lucio.guzzobot.data.remote.ToolCall
 import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.WorkspaceMode
 import com.lucio.guzzobot.data.repo.ChatRepository
-import com.lucio.guzzobot.data.workspace.GitHubWorkspace
-import com.lucio.guzzobot.data.workspace.LocalWorkspace
 import com.lucio.guzzobot.data.workspace.Workspace
+import com.lucio.guzzobot.data.workspace.WorkspaceBundle
+import com.lucio.guzzobot.data.workspace.WorkspaceFactory
 import com.lucio.guzzobot.data.workspace.WorkspaceTools
 import com.lucio.guzzobot.service.WorkspaceService
+import com.lucio.guzzobot.work.TaskScheduler
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,6 +75,15 @@ data class StreamingState(
     val reasoning: String = "",
 )
 
+/** L'avanzamento dell'agente, mostrato sopra il composer. */
+data class AgentProgress(
+    val goal: String,
+    val steps: Int,
+    val maxSteps: Int,
+    val minutes: Long,
+    val note: String = "",
+)
+
 /** Una modifica che aspetta il sì dell'utente. */
 data class ApprovalRequest(
     val title: String,
@@ -96,6 +111,8 @@ class ChatViewModel(
     private val deviceSpeaker: DeviceSpeaker,
     private val context: Context,
     private val json: Json,
+    private val agentEngine: AgentEngine,
+    private val taskDao: TaskDao,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -128,6 +145,13 @@ class ChatViewModel(
     private val _recording = MutableStateFlow(false)
     val recording: StateFlow<Boolean> = _recording
 
+    private val _agentProgress = MutableStateFlow<AgentProgress?>(null)
+    val agentProgress: StateFlow<AgentProgress?> = _agentProgress
+
+    /** L'interruttore "modalità agente" accanto al composer. */
+    private val _agentMode = MutableStateFlow(false)
+    val agentMode: StateFlow<Boolean> = _agentMode
+
     private val _approval = MutableStateFlow<ApprovalRequest?>(null)
     val approval: StateFlow<ApprovalRequest?> = _approval
 
@@ -151,7 +175,11 @@ class ChatViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Abilities())
 
+    val tasks: StateFlow<List<ScheduledTaskEntity>> =
+        taskDao.observeTasks().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     private var streamJob: Job? = null
+    private var agentJob: Job? = null
     private var approvalGate: CompletableDeferred<Boolean>? = null
 
     /** "Consenti sempre" vale per la conversazione in corso, non per sempre. */
@@ -353,6 +381,10 @@ class ChatViewModel(
         val text = _input.value.trim()
         val files = _pending.value
         if ((text.isEmpty() && files.isEmpty()) || _streaming.value != null) return
+        if (_agentMode.value && files.isEmpty()) {
+            startAgent(text)
+            return
+        }
         val current = settings.value
         val provider = current.activeProvider
         if (provider == null) {
@@ -499,7 +531,88 @@ class ChatViewModel(
     fun stop() {
         streamJob?.cancel()
         streamJob = null
+        agentJob?.cancel()
+        agentJob = null
+        approvalGate?.complete(false)
     }
+
+    fun setAgentMode(value: Boolean) {
+        _agentMode.value = value
+    }
+
+    /**
+     * Avvia una corsa dell'agente sull'obiettivo scritto nel composer: va avanti
+     * da solo finché non conclude, si blocca o esaurisce il budget.
+     */
+    fun startAgent(goal: String) {
+        if (goal.isBlank() || _agentProgress.value != null || _streaming.value != null) return
+        val current = settings.value
+        val provider = current.activeProvider
+        if (provider == null || !isReady(provider)) {
+            notice("Configura un provider con la sua chiave per usare l'agente")
+            return
+        }
+        val bundle = bundle(current)
+        if (bundle == null) {
+            notice("L'agente ha bisogno di un'area di lavoro: impostala prima")
+            return
+        }
+        _input.value = ""
+        agentJob = viewModelScope.launch {
+            if (current.backgroundWork) {
+                WorkspaceService.start(
+                    context,
+                    context.getString(com.lucio.guzzobot.R.string.service_working),
+                )
+            }
+            val id = _conversationId.value
+                ?: repository.createConversation(provider.id, current.activeModel, titleFrom(goal))
+                    .also { _conversationId.value = it }
+            val wasEmpty = repository.isEmpty(id)
+            repository.addMessage(id, Roles.USER, goal)
+            if (wasEmpty) repository.rename(id, titleFrom(goal))
+            try {
+                agentEngine.run(
+                    conversationId = id,
+                    goal = goal,
+                    provider = provider,
+                    apiKey = secretStore.apiKey(provider.id),
+                    model = current.activeModel,
+                    settings = current,
+                    workspace = bundle.workspace,
+                    github = bundle.github,
+                    actions = bundle.actions,
+                    limits = AgentLimits(),
+                    approve = { call ->
+                        if (current.autonomousTools || sessionAutonomy) true else requestApproval(call)
+                    },
+                    onProgress = { run -> _agentProgress.value = snapshot(run) },
+                    onChunk = { content, reasoning ->
+                        _streaming.value = StreamingState(
+                            conversationId = id,
+                            model = current.activeModel,
+                            content = content,
+                            reasoning = reasoning,
+                        )
+                    },
+                    onTool = { description -> _busy.value = "$description…" },
+                )
+            } finally {
+                _streaming.value = null
+                _busy.value = null
+                _agentProgress.value = null
+                agentJob = null
+                WorkspaceService.stop(context)
+            }
+        }
+    }
+
+    private fun snapshot(run: AgentRun) = AgentProgress(
+        goal = run.goal,
+        steps = run.steps,
+        maxSteps = run.limits.maxSteps,
+        minutes = run.elapsedMinutes,
+    )
 
     fun regenerate() {
         val id = _conversationId.value ?: return
@@ -557,7 +670,9 @@ class ChatViewModel(
                             messages = history,
                             temperature = current.temperature,
                             maxTokens = current.maxTokens,
-                            tools = if (workspace(current) != null) WorkspaceTools.definitions() else null,
+                            tools = bundle(current)?.let { active ->
+                                WorkspaceTools.definitions(github = active.github != null)
+                            },
                         ).collect { event ->
                             when (event) {
                                 is StreamEvent.Content -> {
@@ -674,30 +789,10 @@ class ChatViewModel(
         approvalGate?.complete(allow)
     }
 
-    /** L'area di lavoro attiva, o null se non è configurata. */
-    private fun workspace(current: AppSettings): Workspace? {
-        val config = current.workspace
-        if (!config.isConfigured) return null
-        return runCatching {
-            when (config.mode) {
-                WorkspaceMode.LOCAL -> LocalWorkspace(
-                    context = context,
-                    treeUri = config.localTreeUri!!,
-                    label = config.label,
-                )
+    private fun bundle(current: AppSettings): WorkspaceBundle? =
+        WorkspaceFactory.create(context, current, secretStore, json)
 
-                WorkspaceMode.GITHUB -> GitHubWorkspace(
-                    owner = config.owner!!,
-                    repo = config.repo!!,
-                    branch = config.branch,
-                    token = secretStore.apiKey(WorkspaceConfig.GITHUB_SECRET),
-                    json = json,
-                )
-
-                WorkspaceMode.NONE -> null
-            }
-        }.getOrNull()
-    }
+    private fun workspace(current: AppSettings): Workspace? = bundle(current)?.workspace
 
     private fun encodeToolCalls(calls: List<ToolCall>): String = json.encodeToString(
         ListSerializer(ApiToolCall.serializer()),
@@ -978,6 +1073,24 @@ class ChatViewModel(
         settingsStore.setBackgroundWork(value)
     }
 
+    // --- compiti pianificati ----------------------------------------------
+
+    fun saveTask(task: ScheduledTaskEntity) = viewModelScope.launch {
+        val id = taskDao.upsert(task)
+        val stored = taskDao.task(if (task.id == 0L) id else task.id) ?: return@launch
+        TaskScheduler.sync(context, stored)
+    }
+
+    fun deleteTask(id: Long) = viewModelScope.launch {
+        TaskScheduler.cancel(context, id)
+        taskDao.delete(id)
+    }
+
+    fun runTaskNow(id: Long) {
+        TaskScheduler.runNow(context, id)
+        notice("Compito avviato: riceverai una notifica alla fine")
+    }
+
     fun apiKey(providerId: String): String = secretStore.apiKey(providerId)
 
     fun setApiKey(providerId: String, key: String) = secretStore.setApiKey(providerId, key)
@@ -1083,6 +1196,8 @@ class ChatViewModel(
                     deviceSpeaker = container.deviceSpeaker,
                     context = container.appContext,
                     json = container.json,
+                    agentEngine = container.agentEngine,
+                    taskDao = container.taskDao,
                 )
             }
         }

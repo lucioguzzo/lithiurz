@@ -28,13 +28,14 @@ class AttachmentConverter {
 }
 
 @Database(
-    entities = [ConversationEntity::class, MessageEntity::class],
-    version = 3,
+    entities = [ConversationEntity::class, MessageEntity::class, ScheduledTaskEntity::class],
+    version = 4,
     exportSchema = false,
 )
 @TypeConverters(AttachmentConverter::class)
 abstract class GuzzoBotDatabase : RoomDatabase() {
     abstract fun chatDao(): ChatDao
+    abstract fun taskDao(): TaskDao
 
     companion object {
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -51,9 +52,21 @@ abstract class GuzzoBotDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS tasks (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "title TEXT NOT NULL, goal TEXT NOT NULL, " +
+                        "everyHours INTEGER NOT NULL, mayWrite INTEGER NOT NULL, " +
+                        "enabled INTEGER NOT NULL, lastRunAt INTEGER, lastOutcome TEXT)",
+                )
+            }
+        }
+
         fun create(context: Context): GuzzoBotDatabase =
             Room.databaseBuilder(context, GuzzoBotDatabase::class.java, "guzzobot.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .fallbackToDestructiveMigration()
                 .build()
     }

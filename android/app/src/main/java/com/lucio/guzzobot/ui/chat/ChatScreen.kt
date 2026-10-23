@@ -96,6 +96,8 @@ fun ChatScreen(
     val playing by viewModel.audioPlayer.playing.collectAsStateWithLifecycle()
     val speaking by viewModel.speaking.collectAsStateWithLifecycle()
     val approval by viewModel.approval.collectAsStateWithLifecycle()
+    val agentProgress by viewModel.agentProgress.collectAsStateWithLifecycle()
+    val agentMode by viewModel.agentMode.collectAsStateWithLifecycle()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -289,7 +291,7 @@ fun ChatScreen(
                     onValueChange = viewModel::setInput,
                     onSend = viewModel::send,
                     onStop = viewModel::stop,
-                    streaming = streaming != null,
+                    streaming = streaming != null || agentProgress != null,
                     ready = ready,
                     onOpenSettings = onOpenSettings,
                     pending = pending,
@@ -300,6 +302,10 @@ fun ChatScreen(
                     onStopRecording = viewModel::stopRecording,
                     onCancelRecording = viewModel::cancelRecording,
                     busy = busy,
+                    agentAvailable = settings.workspace.isConfigured,
+                    agentMode = agentMode,
+                    onAgentModeChange = viewModel::setAgentMode,
+                    agentProgress = agentProgress,
                 )
             },
         ) { padding ->
@@ -322,7 +328,11 @@ fun ChatScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(18.dp),
                     ) {
-                        items(messages, key = { it.id }) { message ->
+                        // I richiami interni all'agente restano fuori dalla lettura.
+                        items(
+                            messages.filterNot { it.role == Roles.SYSTEM },
+                            key = { it.id },
+                        ) { message ->
                             if (message.role == Roles.TOOL || message.toolCalls != null) {
                                 ToolRow(message)
                             } else if (message.role == Roles.USER) {

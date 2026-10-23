@@ -1,5 +1,6 @@
 package com.lucio.guzzobot.data.workspace
 
+import com.lucio.guzzobot.data.agent.AgentRun
 import com.lucio.guzzobot.data.remote.ToolCall
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
@@ -24,11 +25,22 @@ object WorkspaceTools {
     const val WRITE = "workspace_write"
     const val DELETE = "workspace_delete"
     const val SEARCH = "workspace_search"
+    const val BRANCH = "git_branch"
+    const val PULL_REQUEST = "pr_open"
+    const val CI_LIST = "ci_list"
+    const val CI_RUN = "ci_run"
+    const val CI_STATUS = "ci_status"
+    const val FINISH = "agent_finish"
+    const val BLOCKED = "agent_blocked"
 
-    /** Le operazioni che cambiano qualcosa: sono quelle che passano dal permesso. */
-    fun modifies(name: String): Boolean = name == WRITE || name == DELETE
+    /**
+     * Le operazioni che cambiano qualcosa fuori dall'app: sono quelle che
+     * passano dal permesso. Creare un branch o far girare la CI no: si
+     * disfano da sé e bloccherebbero l'agente a ogni passo.
+     */
+    fun modifies(name: String): Boolean = name == WRITE || name == DELETE || name == PULL_REQUEST
 
-    fun definitions(): JsonArray = buildJsonArray {
+    fun definitions(github: Boolean = false, agent: Boolean = false): JsonArray = buildJsonArray {
         add(
             tool(
                 name = LIST,
@@ -100,6 +112,78 @@ object WorkspaceTools {
                 put("content", parameter("boolean", "true per cercare anche dentro ai file"))
             },
         )
+        if (github) {
+            add(
+                tool(
+                    name = BRANCH,
+                    description = "Crea un branch e ci sposta il lavoro successivo. " +
+                        "Usalo prima di modificare il codice, così il ramo principale resta intatto.",
+                    required = listOf("name"),
+                ) {
+                    put("name", parameter("string", "Nome del nuovo branch"))
+                    put("from", parameter("string", "Branch di partenza; vuoto per quello corrente"))
+                },
+            )
+            add(
+                tool(
+                    name = PULL_REQUEST,
+                    description = "Apre una pull request dal branch corrente.",
+                    required = listOf("title"),
+                ) {
+                    put("title", parameter("string", "Titolo della pull request"))
+                    put("body", parameter("string", "Descrizione: cosa cambia e perché"))
+                    put("base", parameter("string", "Branch di destinazione, di norma main"))
+                },
+            )
+            add(
+                tool(
+                    name = CI_LIST,
+                    description = "Elenca i workflow di GitHub Actions del repository.",
+                ) {},
+            )
+            add(
+                tool(
+                    name = CI_RUN,
+                    description = "Avvia un workflow sul branch corrente. Richiede che il " +
+                        "workflow preveda workflow_dispatch.",
+                    required = listOf("workflow"),
+                ) {
+                    put("workflow", parameter("string", "Nome o file del workflow"))
+                },
+            )
+            add(
+                tool(
+                    name = CI_STATUS,
+                    description = "Aspetta l'esito dell'ultima corsa sul branch corrente e " +
+                        "restituisce conclusione e righe utili dei log. È così che verifichi " +
+                        "il tuo lavoro: qui non esistono shell né compilatore.",
+                ) {
+                    put("wait", parameter("integer", "Secondi di attesa, al massimo 600"))
+                },
+            )
+        }
+        if (agent) {
+            add(
+                tool(
+                    name = FINISH,
+                    description = "Dichiara concluso il compito. Chiamalo solo quando il " +
+                        "risultato è raggiunto e verificato.",
+                    required = listOf("summary"),
+                ) {
+                    put("summary", parameter("string", "Cosa hai fatto, in poche righe"))
+                },
+            )
+            add(
+                tool(
+                    name = BLOCKED,
+                    description = "Fermati e chiedi: usalo quando ti manca un'informazione o " +
+                        "un permesso e non puoi proseguire da solo.",
+                    required = listOf("reason"),
+                ) {
+                    put("reason", parameter("string", "Cosa ti serve per andare avanti"))
+                },
+            )
+        }
     }
 
     /** Riga che descrive la chiamata all'utente, nel riquadro di attività. */
@@ -116,6 +200,13 @@ object WorkspaceTools {
             }
             DELETE -> "Elimina $path"
             SEARCH -> "Cerca \"${arguments.text("query")}\""
+            BRANCH -> "Crea il branch ${arguments.text("name")}"
+            PULL_REQUEST -> "Apre la pull request \"${arguments.text("title")}\""
+            CI_LIST -> "Elenca i workflow"
+            CI_RUN -> "Avvia ${arguments.text("workflow")}"
+            CI_STATUS -> "Controlla l'esito della CI"
+            FINISH -> "Conclude il compito"
+            BLOCKED -> "Chiede indicazioni"
             else -> call.name
         }
     }
@@ -133,13 +224,66 @@ object WorkspaceTools {
                     if (more > 0) "\n… altre $more righe" else ""
             }
             DELETE -> "Il file ${arguments.text("path")} verrà eliminato."
+            PULL_REQUEST -> "${arguments.text("title")}\n\n${arguments.text("body").take(600)}"
             else -> ""
         }
     }
 
-    suspend fun execute(workspace: Workspace, call: ToolCall): String {
+    suspend fun execute(
+        workspace: Workspace,
+        call: ToolCall,
+        github: GitHubWorkspace? = null,
+        actions: GitHubActions? = null,
+        run: AgentRun? = null,
+    ): String {
         val arguments = parse(call.arguments)
         return when (call.name) {
+            BRANCH -> github?.createBranch(
+                name = arguments.text("name"),
+                from = arguments.text("from").ifBlank { null },
+            ) ?: throw WorkspaceException("I branch esistono solo su un'area di lavoro GitHub")
+
+            PULL_REQUEST -> github?.openPullRequest(
+                title = arguments.text("title"),
+                body = arguments.text("body"),
+                base = arguments.text("base").ifBlank { "main" },
+            ) ?: throw WorkspaceException("Le pull request esistono solo su GitHub")
+
+            CI_LIST -> actions?.workflows()
+                ?.joinToString("\n") { "${it.name} (${it.path})" }
+                ?.ifBlank { "Nessun workflow nel repository" }
+                ?: throw WorkspaceException("GitHub Actions richiede un'area di lavoro GitHub")
+
+            CI_RUN -> {
+                val branch = github?.branch
+                    ?: throw WorkspaceException("GitHub Actions richiede un'area di lavoro GitHub")
+                val service = actions ?: throw WorkspaceException("Actions non disponibile")
+                val last = service.lastRunId(branch)
+                service.dispatch(arguments.text("workflow"), branch)
+                "Workflow avviato su $branch. Usa ${CI_STATUS} per aspettarne l'esito. " +
+                    "(ultima corsa precedente: $last)"
+            }
+
+            CI_STATUS -> {
+                val branch = github?.branch
+                    ?: throw WorkspaceException("GitHub Actions richiede un'area di lavoro GitHub")
+                val service = actions ?: throw WorkspaceException("Actions non disponibile")
+                val wait = arguments["wait"]?.jsonPrimitive?.content?.toIntOrNull() ?: 240
+                val outcome = service.awaitRun(branch, afterId = 0, waitSeconds = wait)
+                    ?: return "Nessuna corsa trovata su $branch"
+                service.report(outcome)
+            }
+
+            FINISH -> {
+                run?.finish(arguments.text("summary"))
+                "Compito dichiarato concluso."
+            }
+
+            BLOCKED -> {
+                run?.blocked(arguments.text("reason"))
+                "Richiesta di indicazioni registrata."
+            }
+
             LIST -> {
                 val entries = workspace.list(arguments.text("path"))
                 if (entries.isEmpty()) {
@@ -196,6 +340,7 @@ object WorkspaceTools {
         append("Usa gli strumenti workspace_* per esplorarla e modificarla: i percorsi sono ")
         append("relativi alla radice, senza \"..\" e senza barra iniziale. ")
         append("Prima di modificare un file leggilo, e scrivi sempre il contenuto completo. ")
+        append("Non hai shell né compilatore: per verificare il codice usa la CI di GitHub. ")
         append(
             if (autonomous) {
                 "Puoi scrivere ed eliminare senza chiedere, ma spiega ogni modifica che fai."
