@@ -19,6 +19,7 @@ import com.lucio.guzzobot.data.model.Attachment
 import com.lucio.guzzobot.data.model.AttachmentKind
 import com.lucio.guzzobot.data.model.ModelCapabilities
 import com.lucio.guzzobot.data.model.ModelRef
+import com.lucio.guzzobot.data.model.VisionRouting
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.model.ThemeMode
@@ -142,7 +143,8 @@ class ChatViewModel(
     val abilities: StateFlow<Abilities> = combine(settings, secretStore.changes) { current, _ ->
         Abilities(
             nativeVision = current.forceNativeVision || ModelCapabilities.seesImages(current.activeModel),
-            canDescribeImages = usable(current, current.visionRef),
+            canDescribeImages = usable(current, current.visionRef) ||
+                VisionRouting.pick(current.providers, current.activeProviderId) { isReady(it) } != null,
             canTranscribe = usable(current, current.transcribeRef),
             canGenerateImages = usable(current, current.imageRef),
             canSpeakWithProvider = usable(current, current.speechRef),
@@ -393,15 +395,23 @@ class ChatViewModel(
         }
         if (native || needsReading.isEmpty()) return files
 
-        val ref = current.visionRef
-        if (ref == null || !usable(current, ref)) {
+        // Il modello scelto a mano, oppure uno capace fra quelli configurati.
+        val chosen = current.visionRef?.takeIf { usable(current, it) }
+        val ref = chosen ?: VisionRouting.pick(
+            providers = current.providers,
+            preferProviderId = current.activeProviderId,
+        ) { provider -> isReady(provider) }
+        if (ref == null) {
             // Un video con l'audio già trascritto resta utile anche senza vision.
             if (needsReading.all { it.hasText }) return files
             notice(
-                "${current.activeModel} non legge le immagini. Scegli un modello vision " +
-                    "nelle impostazioni: lo userò per descriverle.",
+                "${current.activeModel} non legge le immagini e non ne trovo uno che le " +
+                    "veda fra i provider configurati: aggiungine uno nelle impostazioni.",
             )
             return null
+        }
+        if (chosen == null) {
+            notice("${current.activeModel} non vede le immagini: le legge ${ref.model}")
         }
         val provider = current.providers.firstOrNull { it.id == ref.providerId } ?: return null
         val apiKey = secretStore.apiKey(provider.id)

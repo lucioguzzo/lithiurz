@@ -81,9 +81,32 @@ object ModelCapabilities {
         "phi-3.5-vision", "phi-4-multimodal", "mistral-small-3", "mistral-medium-3",
         "gemma-3", "step-1o", "glm-4v", "deepseek-vl", "moondream",
         // DeepSeek-V4.1-Flash vede le immagini; la variante "pro" no.
-        "deepseek-flash", "deepseek-v4-flash-vision",
+        "deepseek-flash", "deepseek-v4-flash-vision", "v4.1-flash",
     )
 
     fun seesImages(model: String): Boolean =
         visionHints.any { model.contains(it, ignoreCase = true) }
+}
+
+/**
+ * Quando il modello in chat non vede le immagini, ne serve uno che le veda.
+ * Invece di fermarsi e chiedere, si cerca fra i modelli già configurati:
+ * prima nello stesso provider — stessa chiave, stesso costo — poi altrove.
+ */
+object VisionRouting {
+
+    fun pick(
+        providers: List<Provider>,
+        preferProviderId: String?,
+        ready: (Provider) -> Boolean,
+    ): ModelRef? {
+        val usable = providers.filter(ready)
+        val ordered = usable.sortedByDescending { it.id == preferProviderId }
+        ordered.forEach { provider ->
+            provider.models.firstOrNull { ModelCapabilities.seesImages(it) }?.let { model ->
+                return ModelRef(provider.id, model)
+            }
+        }
+        return null
+    }
 }

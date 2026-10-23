@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lucio.guzzobot.R
+import com.lucio.guzzobot.data.model.ModelCapabilities
 import com.lucio.guzzobot.data.model.Provider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,16 +82,25 @@ fun ModelSheet(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        Text(
-                            text = model,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (selected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.onBackground
-                            },
-                            modifier = Modifier.weight(1f),
-                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = model,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (selected) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onBackground
+                                },
+                            )
+                            // Sapere prima chi vede le immagini evita di scoprirlo sbagliando.
+                            if (ModelCapabilities.seesImages(model)) {
+                                Text(
+                                    text = stringResource(R.string.tag_vision),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
                         if (selected) {
                             Icon(
                                 imageVector = Icons.Outlined.Check,

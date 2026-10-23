@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-3.1.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-3.2.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -109,10 +109,13 @@ In **Impostazioni → Multimodale** assegni quattro ruoli:
 Cosa succede quando alleghi qualcosa:
 
 - **Foto o immagine.** Se il modello in chat la vede (riconosciuto dal nome:
-  GPT-4o, Pixtral, Qwen-VL, Gemini, Llama 4…) viene inviata direttamente come
-  `image_url`, ridimensionata a 1152px e ruotata secondo l'EXIF. Altrimenti la
-  legge il modello vision e la sua descrizione entra nel messaggio: DeepSeek
-  ragiona su quella. La descrizione viene calcolata una volta sola e salvata.
+  GPT-4o, Pixtral, Qwen-VL, Gemini, Llama 4, `deepseek-flash`…) viene inviata
+  direttamente come `image_url`, ridimensionata a 1152px e ruotata secondo
+  l'EXIF. Altrimenti la legge un modello che le vede e la sua descrizione entra
+  nel messaggio, calcolata una volta sola e salvata. Se non ne hai scelto uno
+  nelle impostazioni, l'app lo trova da sola fra i provider configurati,
+  preferendo lo stesso provider del modello in chat: con `deepseek-v4-pro`
+  attivo, per esempio, l'immagine la legge `deepseek-flash`, stessa chiave.
 - **Documento.** PDF, DOCX, XLSX, PPTX, **DOC, XLS, PPT**, testo, markdown,
   CSV, JSON, XML e i formati di codice vengono letti **sul telefono** e il testo
   entra nel messaggio, troncato a 120.000 caratteri. PDFBox per i PDF, lettura

@@ -117,4 +117,5 @@
     <string name="approve_deny">Deny</string>
     <string name="tool_activity">File operations</string>
     <string name="workspace_active">Workspace: %1$s</string>
+    <string name="tag_vision">sees images</string>
 </resources>
