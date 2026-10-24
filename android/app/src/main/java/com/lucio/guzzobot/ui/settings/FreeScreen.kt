@@ -5,6 +5,8 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +60,7 @@ import com.lucio.guzzobot.ui.chat.ChatViewModel
  * non la credenziale: un pulsante che apre la pagina giusta e un campo in cui
  * incollare.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun FreeScreen(
     viewModel: ChatViewModel,
@@ -108,8 +110,9 @@ fun FreeScreen(
             providers.forEach { provider ->
                 val key = viewModel.apiKey(provider.id)
                 val tier = provider.freeTier ?: return@forEach
-                val ready = key.isNotBlank() || provider.freeTier?.notes
-                    ?.contains(FreeNote.NEEDS_LOCAL_MACHINE) == true
+                // Ollama non chiede una chiave: chiede un computer acceso.
+                val local = tier.notes.contains(FreeNote.NEEDS_LOCAL_MACHINE)
+                val ready = key.isNotBlank() || local
 
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
                     Row(
@@ -152,7 +155,7 @@ fun FreeScreen(
                                 .fillMaxWidth()
                                 .padding(top = 10.dp),
                         )
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Button(
                                 onClick = {
                                     viewModel.activateFreeProvider(provider.id, draft)
@@ -169,7 +172,7 @@ fun FreeScreen(
                             }
                         }
                     } else {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             TextButton(
                                 onClick = {
                                     context.startActivity(
@@ -183,7 +186,9 @@ fun FreeScreen(
                                     modifier = Modifier.size(15.dp),
                                 )
                                 Text(
-                                    text = " " + stringResource(R.string.free_get_key),
+                                    text = " " + stringResource(
+                                        if (local) R.string.free_install else R.string.free_get_key,
+                                    ),
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
                             }
@@ -216,13 +221,6 @@ fun FreeScreen(
                 }
                 Divider()
             }
-
-            Text(
-                text = stringResource(R.string.free_footnote),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
-            )
         }
     }
 }

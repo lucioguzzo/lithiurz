@@ -212,7 +212,6 @@
     <string name="free_note_training">Your prompts are used for training</string>
     <string name="free_note_local">Needs a computer running on the same network</string>
     <string name="free_note_partial">Only some models are free</string>
-    <string name="free_footnote">The model names above are a starting point: as soon as you save a key the app asks the provider which ones actually exist. Free tiers change often, and get shut down — GitHub Models, for one, was retired in July 2026.</string>
     <string name="tag_free">free</string>
     <string name="free_start">No key configured. You can start for free.</string>
     <string name="onboarding_welcome">GUZZOBOT has no servers of its own: it talks straight to the model you choose, and conversations stay on your phone. That is why it needs a model — and you can start for free, in a couple of minutes.</string>
@@ -271,4 +270,5 @@
     <string name="skill_code">Code</string>
     <string name="skill_home">Home and office</string>
     <string name="skill_analysis">Analysis</string>
+    <string name="free_install">Download Ollama</string>
 </resources>

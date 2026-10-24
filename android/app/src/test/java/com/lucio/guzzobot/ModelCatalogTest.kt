@@ -68,29 +68,49 @@ class ModelCatalogTest {
     }
 
     @Test
-    fun `i modelli che non conversano non invadono il selettore`() {
-        val merged = ModelCatalog.merge(
-            curated = listOf("gemini-3.8-flash"),
-            fetched = listOf(
-                "gemini-3.8-flash",
-                "gemini-3.6-flash",
-                "gemini-embedding-001",
-                "gemini-3.8-flash-tts",
-                "gemini-3.5-transcribe",
-                "gemini-3.1-flash-image",
-            ),
+    fun `i modelli che non conversano restano fuori dal selettore della chat`() {
+        val all = listOf(
+            "gemini-3.8-flash",
+            "gemini-3.6-flash",
+            "gemini-embedding-001",
+            "gemini-3.8-flash-tts",
+            "gemini-3.5-transcribe",
+            "gemini-2.5-flash-image",
         )
-        assertEquals(listOf("gemini-3.8-flash", "gemini-3.6-flash"), merged)
+        assertEquals(
+            listOf("gemini-3.8-flash", "gemini-3.6-flash"),
+            ModelCatalog.chatModels(all),
+        )
     }
 
     @Test
-    fun `i modelli di servizio scelti dall'app restano`() {
-        // whisper-1 e tts-1 servono ai ruoli multimodali: non vanno scartati.
+    fun `ma restano nell'elenco del provider, perche' servono ai ruoli`() {
+        // Nasconderli nel selettore è una cosa; cancellarli lascerebbe senza
+        // modello la generazione di immagini e la trascrizione.
+        val fetched = listOf("gemini-3.8-flash", "gemini-2.5-flash-image", "gemini-3.5-transcribe")
+        val merged = ModelCatalog.merge(curated = listOf("gemini-3.8-flash"), fetched = fetched)
+        assertEquals(fetched, merged)
+        assertEquals(listOf("gemini-2.5-flash-image"), ModelCatalog.imageModels(merged))
+        assertEquals(listOf("gemini-3.5-transcribe"), ModelCatalog.transcribeModels(merged))
+    }
+
+    @Test
+    fun `un provider di soli modelli di servizio non resta senza elenco`() {
+        val only = listOf("whisper-1", "tts-1")
+        assertEquals(only, ModelCatalog.chatModels(only))
+    }
+
+    @Test
+    fun `i modelli di servizio restano disponibili ai ruoli`() {
         val curated = listOf("gpt-4o", "whisper-1", "tts-1", "gpt-image-1")
         val merged = ModelCatalog.merge(
             curated = curated,
-            fetched = curated + listOf("text-embedding-3-small", "omni-moderation-latest"),
+            fetched = curated + listOf("text-embedding-3-small"),
         )
-        assertEquals(curated, merged)
+        assertTrue(merged.containsAll(curated))
+        assertEquals(listOf("gpt-image-1"), ModelCatalog.imageModels(merged))
+        assertEquals(listOf("whisper-1"), ModelCatalog.transcribeModels(merged))
+        // Nella chat resta solo quello con cui si può parlare.
+        assertEquals(listOf("gpt-4o"), ModelCatalog.chatModels(merged))
     }
 }

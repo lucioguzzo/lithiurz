@@ -136,7 +136,7 @@ object Providers {
             keyPattern = "xai-[A-Za-z0-9]{40,}",
             name = "xAI",
             baseUrl = "https://api.x.ai/v1",
-            models = listOf("grok-2-latest"),
+            models = listOf("grok-2-latest", "grok-2-image"),
             keyUrl = "https://console.x.ai",
             builtIn = true,
         ),
@@ -172,7 +172,15 @@ object Providers {
             // regge /chat/completions in streaming, /models e le immagini.
             baseUrl = "https://generativelanguage.googleapis.com/v1beta/openai/",
             // Punto di partenza: l'elenco vero arriva da /models.
-            models = listOf("gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"),
+            models = listOf(
+                "gemini-3.8-flash",
+                "gemini-3.6-flash",
+                "gemini-3.5-flash-lite",
+                // Generano immagini su /images/generations, lo stesso endpoint
+                // compatibile con l'API OpenAI: nel piano gratuito.
+                "gemini-2.5-flash-image",
+                "gemini-3-pro-image-preview",
+            ),
             keyUrl = "https://aistudio.google.com/apikey",
             builtIn = true,
             freeTier = FreeTier(

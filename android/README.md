@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.6.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.7.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -104,7 +104,7 @@ Nessuna carta di credito, in nessuno dei casi.
 
 | Provider | Cosa dà di gratuito |
 |---|---|
-| **Google AI Studio (Gemini)** | L'unico gratuito che **vede le immagini**; endpoint compatibile con l'API OpenAI, documentato da Google. Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
+| **Google AI Studio (Gemini)** | L'unico gratuito che **vede le immagini** e l'unico che le **genera** (`/images/generations`, lo stesso endpoint compatibile OpenAI). Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
 | **Groq** | 30 richieste al minuto e `/audio/transcriptions`: è l'unico gratuito che **trascrive gli audio** |
 | **Cerebras** | 30 richieste al minuto, latenza bassissima, finestra ridotta rispetto al piano a pagamento |
 | **OpenRouter** | I modelli con il suffisso `:free` — 20 richieste al minuto, 50 al giorno |
@@ -116,8 +116,8 @@ Quando tocchi *Incolla la chiave*, se è già negli appunti il campo arriva
 compilato. L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
 GUZZOBOT, non un generico "sono più lenti": i limiti al minuto e al giorno che
 un obiettivo dell'agente brucia in fretta; le immagini che solo Gemini accetta;
-la generazione di immagini e la lettura ad alta voce che gratis non esistono da
-nessuna parte, quindi quelle funzioni restano spente; il tool calling
+la lettura ad alta voce che gratis non esiste da nessuna parte, quindi quella
+funzione resta spenta; il tool calling
 irregolare, che può far sbagliare agente e connettori; e dove accade, i prompt
 usati per addestrare.
 
@@ -465,8 +465,12 @@ provider:
   serve centinaia, come OpenRouter, si tiene la selezione curata togliendo
   quelli che non esistono più;
 - i modelli che non possono reggere una conversazione — embedding, voce, live,
-  immagini — restano fuori dal selettore, a meno che non fossero già
-  nell'elenco dell'app perché servono ai ruoli multimodali;
+  immagini — restano nell'elenco del provider, perché sono quelli che servono
+  ai ruoli multimodali, ma sono nascosti nel selettore della chat, dove
+  toccarli darebbe solo un errore dell'API;
+- quando configuri un provider, i ruoli ancora vuoti si riempiono da soli con
+  quello che quel provider sa fare: con una chiave Gemini la generazione di
+  immagini si accende senza passare dalle impostazioni;
 - se il modello che stavi usando sparisce, l'app passa al parente più prossimo
   — quello che condivide il prefisso più lungo, `glm-5.4` → `glm-5.3` — e te lo
   dice, invece di lasciarti con un nome morto in mano.

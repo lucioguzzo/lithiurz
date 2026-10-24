@@ -27,6 +27,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.model.ModelCapabilities
+import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.Provider
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +67,7 @@ fun ModelSheet(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(start = 24.dp, top = 12.dp, bottom = 2.dp),
                 )
-                if (provider.models.isEmpty()) {
+                if (ModelCatalog.chatModels(provider.models).isEmpty()) {
                     Text(
                         text = "—",
                         style = MaterialTheme.typography.bodyMedium,
@@ -74,7 +75,7 @@ fun ModelSheet(
                         modifier = Modifier.padding(start = 24.dp, top = 6.dp),
                     )
                 }
-                provider.models.forEach { model ->
+                ModelCatalog.chatModels(provider.models).forEach { model ->
                     val selected = provider.id == activeProviderId && model == activeModel
                     Row(
                         modifier = Modifier

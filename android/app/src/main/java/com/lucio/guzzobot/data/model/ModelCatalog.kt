@@ -18,21 +18,40 @@ object ModelCatalog {
      */
     fun merge(curated: List<String>, fetched: List<String>, limit: Int = CURATED_LIMIT): List<String> {
         if (fetched.isEmpty()) return curated
-        // Un catalogo come quello di Gemini è pieno di modelli che non possono
-        // reggere un turno di chat: toccarli nel selettore darebbe un errore
-        // dell'API. Si tengono solo se erano già nell'elenco dell'app, dove
-        // servono ai ruoli multimodali (whisper-1, tts-1, gpt-image-1).
-        val usable = fetched.filter { it in curated || !isAccessory(it) }
-        if (usable.isEmpty()) return curated
-        if (usable.size <= limit) return usable.distinct()
-        val alive = curated.filter { it in usable }
-        return alive.ifEmpty { usable.take(limit) }
+        if (fetched.size <= limit) return fetched.distinct()
+        val alive = curated.filter { it in fetched }
+        return alive.ifEmpty { fetched.take(limit) }
     }
+
+    /**
+     * I modelli da mostrare nel selettore della chat.
+     *
+     * Un catalogo come quello di Gemini è pieno di modelli che non reggono un
+     * turno di conversazione: toccarli darebbe un errore dell'API. Vengono
+     * però tenuti nell'elenco del provider, perché sono esattamente quelli che
+     * servono ai ruoli multimodali — generare immagini, trascrivere, leggere
+     * ad alta voce. Si nascondono qui, non si cancellano là.
+     */
+    fun chatModels(models: List<String>): List<String> =
+        models.filterNot { isAccessory(it) }.ifEmpty { models }
 
     private val accessoryMarkers = listOf(
         "embedding", "embed-", "-tts", "tts-", "-live", "transcribe", "whisper",
         "-image", "image-", "dall-e", "moderation", "rerank", "guard", "-asr",
     )
+
+    /** I modelli di un elenco capaci di generare immagini. */
+    fun imageModels(models: List<String>): List<String> =
+        models.filter { model ->
+            listOf("image", "dall-e", "imagen", "flux", "sdxl", "diffusion")
+                .any { model.contains(it, ignoreCase = true) }
+        }
+
+    /** I modelli di un elenco capaci di trascrivere l'audio. */
+    fun transcribeModels(models: List<String>): List<String> =
+        models.filter { model ->
+            listOf("whisper", "transcribe").any { model.contains(it, ignoreCase = true) }
+        }
 
     /** Vero se il modello serve a tutt'altro che conversare. */
     fun isAccessory(model: String): Boolean =

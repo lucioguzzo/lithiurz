@@ -41,6 +41,7 @@ import com.lucio.guzzobot.data.skills.Skill
 import com.lucio.guzzobot.data.skills.SkillCatalog
 import com.lucio.guzzobot.data.skills.SkillComposer
 import com.lucio.guzzobot.data.model.KeyDetector
+import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.ProviderCatalog
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.model.ThemeMode
@@ -1607,6 +1608,27 @@ class ChatViewModel(
 
     fun newSkillId(): String = SkillCatalog.newId(settings.value.skills)
 
+    /**
+     * Un provider appena configurato porta spesso capacità che restano spente
+     * perché nessuno è andato a sceglierle nelle impostazioni: generare
+     * immagini, trascrivere. Se il ruolo è vuoto e il provider sa farlo, si
+     * riempie — senza mai sovrascrivere una scelta già fatta.
+     */
+    private suspend fun fillEmptyRoles(providerId: String) {
+        val current = settings.value
+        val provider = current.providers.firstOrNull { it.id == providerId } ?: return
+        if (current.imageRef == null) {
+            ModelCatalog.imageModels(provider.models).firstOrNull()?.let { model ->
+                settingsStore.setImageRef(ModelRef(providerId, model))
+            }
+        }
+        if (current.transcribeRef == null) {
+            ModelCatalog.transcribeModels(provider.models).firstOrNull()?.let { model ->
+                settingsStore.setTranscribeRef(ModelRef(providerId, model))
+            }
+        }
+    }
+
     // --- catalogo dei connettori -------------------------------------------
 
     /**
@@ -1658,6 +1680,7 @@ class ChatViewModel(
         if (model != null) settingsStore.setActiveModel(providerId, model)
         settingsStore.acceptFreeDisclaimer()
         if (secretStore.apiKey(providerId).isNotBlank()) refreshModels(providerId)
+        fillEmptyRoles(providerId)
         notice("${provider.name}: pronto")
     }
 
