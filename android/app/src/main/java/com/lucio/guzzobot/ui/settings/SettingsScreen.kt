@@ -61,6 +61,7 @@ fun SettingsScreen(
     onOpenTasks: () -> Unit,
     onOpenConnectors: () -> Unit,
     onOpenPrivacy: () -> Unit,
+    onOpenFree: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var confirmWipe by remember { mutableStateOf(false) }
@@ -103,6 +104,15 @@ fun SettingsScreen(
                 .padding(bottom = 36.dp),
         ) {
             SectionTitle(stringResource(R.string.providers))
+            // In cima, perché è la prima cosa che serve a chi non ha chiavi.
+            LinkRow(
+                title = stringResource(R.string.free_models),
+                detail = stringResource(
+                    R.string.free_models_detail,
+                    settings.providers.count { it.freeTier != null },
+                ),
+                onClick = onOpenFree,
+            )
             settings.providers.forEach { provider ->
                 val selected = provider.id == settings.activeProviderId
                 Row(

@@ -273,7 +273,13 @@ class ChatApi(private val json: Json) {
         client.newCall(request).execute().use { response ->
             val body = response.body?.string().orEmpty()
             if (!response.isSuccessful) throw ApiException(errorMessage(response.code, body))
-            json.decodeFromString<ModelsResponse>(body).data.map { it.id }.sorted()
+            json.decodeFromString<ModelsResponse>(body).data
+                // Gemini restituisce "models/gemini-3.8-flash": il prefisso
+                // non serve a chi legge e non va nel selettore.
+                .map { it.id.removePrefix("models/") }
+                .filter { it.isNotBlank() }
+                .distinct()
+                .sorted()
         }
     }
 

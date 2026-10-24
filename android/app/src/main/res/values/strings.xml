@@ -199,4 +199,22 @@
     <string name="privacy_forget">Dimentica</string>
     <string name="privacy_forget_keys">Cancella tutte le chiavi</string>
     <string name="privacy_forget_keys_confirm">Le chiavi API dei provider, il token GitHub e quelli dei connettori vengono cancellati dal dispositivo. Le conversazioni restano.</string>
+    <string name="free_models">Modelli gratuiti</string>
+    <string name="free_models_detail">Usare l\'app senza spendere: %1$d provider con piano gratuito</string>
+    <string name="free_disclaimer_title">Gratis, ma con dei limiti veri</string>
+    <string name="free_disclaimer_body">I piani gratuiti servono a provare, non a lavorare. Rispondono peggio dei modelli a pagamento e hanno limiti al minuto e al giorno, che un obiettivo dell\'agente o un compito pianificato bruciano in fretta. Fra questi provider solo Gemini vede le immagini; la trascrizione degli audio la fa solo Groq; generare immagini e leggere ad alta voce non è gratis da nessuna parte, quindi quelle funzioni restano spente. Il tool calling è irregolare, quindi agente e connettori possono sbagliare. Nessuno di questi endpoint funziona senza credenziale: quello che è gratis è l\'iscrizione, non la chiave — e dove è segnato, i tuoi prompt vengono usati per addestrare i modelli.</string>
+    <string name="free_get_key">Ottieni una chiave gratis</string>
+    <string name="free_paste_key">Incolla la chiave</string>
+    <string name="free_activate">Attiva</string>
+    <string name="free_use_now">Usa adesso</string>
+    <string name="free_details">Dettagli</string>
+    <string name="free_note_images">Vede le immagini</string>
+    <string name="free_note_transcribe">Trascrive gli audio</string>
+    <string name="free_note_no_card">Nessuna carta di credito</string>
+    <string name="free_note_training">I tuoi prompt vengono usati per addestrare</string>
+    <string name="free_note_local">Serve un computer accesso nella stessa rete</string>
+    <string name="free_note_partial">Solo una parte dei modelli è gratuita</string>
+    <string name="free_footnote">I nomi dei modelli qui sopra sono un punto di partenza: appena salvi una chiave l\'app chiede al provider quali esistono davvero. I piani gratuiti cambiano spesso e vengono anche chiusi — GitHub Models, per esempio, è stato ritirato nel luglio 2026.</string>
+    <string name="tag_free">gratuito</string>
+    <string name="free_start">Nessuna chiave configurata. Si può partire gratis.</string>
 </resources>

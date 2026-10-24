@@ -66,4 +66,31 @@ class ModelCatalogTest {
         assertNull(ModelCatalog.replacementFor("", listOf("gpt-4o")))
         assertTrue(ModelCatalog.replacementFor("glm-5.4", emptyList()) == null)
     }
+
+    @Test
+    fun `i modelli che non conversano non invadono il selettore`() {
+        val merged = ModelCatalog.merge(
+            curated = listOf("gemini-3.8-flash"),
+            fetched = listOf(
+                "gemini-3.8-flash",
+                "gemini-3.6-flash",
+                "gemini-embedding-001",
+                "gemini-3.8-flash-tts",
+                "gemini-3.5-transcribe",
+                "gemini-3.1-flash-image",
+            ),
+        )
+        assertEquals(listOf("gemini-3.8-flash", "gemini-3.6-flash"), merged)
+    }
+
+    @Test
+    fun `i modelli di servizio scelti dall'app restano`() {
+        // whisper-1 e tts-1 servono ai ruoli multimodali: non vanno scartati.
+        val curated = listOf("gpt-4o", "whisper-1", "tts-1", "gpt-image-1")
+        val merged = ModelCatalog.merge(
+            curated = curated,
+            fetched = curated + listOf("text-embedding-3-small", "omni-moderation-latest"),
+        )
+        assertEquals(curated, merged)
+    }
 }

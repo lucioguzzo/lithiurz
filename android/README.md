@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.3.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.4.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -47,6 +47,49 @@ finire nel codice: `GUZZOBOT_KEYSTORE_BASE64` (il `.jks` in base64),
 `GUZZOBOT_STORE_PASSWORD`, `GUZZOBOT_KEY_ALIAS`, `GUZZOBOT_KEY_PASSWORD`. Il
 workflow ricostruisce il file prima della build e, se i segreti non ci sono,
 procede con la chiave di debug.
+
+## Partire gratis
+
+*Impostazioni › Modelli gratuiti* esiste perché l'app senza una chiave non
+parla con niente, e questo è un muro brutto al primo avvio.
+
+Una precisazione che va fatta subito, però: **il gratuito senza chiave, nel
+cloud, non esiste** — chi regala calcolo senza identificare nessuno viene
+svuotato in ore. Quello che si abbrevia qui è l'iscrizione, non la credenziale:
+per ogni provider c'è il pulsante che apre la pagina giusta, il campo in cui
+incollare, e poi l'app chiede da sé a `/models` quali modelli esistono davvero.
+Nessuna carta di credito, in nessuno dei casi.
+
+| Provider | Cosa dà di gratuito |
+|---|---|
+| **Google AI Studio (Gemini)** | L'unico gratuito che **vede le immagini**; endpoint compatibile con l'API OpenAI, documentato da Google. Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
+| **Groq** | 30 richieste al minuto e `/audio/transcriptions`: è l'unico gratuito che **trascrive gli audio** |
+| **Cerebras** | 30 richieste al minuto, latenza bassissima, finestra ridotta rispetto al piano a pagamento |
+| **OpenRouter** | I modelli con il suffisso `:free` — 20 richieste al minuto, 50 al giorno |
+| **Z.ai (GLM)** | Le varianti `flash` |
+| **Mistral** | Circa un miliardo di token al mese sul piano *Experiment*, che però **obbliga a cedere i dati** per l'addestramento |
+| **Ollama** | L'unico davvero senza chiave, ma vuole un computer accesso nella stessa rete |
+
+L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
+GUZZOBOT, non un generico "sono più lenti": i limiti al minuto e al giorno che
+un obiettivo dell'agente brucia in fretta; le immagini che solo Gemini accetta;
+la generazione di immagini e la lettura ad alta voce che gratis non esistono da
+nessuna parte, quindi quelle funzioni restano spente; il tool calling
+irregolare, che può far sbagliare agente e connettori; e dove accade, i prompt
+usati per addestrare.
+
+Nel selettore dei modelli ogni voce gratuita porta l'etichetta *gratuito*, come
+già accade per *vede le immagini*. E al primo avvio senza nessuna chiave la
+schermata di benvenuto manda qui, invece di mostrare un elenco di provider
+vuoti.
+
+Due cose che questa sezione **non** fa, per scelta: non include endpoint
+"senza registrazione" trovati in giro — sono quasi sempre rivendita della
+capacità di qualcun altro, possono registrare i prompt e spariscono senza
+preavviso — e non contiene una chiave dello sviluppatore, che verrebbe estratta
+dall'APK il primo giorno. I piani gratuiti chiudono: **GitHub Models è stato
+ritirato il 30 luglio 2026**, e metà dei siti che elencano le "API gratuite" lo
+pubblicizza ancora.
 
 ## Area di lavoro: far lavorare GUZZOBOT sui file
 
@@ -229,8 +272,10 @@ invertito per verificare la piece table.
   conserva la parte già ricevuta, rigenerazione, modifica di un tuo messaggio
   (riapre testo e allegati nel composer e taglia la conversazione da lì).
 - **Qualsiasi provider compatibile con l'API OpenAI**. Preconfigurati: DeepSeek,
-  OpenRouter, Groq, Mistral, xAI, OpenAI, Ollama in locale. Puoi aggiungerne
-  altri con nome, base URL e modelli, o premere *Scarica elenco modelli*.
+  OpenRouter, Groq, Mistral, xAI, Z.ai, Moonshot, Google AI Studio, Cerebras,
+  OpenAI, Ollama in locale — sette dei quali con un **piano gratuito**. Puoi
+  aggiungerne altri con nome, base URL e modelli, o premere *Scarica elenco
+  modelli*.
 - **Blocco "Ragionamento"** richiudibile per i modelli che lo espongono
   (`deepseek-reasoner` e i reasoning su OpenRouter).
 - **Markdown renderizzato**: titoli, elenchi, citazioni, link, blocchi di codice
@@ -310,6 +355,9 @@ provider:
 - se il provider serve pochi modelli, il suo elenco sostituisce il nostro; se ne
   serve centinaia, come OpenRouter, si tiene la selezione curata togliendo
   quelli che non esistono più;
+- i modelli che non possono reggere una conversazione — embedding, voce, live,
+  immagini — restano fuori dal selettore, a meno che non fossero già
+  nell'elenco dell'app perché servono ai ruoli multimodali;
 - se il modello che stavi usando sparisce, l'app passa al parente più prossimo
   — quello che condivide il prefisso più lungo, `glm-5.4` → `glm-5.3` — e te lo
   dice, invece di lasciarti con un nome morto in mano.
@@ -386,7 +434,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 ├─ GuzzoBotApp.kt          Application + container delle dipendenze
 ├─ MainActivity.kt         edge-to-edge, tema, intent di condivisione
 ├─ data/
-│  ├─ model/               provider, preset, impostazioni, allegati, capacità
+│  ├─ model/               provider, piani gratuiti, impostazioni, capacità
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
 │  ├─ agent/               ciclo dell'agente, budget, prompt, registro strumenti
@@ -404,7 +452,7 @@ android/app/src/main/java/com/lucio/guzzobot/
    ├─ chat/                chat, composer, allegati, drawer, ViewModel
    ├─ markdown/            parser e renderer markdown
    └─ settings/            impostazioni, ruoli multimodali, provider,
-                           connettori, privacy e autorizzazioni
+                           modelli gratuiti, connettori, privacy
 ```
 
 ## Personalizzare

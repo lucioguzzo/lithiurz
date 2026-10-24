@@ -16,7 +16,49 @@ data class Provider(
     val models: List<String> = emptyList(),
     val keyUrl: String? = null,
     val builtIn: Boolean = false,
+    /** Se il provider ha un piano gratuito vero, cosa offre e cosa chiede. */
+    val freeTier: FreeTier? = null,
 )
+
+/**
+ * Un piano gratuito, descritto per quello che è.
+ *
+ * Nessuno di questi endpoint funziona senza credenziale: nel cloud chi regala
+ * calcolo a chiunque senza identificare nessuno viene svuotato in ore. Quello
+ * che esiste è il gratuito *senza pagare* — iscrizione gratis, nessuna carta —
+ * e questa classe serve a dirlo senza promettere altro.
+ */
+@Serializable
+data class FreeTier(
+    /** La pagina da cui si ottiene la chiave, gratis. */
+    val signupUrl: String,
+    /** I limiti dichiarati dal provider, per non farli scoprire a un 429. */
+    val limits: String = "",
+    /** Se solo una parte del catalogo è gratis, come si riconosce. */
+    val freeMarker: String? = null,
+    val notes: List<FreeNote> = emptyList(),
+) {
+    /** Un modello è gratuito se lo è tutto il provider o se porta il marcatore. */
+    fun covers(model: String): Boolean =
+        freeMarker == null || model.contains(freeMarker, ignoreCase = true)
+}
+
+/** Quello che un piano gratuito dà in più, o si prende in cambio. */
+@Serializable
+enum class FreeNote(val warning: Boolean) {
+    /** Vede le immagini: fra i gratuiti è la rarità, non la norma. */
+    SEES_IMAGES(false),
+    /** Trascrive l'audio con Whisper. */
+    TRANSCRIBES(false),
+    /** Nessuna carta di credito, mai. */
+    NO_CARD(false),
+    /** I prompt del piano gratuito finiscono nell'addestramento. */
+    TRAINS_ON_DATA(true),
+    /** Non serve una chiave, serve una macchina accesa in rete locale. */
+    NEEDS_LOCAL_MACHINE(true),
+    /** Solo una parte del catalogo è gratis. */
+    PARTIAL_CATALOG(true),
+}
 
 object Providers {
     val defaults: List<Provider> = listOf(
@@ -42,6 +84,12 @@ object Providers {
             ),
             keyUrl = "https://openrouter.ai/keys",
             builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://openrouter.ai/keys",
+                limits = "20 richieste al minuto, 50 al giorno",
+                freeMarker = ":free",
+                notes = listOf(FreeNote.NO_CARD, FreeNote.PARTIAL_CATALOG),
+            ),
         ),
         Provider(
             id = "groq",
@@ -55,6 +103,11 @@ object Providers {
             ),
             keyUrl = "https://console.groq.com/keys",
             builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://console.groq.com/keys",
+                limits = "30 richieste al minuto",
+                notes = listOf(FreeNote.NO_CARD, FreeNote.TRANSCRIBES),
+            ),
         ),
         Provider(
             id = "mistral",
@@ -63,6 +116,11 @@ object Providers {
             models = listOf("mistral-large-latest", "mistral-small-latest"),
             keyUrl = "https://console.mistral.ai/api-keys",
             builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://console.mistral.ai/api-keys",
+                limits = "1 richiesta al secondo, circa 1 miliardo di token al mese",
+                notes = listOf(FreeNote.NO_CARD, FreeNote.TRAINS_ON_DATA),
+            ),
         ),
         Provider(
             id = "xai",
@@ -80,6 +138,12 @@ object Providers {
             models = listOf("glm-5.4", "glm-5.1", "glm-4.6v"),
             keyUrl = "https://z.ai/manage-apikey/apikey-list",
             builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://z.ai/manage-apikey/apikey-list",
+                limits = "limiti non dichiarati dal provider",
+                freeMarker = "flash",
+                notes = listOf(FreeNote.NO_CARD, FreeNote.PARTIAL_CATALOG),
+            ),
         ),
         Provider(
             id = "moonshot",
@@ -88,6 +152,35 @@ object Providers {
             models = listOf("kimi-k3.1", "kimi-k3", "kimi-k2.6"),
             keyUrl = "https://platform.moonshot.ai/console/api-keys",
             builtIn = true,
+        ),
+        Provider(
+            id = "google",
+            name = "Google AI Studio (Gemini)",
+            // L'endpoint compatibile con l'API OpenAI, documentato da Google:
+            // regge /chat/completions in streaming, /models e le immagini.
+            baseUrl = "https://generativelanguage.googleapis.com/v1beta/openai/",
+            // Punto di partenza: l'elenco vero arriva da /models.
+            models = listOf("gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite"),
+            keyUrl = "https://aistudio.google.com/apikey",
+            builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://aistudio.google.com/apikey",
+                limits = "limiti per progetto, visibili su aistudio.google.com/rate-limit",
+                notes = listOf(FreeNote.NO_CARD, FreeNote.SEES_IMAGES, FreeNote.TRAINS_ON_DATA),
+            ),
+        ),
+        Provider(
+            id = "cerebras",
+            name = "Cerebras",
+            baseUrl = "https://api.cerebras.ai/v1",
+            models = listOf("gpt-oss-120b", "qwen-3.8-27b"),
+            keyUrl = "https://cloud.cerebras.ai",
+            builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://cloud.cerebras.ai",
+                limits = "30 richieste al minuto, finestra ridotta rispetto al piano a pagamento",
+                notes = listOf(FreeNote.NO_CARD),
+            ),
         ),
         Provider(
             id = "openai",
@@ -103,6 +196,11 @@ object Providers {
             baseUrl = "http://10.0.2.2:11434/v1",
             models = listOf("llama3.2", "qwen2.5"),
             builtIn = true,
+            freeTier = FreeTier(
+                signupUrl = "https://ollama.com/download",
+                limits = "quanto regge il computer su cui gira",
+                notes = listOf(FreeNote.NEEDS_LOCAL_MACHINE),
+            ),
         ),
     )
 
@@ -115,7 +213,7 @@ data class AppSettings(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val providers: List<Provider> = Providers.defaults,
     val activeProviderId: String = "deepseek",
-    val activeModel: String = "deepseek-chat",
+    val activeModel: String = "deepseek-flash",
     val systemPrompt: String = Providers.DEFAULT_SYSTEM_PROMPT,
     val temperature: Float = 0.7f,
     val maxTokens: Int = 0,
@@ -144,6 +242,10 @@ data class AppSettings(
     val agentMaxMinutes: Int = 25,
     /** Quando gli elenchi dei modelli sono stati riallineati l'ultima volta. */
     val modelsRefreshedAt: Long = 0L,
+    /** L'avviso sui modelli gratuiti è stato letto. */
+    val freeDisclaimerAccepted: Boolean = false,
+    /** Provider predefiniti che l'utente ha cancellato: non vanno resuscitati. */
+    val removedProviders: Set<String> = emptySet(),
     /** I connettori MCP configurati. */
     val mcpServers: List<com.lucio.guzzobot.data.mcp.McpServer> = emptyList(),
 ) {

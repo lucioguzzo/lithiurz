@@ -86,6 +86,7 @@ fun ChatScreen(
     onOpenTasks: () -> Unit,
     onOpenCode: () -> Unit,
     onOpenArtifacts: () -> Unit,
+    onOpenFree: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
@@ -349,7 +350,12 @@ fun ChatScreen(
                     .fillMaxSize(),
             ) {
                 if (messages.isEmpty() && streaming == null) {
-                    EmptyState(onSuggestion = viewModel::setInput)
+                    EmptyState(
+                        onSuggestion = viewModel::setInput,
+                        // Senza nessuna chiave l'app non può parlare con niente:
+                        // meglio dire da dove si parte che lasciare provare a vuoto.
+                        onStartFree = onOpenFree.takeIf { viewModel.hasNoKeys() },
+                    )
                 } else {
                     LazyColumn(
                         state = listState,
@@ -576,7 +582,7 @@ private fun ModelChip(model: String, onClick: () -> Unit) {
 }
 
 @Composable
-private fun EmptyState(onSuggestion: (String) -> Unit) {
+private fun EmptyState(onSuggestion: (String) -> Unit, onStartFree: (() -> Unit)? = null) {
     val greeting = remember {
         when (Calendar.getInstance().get(Calendar.HOUR_OF_DAY)) {
             in 5..12 -> R.string.greeting_morning
@@ -608,6 +614,28 @@ private fun EmptyState(onSuggestion: (String) -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 6.dp, bottom = 28.dp),
         )
+        if (onStartFree != null) {
+            Text(
+                text = stringResource(R.string.free_start),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(bottom = 8.dp),
+            )
+            Text(
+                text = stringResource(R.string.free_models),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp)
+                    .clip(RoundedCornerShape(14.dp))
+                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(14.dp))
+                    .clickable(onClick = onStartFree)
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                textAlign = TextAlign.Center,
+            )
+        }
         suggestions.forEach { resource ->
             val text = stringResource(resource)
             Text(

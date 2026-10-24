@@ -94,10 +94,17 @@ fun ModelSheet(
                                     MaterialTheme.colorScheme.onBackground
                                 },
                             )
-                            // Sapere prima chi vede le immagini evita di scoprirlo sbagliando.
-                            if (ModelCapabilities.seesImages(model)) {
+                            // Sapere prima chi vede le immagini, e chi non si
+                            // paga, evita di scoprirlo sbagliando.
+                            val tags = listOfNotNull(
+                                stringResource(R.string.tag_vision)
+                                    .takeIf { ModelCapabilities.seesImages(model) },
+                                stringResource(R.string.tag_free)
+                                    .takeIf { provider.freeTier?.covers(model) == true },
+                            )
+                            if (tags.isNotEmpty()) {
                                 Text(
-                                    text = stringResource(R.string.tag_vision),
+                                    text = tags.joinToString(" · "),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

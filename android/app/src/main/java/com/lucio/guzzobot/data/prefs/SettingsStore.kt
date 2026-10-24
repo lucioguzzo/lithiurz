@@ -8,12 +8,14 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.ModelRef
 import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.Provider
+import com.lucio.guzzobot.data.model.ProviderCatalog
 import com.lucio.guzzobot.data.model.Providers
 import com.lucio.guzzobot.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -51,6 +53,8 @@ class SettingsStore(context: Context, private val json: Json) {
         val agentMaxMinutes = intPreferencesKey("agent_max_minutes")
         val modelsRefreshedAt = androidx.datastore.preferences.core.longPreferencesKey("models_at")
         val mcpServers = stringPreferencesKey("mcp_servers")
+        val freeDisclaimer = booleanPreferencesKey("free_disclaimer")
+        val removedProviders = stringSetPreferencesKey("removed_providers")
     }
 
     /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
@@ -75,10 +79,16 @@ class SettingsStore(context: Context, private val json: Json) {
         val stored = prefs[Keys.providers]?.let { raw ->
             runCatching { json.decodeFromString<List<Provider>>(raw) }.getOrNull()
         }
+        val removed = prefs[Keys.removedProviders].orEmpty()
         AppSettings(
             themeMode = prefs[Keys.theme]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                 ?: ThemeMode.SYSTEM,
-            providers = stored?.takeIf { it.isNotEmpty() }?.let(::current) ?: Providers.defaults,
+            // Quello che è in memoria vale, ma i predefiniti nuovi di un
+            // aggiornamento devono comparire anche a chi ha l'app da mesi.
+            providers = ProviderCatalog.merge(
+                stored = stored?.let(::current).orEmpty(),
+                removed = removed,
+            ),
             activeProviderId = prefs[Keys.activeProvider] ?: Providers.defaults.first().id,
             activeModel = prefs[Keys.activeModel]?.let(::current)
                 ?: Providers.defaults.first().models.first(),
@@ -102,6 +112,8 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
+            freeDisclaimerAccepted = prefs[Keys.freeDisclaimer] ?: false,
+            removedProviders = removed,
             mcpServers = prefs[Keys.mcpServers]
                 ?.let { runCatching { json.decodeFromString<List<McpServer>>(it) }.getOrNull() }
                 ?: emptyList(),
@@ -173,4 +185,16 @@ class SettingsStore(context: Context, private val json: Json) {
     suspend fun saveProviders(providers: List<Provider>) = store.edit {
         it[Keys.providers] = json.encodeToString(providers)
     }
+
+    /**
+     * Un predefinito cancellato va ricordato, altrimenti il prossimo
+     * aggiornamento lo rimette dove l'utente l'aveva tolto.
+     */
+    suspend fun setProviderRemoved(providerId: String, removed: Boolean) = store.edit { prefs ->
+        val current = prefs[Keys.removedProviders].orEmpty()
+        prefs[Keys.removedProviders] =
+            if (removed) current + providerId else current - providerId
+    }
+
+    suspend fun acceptFreeDisclaimer() = store.edit { it[Keys.freeDisclaimer] = true }
 }

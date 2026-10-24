@@ -197,4 +197,22 @@
     <string name="privacy_forget">Forget</string>
     <string name="privacy_forget_keys">Erase all keys</string>
     <string name="privacy_forget_keys_confirm">The provider API keys, the GitHub token and the connector tokens are erased from the device. Conversations stay.</string>
+    <string name="free_models">Free models</string>
+    <string name="free_models_detail">Use the app without paying: %1$d providers with a free tier</string>
+    <string name="free_disclaimer_title">Free, with real limits</string>
+    <string name="free_disclaimer_body">Free tiers are for trying things out, not for working. They answer worse than paid models and have per-minute and per-day limits that an agent goal or a scheduled task burns through fast. Among these providers only Gemini sees images; only Groq transcribes audio; image generation and read-aloud are free nowhere, so those features stay off. Tool calling is uneven, so the agent and connectors may misfire. None of these endpoints works without a credential: what is free is the sign-up, not the key — and where marked, your prompts are used to train the models.</string>
+    <string name="free_get_key">Get a free key</string>
+    <string name="free_paste_key">Paste the key</string>
+    <string name="free_activate">Activate</string>
+    <string name="free_use_now">Use now</string>
+    <string name="free_details">Details</string>
+    <string name="free_note_images">Sees images</string>
+    <string name="free_note_transcribe">Transcribes audio</string>
+    <string name="free_note_no_card">No credit card</string>
+    <string name="free_note_training">Your prompts are used for training</string>
+    <string name="free_note_local">Needs a computer running on the same network</string>
+    <string name="free_note_partial">Only some models are free</string>
+    <string name="free_footnote">The model names above are a starting point: as soon as you save a key the app asks the provider which ones actually exist. Free tiers change often, and get shut down — GitHub Models, for one, was retired in July 2026.</string>
+    <string name="tag_free">free</string>
+    <string name="free_start">No key configured. You can start for free.</string>
 </resources>

@@ -34,6 +34,7 @@ import com.lucio.guzzobot.data.model.ModelRef
 import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.data.model.VisionRouting
 import com.lucio.guzzobot.data.model.Provider
+import com.lucio.guzzobot.data.model.ProviderCatalog
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.model.ThemeMode
 import com.lucio.guzzobot.data.prefs.SecretStore
@@ -1483,6 +1484,10 @@ class ChatViewModel(
             existing + provider
         }
         settingsStore.saveProviders(updated)
+        // Se era un predefinito cancellato e lo si rimette, non è più cancellato.
+        if (provider.id in settings.value.removedProviders) {
+            settingsStore.setProviderRemoved(provider.id, false)
+        }
     }
 
     fun deleteProvider(providerId: String) = viewModelScope.launch {
@@ -1492,6 +1497,9 @@ class ChatViewModel(
             return@launch
         }
         settingsStore.saveProviders(remaining)
+        if (settings.value.providers.firstOrNull { it.id == providerId }?.builtIn == true) {
+            settingsStore.setProviderRemoved(providerId, true)
+        }
         secretStore.setApiKey(providerId, "")
         if (settings.value.activeProviderId == providerId) {
             val fallback = remaining.first()
@@ -1503,6 +1511,41 @@ class ChatViewModel(
      * Riallinea gli elenchi con quello che i provider servono oggi: i nomi dei
      * modelli cambiano, e un nome morto in mano non serve a nessuno.
      */
+    // --- modelli gratuiti --------------------------------------------------
+
+    /** I provider con un piano gratuito, quelli pronti all'uso per primi. */
+    fun freeProviders(): List<Provider> = ProviderCatalog.free(settings.value.providers)
+        .sortedByDescending { apiKey(it.id).isNotBlank() }
+
+    /** Vero se il modello in chat è coperto da un piano gratuito. */
+    fun isFreeModel(providerId: String, model: String): Boolean =
+        ProviderCatalog.isFree(settings.value.providers, providerId, model)
+
+    /** Nessuna chiave da nessuna parte: l'app non può ancora parlare con niente. */
+    fun hasNoKeys(): Boolean = settings.value.providers.none { provider ->
+        apiKey(provider.id).isNotBlank() ||
+            provider.baseUrl.startsWith("http://", ignoreCase = true)
+    }
+
+    fun acceptFreeDisclaimer() = viewModelScope.launch { settingsStore.acceptFreeDisclaimer() }
+
+    /**
+     * Salva la chiave di un provider gratuito, sceglie subito un suo modello
+     * gratuito e si fa dire da /models quali esistono davvero: i nomi scritti
+     * nell'app sono soltanto un punto di partenza.
+     */
+    fun activateFreeProvider(providerId: String, key: String) = viewModelScope.launch {
+        val provider = settings.value.providers.firstOrNull { it.id == providerId }
+            ?: return@launch
+        if (key.isNotBlank()) secretStore.setApiKey(providerId, key.trim())
+        val model = provider.models.firstOrNull { provider.freeTier?.covers(it) == true }
+            ?: provider.models.firstOrNull()
+        if (model != null) settingsStore.setActiveModel(providerId, model)
+        settingsStore.acceptFreeDisclaimer()
+        if (secretStore.apiKey(providerId).isNotBlank()) refreshModels(providerId)
+        notice("${provider.name}: pronto")
+    }
+
     fun refreshModels(providerId: String? = null) = viewModelScope.launch {
         _busy.value = "Aggiorno l'elenco dei modelli…"
         val report = runCatching { modelRefresher.refresh(settings.value, providerId) }.getOrNull()

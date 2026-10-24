@@ -18,10 +18,25 @@ object ModelCatalog {
      */
     fun merge(curated: List<String>, fetched: List<String>, limit: Int = CURATED_LIMIT): List<String> {
         if (fetched.isEmpty()) return curated
-        if (fetched.size <= limit) return fetched.distinct()
-        val alive = curated.filter { it in fetched }
-        return alive.ifEmpty { fetched.take(limit) }
+        // Un catalogo come quello di Gemini è pieno di modelli che non possono
+        // reggere un turno di chat: toccarli nel selettore darebbe un errore
+        // dell'API. Si tengono solo se erano già nell'elenco dell'app, dove
+        // servono ai ruoli multimodali (whisper-1, tts-1, gpt-image-1).
+        val usable = fetched.filter { it in curated || !isAccessory(it) }
+        if (usable.isEmpty()) return curated
+        if (usable.size <= limit) return usable.distinct()
+        val alive = curated.filter { it in usable }
+        return alive.ifEmpty { usable.take(limit) }
     }
+
+    private val accessoryMarkers = listOf(
+        "embedding", "embed-", "-tts", "tts-", "-live", "transcribe", "whisper",
+        "-image", "image-", "dall-e", "moderation", "rerank", "guard", "-asr",
+    )
+
+    /** Vero se il modello serve a tutt'altro che conversare. */
+    fun isAccessory(model: String): Boolean =
+        accessoryMarkers.any { model.contains(it, ignoreCase = true) }
 
     /**
      * Il modello scelto non c'è più: si cerca il parente più prossimo, cioè
