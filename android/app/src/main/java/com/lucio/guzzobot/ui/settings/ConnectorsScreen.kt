@@ -47,7 +47,11 @@ import com.lucio.guzzobot.ui.chat.ChatViewModel
 /** I connettori MCP: server remoti che aggiungono strumenti al modello. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ConnectorsScreen(viewModel: ChatViewModel, onBack: () -> Unit) {
+fun ConnectorsScreen(
+    viewModel: ChatViewModel,
+    onBack: () -> Unit,
+    onOpenCatalog: () -> Unit = {},
+) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var editing by remember { mutableStateOf<McpServer?>(null) }
 
@@ -115,6 +119,12 @@ fun ConnectorsScreen(viewModel: ChatViewModel, onBack: () -> Unit) {
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                 )
+            }
+            androidx.compose.material3.TextButton(
+                onClick = onOpenCatalog,
+                modifier = Modifier.padding(horizontal = 8.dp),
+            ) {
+                Text(stringResource(R.string.catalog))
             }
 
             if (settings.mcpServers.isEmpty()) {

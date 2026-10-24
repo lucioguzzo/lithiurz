@@ -62,6 +62,8 @@ fun SettingsScreen(
     onOpenConnectors: () -> Unit,
     onOpenPrivacy: () -> Unit,
     onOpenFree: () -> Unit,
+    onOpenSkills: () -> Unit,
+    onOpenCatalog: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var confirmWipe by remember { mutableStateOf(false) }
@@ -296,6 +298,16 @@ fun SettingsScreen(
                 )
             }
 
+            LinkRow(
+                title = stringResource(R.string.skills),
+                detail = stringResource(R.string.skills_hint),
+                onClick = onOpenSkills,
+            )
+            LinkRow(
+                title = stringResource(R.string.catalog),
+                detail = stringResource(R.string.catalog_hint),
+                onClick = onOpenCatalog,
+            )
             LinkRow(
                 title = stringResource(R.string.connectors),
                 detail = stringResource(R.string.connectors_hint),

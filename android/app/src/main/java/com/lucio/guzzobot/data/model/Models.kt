@@ -262,6 +262,11 @@ data class AppSettings(
     val freeDisclaimerAccepted: Boolean = false,
     /** Provider predefiniti che l'utente ha cancellato: non vanno resuscitati. */
     val removedProviders: Set<String> = emptySet(),
+    /** Le competenze disponibili, quelle dell'app più quelle scritte a mano. */
+    val skills: List<com.lucio.guzzobot.data.skills.Skill> =
+        com.lucio.guzzobot.data.skills.Skills.defaults,
+    /** Competenze predefinite cancellate: non vanno riproposte. */
+    val removedSkills: Set<String> = emptySet(),
     /** I connettori MCP configurati. */
     val mcpServers: List<com.lucio.guzzobot.data.mcp.McpServer> = emptyList(),
 ) {

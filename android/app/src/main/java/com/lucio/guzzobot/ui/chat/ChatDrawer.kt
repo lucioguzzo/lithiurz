@@ -25,6 +25,7 @@ import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.Schedule
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Share
@@ -78,6 +79,8 @@ fun ChatDrawer(
     onOpenAgent: () -> Unit,
     onOpenCode: () -> Unit,
     onOpenArtifacts: () -> Unit,
+    onOpenSkills: () -> Unit,
+    activeSkill: String? = null,
     onOpenWorkspace: () -> Unit,
     onOpenTasks: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -113,6 +116,12 @@ fun ChatDrawer(
             icon = Icons.Outlined.Code,
             label = stringResource(R.string.code),
             onClick = onOpenCode,
+        )
+        DrawerRow(
+            icon = Icons.Outlined.School,
+            label = stringResource(R.string.skills),
+            detail = activeSkill,
+            onClick = onOpenSkills,
         )
         DrawerRow(
             icon = Icons.Outlined.Inventory2,

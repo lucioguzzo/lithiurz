@@ -73,6 +73,9 @@ class ChatRepository(private val dao: ChatDao) {
     suspend fun setProject(conversationId: Long, projectId: Long?) =
         dao.setProject(conversationId, projectId)
 
+    suspend fun setSkill(conversationId: Long, skillId: String?) =
+        dao.setSkill(conversationId, skillId)
+
     suspend fun delete(conversationId: Long) = dao.deleteConversation(conversationId)
 
     suspend fun deleteAll() = dao.deleteAllConversations()

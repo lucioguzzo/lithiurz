@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.5.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.6.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -324,7 +324,7 @@ invertito per verificare la piece table.
 - **Markdown renderizzato**: titoli, elenchi, citazioni, link, blocchi di codice
   con etichetta del linguaggio e copia rapida.
 - **Pannello laterale** con le voci principali — Nuova chat, **Agente Bot**,
-  Area di lavoro, Compiti pianificati, Impostazioni — e le conversazioni divise
+  Code, **Competenze**, Artefatti, Area di lavoro, Compiti, Impostazioni — e le conversazioni divise
   in **Fissate**, **Progetti** e **Recenti**. Una chat si fissa in alto o si
   sposta in un progetto dal suo menù; i progetti si creano dal pannello e,
   eliminandoli, le conversazioni tornano fra le recenti invece di sparire.
@@ -352,6 +352,72 @@ invertito per verificare la piece table.
   e autorizzazioni** raccoglie host, permessi e pulsanti per revocare.
 - **Impostazioni**: prompt di sistema, temperatura, token massimi, messaggi di
   contesto, tema chiaro/scuro/sistema, visibilità del ragionamento.
+
+## Competenze (Skills)
+
+*Pannello laterale › Competenze*, o *Impostazioni › Competenze*. Una competenza
+è un modo di lavorare con un nome: la tocchi, si applica alla conversazione
+aperta, e le sue istruzioni si aggiungono al tuo prompt di sistema — **non lo
+sostituiscono**. Chi ha scritto «rispondi sempre in dialetto» nelle
+impostazioni non se lo vede cancellare da una competenza, e una competenza non
+può dire al modello di ignorare chi usa l'app.
+
+Quindici già pronte, divise per ambito:
+
+- **Scrittura** — Correttore di bozze (corregge senza riscrivere), Riscrivi più
+  chiaro, Email professionale.
+- **Studio** — Spiega da zero, Schede di studio (domanda/risposta da incollare
+  in qualunque app di ripasso), Traduci e spiega.
+- **Codice** — Revisione del codice (cerca i difetti veri, non lo stile),
+  Spiega questo codice, Scrivi i test, Messaggio di commit.
+- **Casa e ufficio** — Leggi questo documento (bollette, contratti: cosa dicono
+  in pratica), Dalla foto alla lista, Verbale di riunione.
+- **Analisi** — Riassunto strutturato, Analizza i dati.
+
+Ognuna si può **modificare**, comprese quelle fornite con l'app: il testo
+giusto per un lavoro lo conosce chi quel lavoro lo fa. Si possono scriverne di
+nuove, disattivare quelle che non servono e cancellarle — e una predefinita
+cancellata non torna al prossimo aggiornamento.
+
+Una precisazione, perché il nome è lo stesso di Claude ma la cosa non è
+identica: **qui una competenza è istruzioni, non un programma**. In Claude una
+skill può portarsi dietro degli script; su un telefono no, e fingere il
+contrario darebbe competenze che sembrano funzionare e non fanno niente. Quando
+serve eseguire davvero qualcosa, la strada è l'agente con la CI di GitHub, che
+c'è già. Il vantaggio resta grosso e vale su qualunque modello, anche gratuito,
+perché non chiede niente di speciale al modello: è la differenza fra chiedere
+«correggi» e ottenere una correzione fatta come si deve.
+
+## Catalogo dei connettori
+
+*Impostazioni › Catalogo connettori*. Invece di cercare un indirizzo e
+incollarlo, si scorre un elenco e si tocca *Aggiungi*. Ogni indirizzo è
+verificato sulla documentazione del fornitore, e sono tutti sul trasporto
+«streamable HTTP», il solo che il client dell'app sa parlare: un server che
+espone soltanto il vecchio HTTP+SSE non funzionerebbe e non viene spacciato per
+pronto.
+
+**Pronti subito**
+
+| Connettore | Cosa dà | Serve |
+|---|---|---|
+| **Zapier** | Gmail, Calendar, Slack, Fogli, Drive e migliaia di app | un token |
+| **GitHub** | Repository, issue, pull request, ricerca nel codice | un token (quello dell'area di lavoro viene riusato) |
+| **DeepWiki** | La documentazione di qualunque repository pubblico | niente |
+| **Hugging Face** | Modelli, dataset, spazi | un token |
+| **Apify** | Estrazione dati dal web | un token |
+| **Tally** | Moduli e risposte | un token |
+
+**Elencati ma non attivabili**: Notion, Linear, Stripe, Sentry. Si autenticano
+con **OAuth 2.1**, cioè un giro di autorizzazione nel browser con registrazione
+dinamica del client, e GUZZOBOT non lo implementa ancora. Stanno nel catalogo
+col loro indirizzo vero e un lucchetto che spiega perché, invece di un pulsante
+che non funziona.
+
+**Zapier è la via d'uscita da quel lucchetto**, e per questo sta in cima: un
+token solo e dentro ci sono Gmail, Calendar, Slack, Fogli e migliaia di altre
+app, perché l'accesso a ciascuna lo tiene Zapier. Il suo URL vale come una
+password — chi ce l'ha può eseguire le azioni che hai configurato.
 
 ## Connettori (MCP)
 
@@ -481,7 +547,8 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
 │  ├─ agent/               ciclo dell'agente, budget, prompt, registro strumenti
-│  ├─ mcp/                 connettori MCP: client JSON-RPC, nomi, strumenti
+│  ├─ mcp/                 connettori MCP: client, nomi, catalogo
+│  ├─ skills/              competenze: catalogo e composizione del prompt
 │  ├─ workspace/           cartella locale, repository GitHub, Actions, strumenti
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
@@ -495,8 +562,8 @@ android/app/src/main/java/com/lucio/guzzobot/
    ├─ onboarding/          primo avvio: chiave guidata e permessi
    ├─ chat/                chat, composer, allegati, drawer, ViewModel
    ├─ markdown/            parser e renderer markdown
-   └─ settings/            impostazioni, ruoli multimodali, provider,
-                           modelli gratuiti, connettori, privacy
+   └─ settings/            impostazioni, ruoli multimodali, provider, modelli
+                           gratuiti, competenze, catalogo, connettori, privacy
 ```
 
 ## Personalizzare
@@ -520,6 +587,8 @@ estrae il testo, non la formattazione: di un `.xls` si perdono formule (resta il
 valore calcolato) e formati numerici, di un `.ppt` la disposizione delle forme.
 Dei connettori si parla soltanto MCP su HTTP: i server `stdio` (`npx`, `uvx`)
 sono fuori portata per un'app Android, e di un server remoto si usano gli
-strumenti, non le sue risorse o i suoi prompt.
+strumenti, non le sue risorse o i suoi prompt. L'autenticazione accettata è un
+token in un'intestazione: i connettori OAuth sono nel catalogo ma non
+attivabili. Una competenza è istruzioni, non codice eseguibile.
 Nessuna sincronizzazione tra dispositivi, per scelta: se disinstalli l'app, le
 conversazioni se ne vanno con lei.

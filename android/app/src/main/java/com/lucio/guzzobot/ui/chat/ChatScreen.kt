@@ -87,9 +87,11 @@ fun ChatScreen(
     onOpenCode: () -> Unit,
     onOpenArtifacts: () -> Unit,
     onOpenFree: () -> Unit,
+    onOpenSkills: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
+    val activeSkill by viewModel.activeSkill.collectAsStateWithLifecycle()
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val streaming by viewModel.streaming.collectAsStateWithLifecycle()
     val input by viewModel.input.collectAsStateWithLifecycle()
@@ -277,6 +279,11 @@ fun ChatScreen(
                         scope.launch { drawerState.close() }
                         onOpenArtifacts()
                     },
+                    onOpenSkills = {
+                        scope.launch { drawerState.close() }
+                        onOpenSkills()
+                    },
+                    activeSkill = activeSkill?.name,
                     onOpenSettings = {
                         scope.launch { drawerState.close() }
                         onOpenSettings()

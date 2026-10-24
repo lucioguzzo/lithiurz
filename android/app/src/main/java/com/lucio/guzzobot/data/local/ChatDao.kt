@@ -30,6 +30,9 @@ interface ChatDao {
     @Query("UPDATE conversations SET pinned = :pinned WHERE id = :id")
     suspend fun setPinned(id: Long, pinned: Boolean)
 
+    @Query("UPDATE conversations SET skillId = :skillId WHERE id = :id")
+    suspend fun setSkill(id: Long, skillId: String?)
+
     @Query("UPDATE conversations SET projectId = :projectId WHERE id = :id")
     suspend fun setProject(id: Long, projectId: Long?)
 

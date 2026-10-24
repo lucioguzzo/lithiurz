@@ -16,6 +16,8 @@ import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.ProviderCatalog
+import com.lucio.guzzobot.data.skills.Skill
+import com.lucio.guzzobot.data.skills.SkillCatalog
 import com.lucio.guzzobot.data.model.Providers
 import com.lucio.guzzobot.data.model.ThemeMode
 import kotlinx.coroutines.flow.Flow
@@ -56,6 +58,8 @@ class SettingsStore(context: Context, private val json: Json) {
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val freeDisclaimer = booleanPreferencesKey("free_disclaimer")
         val removedProviders = stringSetPreferencesKey("removed_providers")
+        val skills = stringPreferencesKey("skills")
+        val removedSkills = stringSetPreferencesKey("removed_skills")
     }
 
     /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
@@ -114,6 +118,13 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
             onboardingDone = prefs[Keys.onboardingDone] ?: false,
+            skills = SkillCatalog.merge(
+                stored = prefs[Keys.skills]?.let { raw ->
+                    runCatching { json.decodeFromString<List<Skill>>(raw) }.getOrNull()
+                }.orEmpty(),
+                removed = prefs[Keys.removedSkills].orEmpty(),
+            ),
+            removedSkills = prefs[Keys.removedSkills].orEmpty(),
             freeDisclaimerAccepted = prefs[Keys.freeDisclaimer] ?: false,
             removedProviders = removed,
             mcpServers = prefs[Keys.mcpServers]
@@ -201,4 +212,13 @@ class SettingsStore(context: Context, private val json: Json) {
     suspend fun acceptFreeDisclaimer() = store.edit { it[Keys.freeDisclaimer] = true }
 
     suspend fun completeOnboarding() = store.edit { it[Keys.onboardingDone] = true }
+
+    suspend fun saveSkills(skills: List<Skill>) = store.edit {
+        it[Keys.skills] = json.encodeToString(skills)
+    }
+
+    suspend fun setSkillRemoved(skillId: String, removed: Boolean) = store.edit { prefs ->
+        val current = prefs[Keys.removedSkills].orEmpty()
+        prefs[Keys.removedSkills] = if (removed) current + skillId else current - skillId
+    }
 }

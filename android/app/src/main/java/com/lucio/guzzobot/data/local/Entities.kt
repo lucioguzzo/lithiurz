@@ -19,6 +19,8 @@ data class ConversationEntity(
     @ColumnInfo(defaultValue = "0") val pinned: Boolean = false,
     /** Progetto a cui appartiene, se assegnata. */
     val projectId: Long? = null,
+    /** Competenza applicata a questa conversazione, se scelta. */
+    val skillId: String? = null,
 )
 
 /** Un raccoglitore di conversazioni. */

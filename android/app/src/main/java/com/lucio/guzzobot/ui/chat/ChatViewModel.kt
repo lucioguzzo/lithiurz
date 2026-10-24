@@ -34,6 +34,12 @@ import com.lucio.guzzobot.data.model.ModelRef
 import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.data.model.VisionRouting
 import com.lucio.guzzobot.data.model.Provider
+import com.lucio.guzzobot.data.mcp.McpAuth
+import com.lucio.guzzobot.data.mcp.McpCatalog
+import com.lucio.guzzobot.data.mcp.McpEntry
+import com.lucio.guzzobot.data.skills.Skill
+import com.lucio.guzzobot.data.skills.SkillCatalog
+import com.lucio.guzzobot.data.skills.SkillComposer
 import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ProviderCatalog
 import com.lucio.guzzobot.data.model.Roles
@@ -1062,8 +1068,20 @@ class ChatViewModel(
         // chiamata: se il taglio della cronologia l'ha lasciato orfano, via.
         val trimmed = api.dropWhile { it.role == Roles.TOOL }
 
+        // La competenza applicata a questa conversazione, se c'è: si aggiunge
+        // al prompt dell'utente invece di sostituirlo.
+        val skill = SkillCatalog.find(
+            current.skills,
+            conversations.value.firstOrNull { it.id == conversationId }?.skillId,
+        )
         val system = buildString {
-            append(current.systemPrompt.trim())
+            append(SkillComposer.compose(current.systemPrompt, skill))
+            if (skill == null) {
+                SkillComposer.catalogue(current.skills)?.let { catalogue ->
+                    if (isNotEmpty()) append("\n\n")
+                    append(catalogue)
+                }
+            }
             workspace(current)?.let { workspace ->
                 if (isNotEmpty()) append("\n\n")
                 append(
@@ -1548,6 +1566,65 @@ class ChatViewModel(
     fun acceptFreeDisclaimer() = viewModelScope.launch { settingsStore.acceptFreeDisclaimer() }
 
     fun completeOnboarding() = viewModelScope.launch { settingsStore.completeOnboarding() }
+
+    // --- competenze ---------------------------------------------------------
+
+    /** La competenza applicata alla conversazione aperta. */
+    val activeSkill: StateFlow<Skill?> = combine(settings, conversationId, conversations) { s, id, list ->
+        SkillCatalog.find(s.skills, list.firstOrNull { it.id == id }?.skillId)
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    /** Applica (o toglie, con null) una competenza alla conversazione aperta. */
+    fun applySkill(skillId: String?) = viewModelScope.launch {
+        val current = settings.value
+        val skill = SkillCatalog.find(current.skills, skillId)
+        val id = _conversationId.value ?: repository.createConversation(
+            current.activeProviderId,
+            current.activeModel,
+            skill?.name ?: "Nuova chat",
+        ).also { _conversationId.value = it }
+        repository.setSkill(id, skillId)
+    }
+
+    fun saveSkill(skill: Skill) = viewModelScope.launch {
+        val existing = settings.value.skills
+        val updated = if (existing.any { it.id == skill.id }) {
+            existing.map { if (it.id == skill.id) skill else it }
+        } else {
+            existing + skill
+        }
+        settingsStore.saveSkills(updated)
+        if (skill.id in settings.value.removedSkills) {
+            settingsStore.setSkillRemoved(skill.id, false)
+        }
+    }
+
+    fun deleteSkill(skillId: String) = viewModelScope.launch {
+        val skill = settings.value.skills.firstOrNull { it.id == skillId } ?: return@launch
+        settingsStore.saveSkills(settings.value.skills.filterNot { it.id == skillId })
+        if (skill.builtIn) settingsStore.setSkillRemoved(skillId, true)
+    }
+
+    fun newSkillId(): String = SkillCatalog.newId(settings.value.skills)
+
+    // --- catalogo dei connettori -------------------------------------------
+
+    /**
+     * Aggiunge un connettore del catalogo e, se ha un token o non ne serve,
+     * lo prova subito: così si vede se funziona adesso, non al primo uso.
+     */
+    fun addFromCatalog(entry: McpEntry, token: String) = viewModelScope.launch {
+        val server = McpCatalog.toServer(entry)
+        if (token.isNotBlank()) {
+            secretStore.setApiKey(McpServer.secretKey(server.id), token.trim())
+        }
+        saveConnector(server).join()
+        if (entry.auth == McpAuth.NONE || token.isNotBlank()) testConnector(server)
+    }
+
+    /** Il token GitHub già configurato per l'area di lavoro, se c'è. */
+    fun workspaceGitHubToken(): String = secretStore.apiKey(WorkspaceConfig.GITHUB_SECRET)
+
 
     /** Una chiave trovata negli appunti, se calza questo provider. */
     fun keyFromClipboard(providerId: String, clipboard: String?): String? {

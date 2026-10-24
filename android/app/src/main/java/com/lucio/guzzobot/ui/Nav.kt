@@ -17,7 +17,9 @@ import com.lucio.guzzobot.ui.settings.AgentScreen
 import com.lucio.guzzobot.ui.settings.ArtifactsScreen
 import com.lucio.guzzobot.ui.settings.CodeScreen
 import com.lucio.guzzobot.ui.settings.ConnectorsScreen
+import com.lucio.guzzobot.ui.settings.CatalogScreen
 import com.lucio.guzzobot.ui.settings.FreeScreen
+import com.lucio.guzzobot.ui.settings.SkillsScreen
 import com.lucio.guzzobot.ui.settings.PrivacyScreen
 import com.lucio.guzzobot.ui.settings.TasksScreen
 import com.lucio.guzzobot.ui.settings.WorkspaceScreen
@@ -34,6 +36,8 @@ object Routes {
     const val CONNECTORS = "connectors"
     const val PRIVACY = "privacy"
     const val FREE = "free"
+    const val CATALOG = "catalog"
+    const val SKILLS = "skills"
 }
 
 @Composable
@@ -77,6 +81,7 @@ fun GuzzoBotNavHost(
                 onOpenCode = { navController.navigate(Routes.CODE) },
                 onOpenArtifacts = { navController.navigate(Routes.ARTIFACTS) },
                 onOpenFree = { navController.navigate(Routes.FREE) },
+                onOpenSkills = { navController.navigate(Routes.SKILLS) },
             )
         }
         composable(Routes.SETTINGS) {
@@ -91,6 +96,22 @@ fun GuzzoBotNavHost(
                 onOpenConnectors = { navController.navigate(Routes.CONNECTORS) },
                 onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
                 onOpenFree = { navController.navigate(Routes.FREE) },
+                onOpenSkills = { navController.navigate(Routes.SKILLS) },
+                onOpenCatalog = { navController.navigate(Routes.CATALOG) },
+            )
+        }
+        composable(Routes.SKILLS) {
+            SkillsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onApplied = { navController.popBackStack(Routes.CHAT, inclusive = false) },
+            )
+        }
+        composable(Routes.CATALOG) {
+            CatalogScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onOpenConnectors = { navController.navigate(Routes.CONNECTORS) },
             )
         }
         composable(Routes.FREE) {
@@ -103,7 +124,11 @@ fun GuzzoBotNavHost(
             )
         }
         composable(Routes.CONNECTORS) {
-            ConnectorsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+            ConnectorsScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onOpenCatalog = { navController.navigate(Routes.CATALOG) },
+            )
         }
         composable(Routes.PRIVACY) {
             PrivacyScreen(
