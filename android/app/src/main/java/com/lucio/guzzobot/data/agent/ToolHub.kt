@@ -28,6 +28,8 @@ class ToolHub(
     private val mcpClient: McpClient,
     private val secrets: SecretStore,
     private val json: Json,
+    /** Se configurato un modello per le immagini, il modello può crearne. */
+    private val images: ImageTools.Maker? = null,
 ) {
 
     val workspace: Workspace? get() = bundle?.workspace
@@ -36,7 +38,8 @@ class ToolHub(
 
     private val connectors: List<McpServer> get() = servers.filter { it.enabled && it.tools.isNotEmpty() }
 
-    val hasTools: Boolean get() = workspace != null || connectors.isNotEmpty()
+    val hasTools: Boolean
+        get() = workspace != null || connectors.isNotEmpty() || images != null
 
     fun definitions(agent: Boolean): JsonArray? {
         if (!hasTools) return null
@@ -47,10 +50,12 @@ class ToolHub(
         return buildJsonArray {
             workspaceTools.forEach { add(it) }
             mcpTools.forEach { add(it) }
+            if (images != null) add(ImageTools.definition())
         }
     }
 
     fun describe(call: ToolCall): String {
+        if (call.name == ImageTools.CREATE) return ImageTools.describe(prompt(call))
         McpNaming.resolve(call.name, connectors)?.let { (server, tool) ->
             return "${server.name}: ${tool.name}"
         }
@@ -58,17 +63,28 @@ class ToolHub(
     }
 
     fun preview(call: ToolCall): String {
+        if (call.name == ImageTools.CREATE) return prompt(call)
         McpNaming.resolve(call.name, connectors)?.let { return call.arguments.take(600) }
         return WorkspaceTools.preview(call)
     }
 
     /** Gli strumenti di un connettore chiedono il permesso, a meno che il server dica che leggono soltanto. */
     fun modifies(call: ToolCall): Boolean {
+        // Creare un'immagine non tocca i file dell'utente né il repository:
+        // non passa dalla conferma. Quanto può costare lo decide il tetto di
+        // sicurezza dell'agente, che conta i passi.
+        if (call.name == ImageTools.CREATE) return false
         McpNaming.resolve(call.name, connectors)?.let { (_, tool) -> return !tool.readOnly }
         return WorkspaceTools.modifies(call.name)
     }
 
     suspend fun execute(call: ToolCall, run: AgentRun?): String {
+        if (call.name == ImageTools.CREATE) {
+            val maker = images ?: throw WorkspaceException("Nessun modello per le immagini")
+            val wanted = prompt(call)
+            if (wanted.isBlank()) throw WorkspaceException("Serve la descrizione dell'immagine")
+            return maker.create(wanted)
+        }
         McpNaming.resolve(call.name, connectors)?.let { (server, tool) ->
             return mcpClient.callTool(
                 server = server,
@@ -80,6 +96,11 @@ class ToolHub(
         val target = workspace ?: throw WorkspaceException("Nessuna area di lavoro configurata")
         return WorkspaceTools.execute(target, call, github, actions, run)
     }
+
+    private fun prompt(call: ToolCall): String =
+        arguments(call.arguments)["prompt"]?.let { value ->
+            (value as? kotlinx.serialization.json.JsonPrimitive)?.content
+        }.orEmpty().trim()
 
     private fun arguments(raw: String): JsonObject = runCatching {
         json.parseToJsonElement(raw.ifBlank { "{}" }).jsonObject

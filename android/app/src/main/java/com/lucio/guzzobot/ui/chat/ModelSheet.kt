@@ -60,7 +60,7 @@ fun ModelSheet(
                 color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(start = 24.dp, bottom = 8.dp),
             )
-            providers.forEach { provider ->
+            providers.filterNot { it.imageOnly }.forEach { provider ->
                 Text(
                     text = provider.name,
                     style = MaterialTheme.typography.bodySmall,

@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.8.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.9.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -110,7 +110,8 @@ Nessuna carta di credito, in nessuno dei casi.
 | **OpenRouter** | I modelli con il suffisso `:free` — 20 richieste al minuto, 50 al giorno |
 | **Z.ai (GLM)** | Le varianti `flash` |
 | **Mistral** | Circa un miliardo di token al mese sul piano *Experiment*, che però **obbliga a cedere i dati** per l'addestramento |
-| **Ollama** | L'unico davvero senza chiave, ma vuole un computer accesso nella stessa rete |
+| **Pollinations** | **Immagini senza alcuna chiave**: una alla volta, 45 secondi d'attesa, col logo, a un indirizzo pubblico |
+| **Ollama** | Senza chiave, ma vuole un computer acceso nella stessa rete |
 
 Quando tocchi *Incolla la chiave*, se è già negli appunti il campo arriva
 compilato. L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
@@ -378,6 +379,39 @@ dichiarano di essere immagini, così uno spostamento di campo non rompe tutto.
 Il risultato finisce in chat e in **Artefatti**, con il modello che l'ha
 prodotto.
 
+### Senza nessuna chiave: Pollinations
+
+In *Modelli gratuiti* c'è **Pollinations**, l'unico generatore di immagini che
+non chiede niente: nessun account, nessuna chiave, si tocca *Usa adesso* e
+funziona. Non è un endpoint compatibile con l'API OpenAI ma una GET il cui
+percorso *è* il prompt, quindi ha una sua strada nel codice.
+
+Quello che dà in cambio di niente, per intero: **una richiesta alla volta per
+indirizzo IP, almeno 45 secondi fra una e l'altra**; **massimo 768×768** (una
+misura più grande viene riportata nei limiti conservando le proporzioni); il
+**logo del servizio stampato sopra**; e un indirizzo **pubblico** — il risultato
+viene messo in cache e chiunque abbia quell'URL rivede la stessa immagine.
+Quando il servizio risponde «troppo in fretta», l'app riporta quanti secondi
+aspettare invece di un errore generico. E non modifica immagini: per quello
+serve Gemini.
+
+Un provider di sole immagini non compare fra i modelli di chat e non viene
+impostato come modello attivo: conversarci non si può.
+
+### L'agente le può creare da sé
+
+La generazione di immagini non è più soltanto un pulsante: è uno **strumento**
+che il modello può decidere di usare nel mezzo di un lavoro — scrivere
+l'articolo e produrne la copertina senza che nessuno cambi schermata. Vale
+nella chat con gli strumenti attivi, per l'Agente Bot e per i compiti
+pianificati.
+
+Lo strumento compare **solo se un modello per le immagini è configurato e
+utilizzabile**: offrirne uno che fallisce a ogni chiamata sprecherebbe un passo
+del budget dell'agente a ogni tentativo. Non passa dalla finestra di conferma,
+perché non tocca i tuoi file né il repository; quanto può costare lo limita il
+tetto di sicurezza, che conta i passi.
+
 ## Competenze (Skills)
 
 *Pannello laterale › Competenze*, o *Impostazioni › Competenze*. Una competenza
@@ -584,7 +618,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ model/               provider, piani gratuiti, chiavi, impostazioni
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
-│  ├─ agent/               ciclo dell'agente, budget, prompt, registro strumenti
+│  ├─ agent/               ciclo, budget, prompt, strumenti, immagini
 │  ├─ mcp/                 connettori MCP: client, nomi, catalogo
 │  ├─ skills/              competenze: catalogo e composizione del prompt
 │  ├─ workspace/           cartella locale, repository GitHub, Actions, strumenti

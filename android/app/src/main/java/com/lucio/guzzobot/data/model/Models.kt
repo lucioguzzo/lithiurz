@@ -16,6 +16,10 @@ data class Provider(
     val models: List<String> = emptyList(),
     val keyUrl: String? = null,
     val builtIn: Boolean = false,
+    /** Come si chiedono le immagini a questo provider. */
+    val imageApi: ImageApi = ImageApi.OPENAI,
+    /** Un provider che fa solo immagini non va mostrato fra i modelli di chat. */
+    val imageOnly: Boolean = false,
     /** Se il provider ha un piano gratuito vero, cosa offre e cosa chiede. */
     val freeTier: FreeTier? = null,
     /**
@@ -24,7 +28,26 @@ data class Provider(
      * appunti, l'app se ne accorge e la propone.
      */
     val keyPattern: String? = null,
-)
+) {
+    /**
+     * Non tutti chiedono una credenziale: Ollama gira in locale, Pollinations
+     * non ne ha proprio. Senza questa distinzione l'app li considererebbe non
+     * configurati per sempre.
+     */
+    val requiresKey: Boolean
+        get() = imageApi != ImageApi.POLLINATIONS &&
+            baseUrl.startsWith("https://", ignoreCase = true)
+}
+
+/** Le forme di richiesta per generare immagini che l'app sa parlare. */
+@Serializable
+enum class ImageApi {
+    /** POST su /images/generations, come OpenAI. */
+    OPENAI,
+
+    /** Una GET il cui percorso è il prompt: Pollinations, senza chiave. */
+    POLLINATIONS,
+}
 
 /**
  * Un piano gratuito, descritto per quello che è.
@@ -52,6 +75,14 @@ data class FreeTier(
 /** Quello che un piano gratuito dà in più, o si prende in cambio. */
 @Serializable
 enum class FreeNote(val warning: Boolean) {
+    /** Genera immagini. */
+    CREATES_IMAGES(false),
+    /** Non serve nessuna chiave, davvero. */
+    NO_KEY(false),
+    /** Il risultato sta a un indirizzo pubblico, e chi ce l'ha lo rivede. */
+    PUBLIC_RESULTS(true),
+    /** Le immagini escono col logo del servizio. */
+    WATERMARK(true),
     /** Vede le immagini: fra i gratuiti è la rarità, non la norma. */
     SEES_IMAGES(false),
     /** Trascrive l'audio con Whisper. */
@@ -186,7 +217,12 @@ object Providers {
             freeTier = FreeTier(
                 signupUrl = "https://aistudio.google.com/apikey",
                 limits = "limiti per progetto, visibili su aistudio.google.com/rate-limit",
-                notes = listOf(FreeNote.NO_CARD, FreeNote.SEES_IMAGES, FreeNote.TRAINS_ON_DATA),
+                notes = listOf(
+                    FreeNote.NO_CARD,
+                    FreeNote.SEES_IMAGES,
+                    FreeNote.CREATES_IMAGES,
+                    FreeNote.TRAINS_ON_DATA,
+                ),
             ),
         ),
         Provider(
@@ -211,6 +247,28 @@ object Providers {
             models = listOf("gpt-4o", "gpt-4o-mini", "whisper-1", "gpt-image-1", "tts-1"),
             keyUrl = "https://platform.openai.com/api-keys",
             builtIn = true,
+        ),
+        Provider(
+            id = "pollinations",
+            name = "Pollinations (immagini)",
+            baseUrl = "https://image.pollinations.ai",
+            // Il servizio non documenta un parametro per scegliere il modello:
+            // questo nome serve solo a poterlo selezionare come ruolo.
+            models = listOf("pollinations"),
+            builtIn = true,
+            imageApi = ImageApi.POLLINATIONS,
+            imageOnly = true,
+            freeTier = FreeTier(
+                signupUrl = "https://pollinations.ai",
+                limits = "una richiesta alla volta, almeno 45 secondi fra una e " +
+                    "l'altra; massimo 768×768",
+                notes = listOf(
+                    FreeNote.NO_KEY,
+                    FreeNote.CREATES_IMAGES,
+                    FreeNote.WATERMARK,
+                    FreeNote.PUBLIC_RESULTS,
+                ),
+            ),
         ),
         Provider(
             id = "ollama",

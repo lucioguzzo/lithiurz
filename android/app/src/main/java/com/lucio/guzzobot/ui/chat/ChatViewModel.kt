@@ -41,6 +41,9 @@ import com.lucio.guzzobot.data.skills.Skill
 import com.lucio.guzzobot.data.skills.SkillCatalog
 import com.lucio.guzzobot.data.skills.SkillComposer
 import com.lucio.guzzobot.data.remote.GoogleImages
+import com.lucio.guzzobot.data.agent.ImageMaker
+import com.lucio.guzzobot.data.agent.ImageTools
+import com.lucio.guzzobot.data.model.ImageApi
 import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.ProviderCatalog
@@ -916,6 +919,18 @@ class ChatViewModel(
         mcpClient = mcpClient,
         secrets = secretStore,
         json = json,
+        images = imageMaker(current),
+    )
+
+    /** Lo strumento con cui il modello crea un'immagine da sé. */
+    private fun imageMaker(current: AppSettings): ImageTools.Maker? = ImageMaker.create(
+        settings = current,
+        conversationId = _conversationId.value,
+        chatApi = chatApi,
+        secrets = secretStore,
+        attachments = attachments,
+        repository = repository,
+        artifacts = artifactDao,
     )
 
     // --- connettori MCP ----------------------------------------------------
@@ -1168,7 +1183,19 @@ class ChatViewModel(
                         current.activeModel,
                         titleFrom(prompt),
                     ).also { _conversationId.value = it }
-                val bytes = if (sources.isEmpty()) {
+                val bytes = if (provider.imageApi == ImageApi.POLLINATIONS) {
+                    if (sources.isNotEmpty()) {
+                        throw IllegalStateException(
+                            "Pollinations crea immagini ma non le modifica: " +
+                                "per modificarle serve un modello Gemini",
+                        )
+                    }
+                    chatApi.generatePollinations(
+                        baseUrl = provider.baseUrl,
+                        prompt = prompt,
+                        size = current.imageSize,
+                    )
+                } else if (sources.isEmpty()) {
                     chatApi.generateImage(
                         baseUrl = provider.baseUrl,
                         apiKey = secretStore.apiKey(provider.id),
@@ -1652,7 +1679,13 @@ class ChatViewModel(
         val current = settings.value
         val provider = current.providers.firstOrNull { it.id == providerId } ?: return
         if (current.imageRef == null) {
-            ModelCatalog.imageModels(provider.models).firstOrNull()?.let { model ->
+            // Di un provider di sole immagini vale qualunque suo modello.
+            val candidates = if (provider.imageOnly) {
+                provider.models
+            } else {
+                ModelCatalog.imageModels(provider.models)
+            }
+            candidates.firstOrNull()?.let { model ->
                 settingsStore.setImageRef(ModelRef(providerId, model))
             }
         }
@@ -1709,9 +1742,13 @@ class ChatViewModel(
         val provider = settings.value.providers.firstOrNull { it.id == providerId }
             ?: return@launch
         if (key.isNotBlank()) secretStore.setApiKey(providerId, key.trim())
-        val model = provider.models.firstOrNull { provider.freeTier?.covers(it) == true }
-            ?: provider.models.firstOrNull()
-        if (model != null) settingsStore.setActiveModel(providerId, model)
+        // Un provider di sole immagini non può reggere la chat: impostarlo come
+        // modello attivo lascerebbe l'utente con una conversazione muta.
+        if (!provider.imageOnly) {
+            val model = provider.models.firstOrNull { provider.freeTier?.covers(it) == true }
+                ?: provider.models.firstOrNull()
+            if (model != null) settingsStore.setActiveModel(providerId, model)
+        }
         settingsStore.acceptFreeDisclaimer()
         if (secretStore.apiKey(providerId).isNotBlank()) refreshModels(providerId)
         fillEmptyRoles(providerId)
@@ -1771,7 +1808,7 @@ class ChatViewModel(
     }
 
     private fun isReady(provider: Provider): Boolean =
-        secretStore.hasKey(provider.id) || !provider.baseUrl.startsWith("https://", ignoreCase = true)
+        secretStore.hasKey(provider.id) || !provider.requiresKey
 
     private fun notice(message: String) {
         _notices.tryEmit(message)

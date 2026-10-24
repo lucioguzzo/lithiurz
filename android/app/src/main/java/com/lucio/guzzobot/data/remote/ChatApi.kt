@@ -244,6 +244,35 @@ class ChatApi(private val json: Json) {
     }
 
     /**
+     * Pollinations: una GET il cui percorso è il prompt, e che risponde
+     * direttamente con i byte dell'immagine. Niente chiave, niente JSON.
+     */
+    suspend fun generatePollinations(
+        baseUrl: String,
+        prompt: String,
+        size: String?,
+    ): List<ByteArray> = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(Pollinations.url(prompt = prompt, size = size, baseUrl = baseUrl))
+            .get()
+            .build()
+        client.newCall(request).execute().use { response ->
+            // 402 qui non vuol dire «paga»: vuol dire «stai andando troppo in fretta».
+            if (response.code == 402 || response.code == 429) {
+                throw ApiException(Pollinations.waitMessage(response.header("Retry-After")))
+            }
+            if (!response.isSuccessful) {
+                throw ApiException(errorMessage(response.code, response.body?.string()))
+            }
+            val bytes = response.body?.bytes()
+            if (bytes == null || bytes.isEmpty()) {
+                throw ApiException("Pollinations non ha restituito un'immagine")
+            }
+            listOf(bytes)
+        }
+    }
+
+    /**
      * Modifica un'immagine esistente con l'API nativa di Google.
      *
      * Due forme di richiesta, provate in quest'ordine: quella corrente e la

@@ -272,4 +272,9 @@
     <string name="skill_analysis">Analysis</string>
     <string name="free_install">Download Ollama</string>
     <string name="edit_image">Edit the attached image</string>
+    <string name="free_site">Open the site</string>
+    <string name="free_note_creates">Generates images</string>
+    <string name="free_note_no_key">No key, no account</string>
+    <string name="free_note_public">The result sits at a public address: anyone with it sees the image</string>
+    <string name="free_note_watermark">Images come out with the service\'s logo</string>
 </resources>

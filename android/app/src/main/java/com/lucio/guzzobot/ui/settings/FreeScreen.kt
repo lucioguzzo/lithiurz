@@ -112,7 +112,7 @@ fun FreeScreen(
                 val tier = provider.freeTier ?: return@forEach
                 // Ollama non chiede una chiave: chiede un computer acceso.
                 val local = tier.notes.contains(FreeNote.NEEDS_LOCAL_MACHINE)
-                val ready = key.isNotBlank() || local
+                val ready = key.isNotBlank() || !provider.requiresKey
 
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
                     Row(
@@ -187,7 +187,11 @@ fun FreeScreen(
                                 )
                                 Text(
                                     text = " " + stringResource(
-                                        if (local) R.string.free_install else R.string.free_get_key,
+                                        when {
+                                            local -> R.string.free_install
+                                            !provider.requiresKey -> R.string.free_site
+                                            else -> R.string.free_get_key
+                                        },
                                     ),
                                     style = MaterialTheme.typography.bodyMedium,
                                 )
@@ -279,6 +283,10 @@ private fun NoteRow(note: FreeNote) {
             FreeNote.TRAINS_ON_DATA -> R.string.free_note_training
             FreeNote.NEEDS_LOCAL_MACHINE -> R.string.free_note_local
             FreeNote.PARTIAL_CATALOG -> R.string.free_note_partial
+            FreeNote.CREATES_IMAGES -> R.string.free_note_creates
+            FreeNote.NO_KEY -> R.string.free_note_no_key
+            FreeNote.PUBLIC_RESULTS -> R.string.free_note_public
+            FreeNote.WATERMARK -> R.string.free_note_watermark
         },
     )
     Text(

@@ -274,4 +274,9 @@
     <string name="skill_analysis">Analisi</string>
     <string name="free_install">Scarica Ollama</string>
     <string name="edit_image">Modifica l\'immagine allegata</string>
+    <string name="free_site">Vai al sito</string>
+    <string name="free_note_creates">Genera immagini</string>
+    <string name="free_note_no_key">Nessuna chiave, nessun account</string>
+    <string name="free_note_public">Il risultato sta a un indirizzo pubblico: chi lo ha, rivede l\'immagine</string>
+    <string name="free_note_watermark">Le immagini escono col logo del servizio</string>
 </resources>

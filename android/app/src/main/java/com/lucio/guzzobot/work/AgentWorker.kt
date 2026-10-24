@@ -14,6 +14,7 @@ import com.lucio.guzzobot.GuzzoBotApp
 import com.lucio.guzzobot.MainActivity
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.agent.AgentLimits
+import com.lucio.guzzobot.data.agent.ImageMaker
 import com.lucio.guzzobot.data.agent.ToolHub
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.workspace.WorkspaceFactory
@@ -75,6 +76,15 @@ class AgentWorker(
                 mcpClient = container.mcpClient,
                 secrets = container.secretStore,
                 json = container.json,
+                images = ImageMaker.create(
+                    settings = settings,
+                    conversationId = conversationId,
+                    chatApi = container.chatApi,
+                    secrets = container.secretStore,
+                    attachments = container.attachmentStore,
+                    repository = container.repository,
+                    artifacts = container.artifactDao,
+                ),
             ),
             limits = AgentLimits(maxSteps = 25, maxRounds = 18, maxMinutes = 8),
             approve = { task.mayWrite },
