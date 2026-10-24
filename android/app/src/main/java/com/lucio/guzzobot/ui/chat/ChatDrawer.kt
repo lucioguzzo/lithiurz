@@ -14,7 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.AutoAwesome
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.DriveFileRenameOutline
 import androidx.compose.material.icons.outlined.ExpandLess
 import androidx.compose.material.icons.outlined.ExpandMore
@@ -74,6 +76,8 @@ fun ChatDrawer(
     onCreateProject: (String, Long?) -> Unit,
     onDeleteProject: (Long) -> Unit,
     onOpenAgent: () -> Unit,
+    onOpenCode: () -> Unit,
+    onOpenArtifacts: () -> Unit,
     onOpenWorkspace: () -> Unit,
     onOpenTasks: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -104,6 +108,16 @@ fun ChatDrawer(
             icon = Icons.Outlined.AutoAwesome,
             label = stringResource(R.string.agent_bot),
             onClick = onOpenAgent,
+        )
+        DrawerRow(
+            icon = Icons.Outlined.Code,
+            label = stringResource(R.string.code),
+            onClick = onOpenCode,
+        )
+        DrawerRow(
+            icon = Icons.Outlined.Inventory2,
+            label = stringResource(R.string.artifacts),
+            onClick = onOpenArtifacts,
         )
         DrawerRow(
             icon = Icons.Outlined.FolderOpen,

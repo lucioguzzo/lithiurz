@@ -2,6 +2,8 @@ package com.lucio.guzzobot
 
 import android.app.Application
 import com.lucio.guzzobot.data.agent.AgentEngine
+import com.lucio.guzzobot.data.model.ModelRefresher
+import com.lucio.guzzobot.work.ModelRefreshWorker
 import com.lucio.guzzobot.data.files.AttachmentStore
 import com.lucio.guzzobot.data.local.GuzzoBotDatabase
 import com.lucio.guzzobot.data.media.AudioPlayer
@@ -28,6 +30,7 @@ class AppContainer(private val app: Application) {
     val repository = ChatRepository(database.chatDao())
     val taskDao = database.taskDao()
     val projectDao = database.projectDao()
+    val artifactDao = database.artifactDao()
     val settingsStore = SettingsStore(app, json)
     val secretStore = SecretStore(app)
     val chatApi = ChatApi(json)
@@ -35,7 +38,8 @@ class AppContainer(private val app: Application) {
     val audioRecorder = AudioRecorder(app)
     val audioPlayer = AudioPlayer()
     val deviceSpeaker = DeviceSpeaker(app)
-    val agentEngine = AgentEngine(repository, chatApi, json)
+    val agentEngine = AgentEngine(repository, chatApi, json, artifactDao)
+    val modelRefresher = ModelRefresher(chatApi, settingsStore, secretStore)
 }
 
 class GuzzoBotApp : Application() {
@@ -47,5 +51,7 @@ class GuzzoBotApp : Application() {
         // Carica i font che PDFBox usa per estrarre il testo dai PDF.
         PDFBoxResourceLoader.init(this)
         container = AppContainer(this)
+        // Gli elenchi dei modelli invecchiano: una volta a settimana si ricontrollano.
+        ModelRefreshWorker.ensureScheduled(this)
     }
 }

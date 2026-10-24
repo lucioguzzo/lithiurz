@@ -391,3 +391,60 @@ object WorkspaceTools {
 }
 
 private typealias JsonObjectBuilderScope = kotlinx.serialization.json.JsonObjectBuilder.() -> Unit
+
+/** Quello che un'operazione ha prodotto, da ritrovare nella sezione Artefatti. */
+data class ArtifactDraft(
+    val kind: String,
+    val name: String,
+    val location: String,
+    val detail: String? = null,
+)
+
+/**
+ * Ricava dagli strumenti ciò che vale la pena conservare: i file scritti e le
+ * pull request aperte. Letture e ricerche non producono niente.
+ */
+object ArtifactReader {
+
+    const val FILE = "file"
+    const val PULL_REQUEST = "pull_request"
+    const val IMAGE = "image"
+    const val AUDIO = "audio"
+
+    fun from(toolName: String, arguments: String, result: String, repoUrl: String?): List<ArtifactDraft> =
+        when (toolName) {
+            WorkspaceTools.WRITE -> paths(arguments).map { path ->
+                ArtifactDraft(
+                    kind = FILE,
+                    name = path.substringAfterLast('/'),
+                    location = repoUrl?.let { "$it/$path" } ?: "ws:$path",
+                    detail = result.lineSequence().firstOrNull()?.take(120),
+                )
+            }
+
+            WorkspaceTools.PULL_REQUEST -> {
+                val url = Regex("https://\\S+").find(result)?.value
+                if (url == null) {
+                    emptyList()
+                } else {
+                    listOf(
+                        ArtifactDraft(
+                            kind = PULL_REQUEST,
+                            name = result.substringBefore(':').trim().ifBlank { "Pull request" },
+                            location = url,
+                            detail = null,
+                        ),
+                    )
+                }
+            }
+
+            else -> emptyList()
+        }
+
+    private fun paths(arguments: String): List<String> = runCatching {
+        kotlinx.serialization.json.Json.parseToJsonElement(arguments.ifBlank { "{}" })
+            .jsonObject["files"]?.jsonArray.orEmpty()
+            .mapNotNull { it.jsonObject["path"]?.jsonPrimitive?.content }
+            .filter { it.isNotBlank() }
+    }.getOrDefault(emptyList())
+}

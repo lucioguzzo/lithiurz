@@ -122,8 +122,22 @@ class AttachmentStore(private val context: Context) {
 
     fun recordingTarget(): File = File(dir, "nota-${System.currentTimeMillis()}.m4a")
 
-    fun shareUri(attachment: Attachment): Uri =
-        FileProvider.getUriForFile(context, "${context.packageName}.files", File(attachment.path))
+    fun shareUri(attachment: Attachment): Uri = uriForFile(File(attachment.path))
+
+    fun uriForFile(file: File): Uri =
+        FileProvider.getUriForFile(context, "${context.packageName}.files", file)
+
+    /** Il documento SAF corrispondente a un percorso dentro l'area di lavoro locale. */
+    fun workspaceFileUri(treeUri: String?, relative: String): Uri? {
+        val root = treeUri?.let {
+            androidx.documentfile.provider.DocumentFile.fromTreeUri(context, Uri.parse(it))
+        } ?: return null
+        var current: androidx.documentfile.provider.DocumentFile? = root
+        relative.trim('/').split('/').filter { it.isNotEmpty() }.forEach { segment ->
+            current = current?.findFile(segment) ?: return null
+        }
+        return current?.uri
+    }
 
     /** L'immagine pronta per l'API: ridimensionata, ruotata secondo l'EXIF, in base64. */
     suspend fun imageDataUrl(path: String): String? = withContext(Dispatchers.IO) {

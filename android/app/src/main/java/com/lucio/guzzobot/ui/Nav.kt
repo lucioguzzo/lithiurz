@@ -14,6 +14,8 @@ import com.lucio.guzzobot.ui.chat.ChatViewModel
 import com.lucio.guzzobot.ui.settings.ProviderScreen
 import com.lucio.guzzobot.ui.settings.SettingsScreen
 import com.lucio.guzzobot.ui.settings.AgentScreen
+import com.lucio.guzzobot.ui.settings.ArtifactsScreen
+import com.lucio.guzzobot.ui.settings.CodeScreen
 import com.lucio.guzzobot.ui.settings.TasksScreen
 import com.lucio.guzzobot.ui.settings.WorkspaceScreen
 
@@ -24,6 +26,8 @@ object Routes {
     const val WORKSPACE = "workspace"
     const val TASKS = "tasks"
     const val AGENT = "agent"
+    const val CODE = "code"
+    const val ARTIFACTS = "artifacts"
 }
 
 @Composable
@@ -58,6 +62,8 @@ fun GuzzoBotNavHost(
                 onOpenAgent = { navController.navigate(Routes.AGENT) },
                 onOpenWorkspace = { navController.navigate(Routes.WORKSPACE) },
                 onOpenTasks = { navController.navigate(Routes.TASKS) },
+                onOpenCode = { navController.navigate(Routes.CODE) },
+                onOpenArtifacts = { navController.navigate(Routes.ARTIFACTS) },
             )
         }
         composable(Routes.SETTINGS) {
@@ -70,6 +76,17 @@ fun GuzzoBotNavHost(
                 onOpenWorkspace = { navController.navigate(Routes.WORKSPACE) },
                 onOpenTasks = { navController.navigate(Routes.TASKS) },
             )
+        }
+        composable(Routes.CODE) {
+            CodeScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onOpenWorkspace = { navController.navigate(Routes.WORKSPACE) },
+                onAgentStarted = { navController.popBackStack(Routes.CHAT, inclusive = false) },
+            )
+        }
+        composable(Routes.ARTIFACTS) {
+            ArtifactsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }
         composable(Routes.AGENT) {
             AgentScreen(

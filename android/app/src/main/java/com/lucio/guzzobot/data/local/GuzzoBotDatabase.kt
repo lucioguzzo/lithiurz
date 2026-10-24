@@ -33,8 +33,9 @@ class AttachmentConverter {
         MessageEntity::class,
         ScheduledTaskEntity::class,
         ProjectEntity::class,
+        ArtifactEntity::class,
     ],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 @TypeConverters(AttachmentConverter::class)
@@ -42,6 +43,7 @@ abstract class GuzzoBotDatabase : RoomDatabase() {
     abstract fun chatDao(): ChatDao
     abstract fun taskDao(): TaskDao
     abstract fun projectDao(): ProjectDao
+    abstract fun artifactDao(): ArtifactDao
 
     companion object {
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -84,9 +86,26 @@ abstract class GuzzoBotDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS artifacts (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "conversationId INTEGER, kind TEXT NOT NULL, name TEXT NOT NULL, " +
+                        "location TEXT NOT NULL, detail TEXT, createdAt INTEGER NOT NULL)",
+                )
+            }
+        }
+
         fun create(context: Context): GuzzoBotDatabase =
             Room.databaseBuilder(context, GuzzoBotDatabase::class.java, "guzzobot.db")
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(
+                    MIGRATION_1_2,
+                    MIGRATION_2_3,
+                    MIGRATION_3_4,
+                    MIGRATION_4_5,
+                    MIGRATION_5_6,
+                )
                 .fallbackToDestructiveMigration()
                 .build()
     }

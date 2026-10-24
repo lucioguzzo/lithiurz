@@ -73,6 +73,23 @@ object Providers {
             builtIn = true,
         ),
         Provider(
+            id = "zai",
+            name = "Z.ai (GLM)",
+            baseUrl = "https://api.z.ai/api/paas/v4",
+            // Punto di partenza: l'elenco vero arriva dall'endpoint /models.
+            models = listOf("glm-5.4", "glm-5.1", "glm-4.6v"),
+            keyUrl = "https://z.ai/manage-apikey/apikey-list",
+            builtIn = true,
+        ),
+        Provider(
+            id = "moonshot",
+            name = "Moonshot (Kimi)",
+            baseUrl = "https://api.moonshot.ai/v1",
+            models = listOf("kimi-k3.1", "kimi-k3", "kimi-k2.6"),
+            keyUrl = "https://platform.moonshot.ai/console/api-keys",
+            builtIn = true,
+        ),
+        Provider(
             id = "openai",
             name = "OpenAI",
             baseUrl = "https://api.openai.com/v1",
@@ -125,6 +142,8 @@ data class AppSettings(
     /** Tetto di sicurezza dell'agente. */
     val agentMaxSteps: Int = 60,
     val agentMaxMinutes: Int = 25,
+    /** Quando gli elenchi dei modelli sono stati riallineati l'ultima volta. */
+    val modelsRefreshedAt: Long = 0L,
 ) {
     val activeProvider: Provider?
         get() = providers.firstOrNull { it.id == activeProviderId } ?: providers.firstOrNull()

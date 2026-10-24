@@ -14,6 +14,8 @@ import com.lucio.guzzobot.data.agent.AgentRun
 import com.lucio.guzzobot.data.files.TextExtractor
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.local.MessageEntity
+import com.lucio.guzzobot.data.local.ArtifactDao
+import com.lucio.guzzobot.data.local.ArtifactEntity
 import com.lucio.guzzobot.data.local.ProjectDao
 import com.lucio.guzzobot.data.local.ProjectEntity
 import com.lucio.guzzobot.data.local.ScheduledTaskEntity
@@ -26,6 +28,7 @@ import com.lucio.guzzobot.data.model.Attachment
 import com.lucio.guzzobot.data.model.AttachmentKind
 import com.lucio.guzzobot.data.model.ModelCapabilities
 import com.lucio.guzzobot.data.model.ModelRef
+import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.data.model.VisionRouting
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.Roles
@@ -42,8 +45,11 @@ import com.lucio.guzzobot.data.remote.ToolCall
 import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.WorkspaceMode
 import com.lucio.guzzobot.data.repo.ChatRepository
+import com.lucio.guzzobot.data.workspace.ArtifactReader
+import com.lucio.guzzobot.data.workspace.Workflow
 import com.lucio.guzzobot.data.workspace.Workspace
 import com.lucio.guzzobot.data.workspace.WorkspaceBundle
+import com.lucio.guzzobot.data.workspace.WorkspaceEntry
 import com.lucio.guzzobot.data.workspace.WorkspaceFactory
 import com.lucio.guzzobot.data.workspace.WorkspaceTools
 import com.lucio.guzzobot.service.WorkspaceService
@@ -76,6 +82,26 @@ data class StreamingState(
     val content: String = "",
     val reasoning: String = "",
 )
+
+/** Lo stato della schermata Code: dove siamo e cosa stiamo guardando. */
+data class CodeState(
+    val label: String = "",
+    val path: String = "",
+    val entries: List<WorkspaceEntry> = emptyList(),
+    val file: CodeFile? = null,
+    val loading: Boolean = false,
+    val error: String? = null,
+    val github: Boolean = false,
+)
+
+data class CodeFile(val path: String, val content: String)
+
+/** Dove porta un artefatto quando lo si tocca. */
+sealed interface ArtifactTarget {
+    data class Web(val url: String) : ArtifactTarget
+    data class Local(val uri: Uri, val mime: String) : ArtifactTarget
+    data object Missing : ArtifactTarget
+}
 
 /** L'avanzamento dell'agente, mostrato sopra il composer. */
 data class AgentProgress(
@@ -116,6 +142,8 @@ class ChatViewModel(
     private val agentEngine: AgentEngine,
     private val taskDao: TaskDao,
     private val projectDao: ProjectDao,
+    private val modelRefresher: ModelRefresher,
+    private val artifactDao: ArtifactDao,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -178,11 +206,17 @@ class ChatViewModel(
         )
     }.stateIn(viewModelScope, SharingStarted.Eagerly, Abilities())
 
+    val artifacts: StateFlow<List<ArtifactEntity>> =
+        artifactDao.observeArtifacts().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     val projects: StateFlow<List<ProjectEntity>> =
         projectDao.observeProjects().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val tasks: StateFlow<List<ScheduledTaskEntity>> =
         taskDao.observeTasks().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
+    private val _code = MutableStateFlow(CodeState())
+    val code: StateFlow<CodeState> = _code
 
     private var streamJob: Job? = null
     private var agentJob: Job? = null
@@ -638,6 +672,24 @@ class ChatViewModel(
         }
     }
 
+    private suspend fun saveArtifact(
+        conversationId: Long?,
+        draft: com.lucio.guzzobot.data.workspace.ArtifactDraft,
+    ) {
+        artifactDao.insert(
+            ArtifactEntity(
+                conversationId = conversationId,
+                kind = draft.kind,
+                name = draft.name,
+                location = draft.location,
+                detail = draft.detail,
+                createdAt = System.currentTimeMillis(),
+            ),
+        )
+    }
+
+    fun deleteArtifact(id: Long) = viewModelScope.launch { artifactDao.delete(id) }
+
     private fun snapshot(run: AgentRun) = AgentProgress(
         goal = run.goal,
         steps = run.steps,
@@ -771,6 +823,14 @@ class ChatViewModel(
                             toolCallId = call.id,
                             toolName = WorkspaceTools.describe(call),
                         )
+                        if (!outcome.second) {
+                            ArtifactReader.from(
+                                toolName = call.name,
+                                arguments = call.arguments,
+                                result = outcome.first,
+                                repoUrl = bundle(current)?.github?.blobBaseUrl,
+                            ).forEach { draft -> saveArtifact(conversationId, draft) }
+                        }
                     }
                 }
             } finally {
@@ -995,6 +1055,17 @@ class ChatViewModel(
                 _input.value = ""
                 repository.addMessage(id, Roles.USER, prompt)
                 val saved = bytes.map { attachments.saveGeneratedImage(it, prompt) }
+                saved.forEach { image ->
+                    saveArtifact(
+                        conversationId = id,
+                        draft = com.lucio.guzzobot.data.workspace.ArtifactDraft(
+                            kind = ArtifactReader.IMAGE,
+                            name = prompt.take(60),
+                            location = image.path,
+                            detail = ref.model,
+                        ),
+                    )
+                }
                 repository.addMessage(
                     conversationId = id,
                     role = Roles.ASSISTANT,
@@ -1037,6 +1108,15 @@ class ChatViewModel(
                     text = message.content,
                 )
                 val saved = attachments.saveGeneratedAudio(bytes, "Lettura della risposta")
+                saveArtifact(
+                    conversationId = _conversationId.value,
+                    draft = com.lucio.guzzobot.data.workspace.ArtifactDraft(
+                        kind = ArtifactReader.AUDIO,
+                        name = "Lettura della risposta",
+                        location = saved.path,
+                        detail = ref.model,
+                    ),
+                )
                 audioPlayer.toggle(saved.path)
             } catch (error: Throwable) {
                 notice(error.message ?: "Sintesi vocale non riuscita")
@@ -1108,6 +1188,139 @@ class ChatViewModel(
         settingsStore.setAgentBudget(steps, minutes)
     }
 
+    // --- Code: sfogliare l'area di lavoro ---------------------------------
+
+    fun browse(path: String = "") {
+        val current = settings.value
+        val active = bundle(current)
+        if (active == null) {
+            _code.value = CodeState(error = "Nessuna area di lavoro configurata")
+            return
+        }
+        viewModelScope.launch {
+            _code.value = _code.value.copy(
+                loading = true,
+                error = null,
+                file = null,
+                label = active.workspace.label,
+                github = active.github != null,
+            )
+            val result = runCatching { active.workspace.list(path) }
+            _code.value = result.fold(
+                onSuccess = { entries ->
+                    _code.value.copy(path = path, entries = entries, loading = false)
+                },
+                onFailure = { error ->
+                    _code.value.copy(loading = false, error = error.message)
+                },
+            )
+        }
+    }
+
+    fun openCodeFile(path: String) {
+        val active = bundle(settings.value) ?: return
+        viewModelScope.launch {
+            _code.value = _code.value.copy(loading = true, error = null)
+            val result = runCatching { active.workspace.read(path) }
+            _code.value = result.fold(
+                onSuccess = { text ->
+                    _code.value.copy(file = CodeFile(path, text), loading = false)
+                },
+                onFailure = { error ->
+                    _code.value.copy(loading = false, error = error.message)
+                },
+            )
+        }
+    }
+
+    fun closeCodeFile() {
+        _code.value = _code.value.copy(file = null)
+    }
+
+    /** Risale di una cartella; dalla radice non si va oltre. */
+    fun codeUp() {
+        val path = _code.value.path
+        if (path.isEmpty()) return
+        browse(path.substringBeforeLast('/', ""))
+    }
+
+    fun workflows(onResult: (List<Workflow>) -> Unit) = viewModelScope.launch {
+        val actions = bundle(settings.value)?.actions ?: return@launch onResult(emptyList())
+        runCatching { actions.workflows() }
+            .onSuccess(onResult)
+            .onFailure {
+                notice(it.message ?: "Non riesco a leggere i workflow")
+                onResult(emptyList())
+            }
+    }
+
+    fun runWorkflow(workflow: Workflow) = viewModelScope.launch {
+        val active = bundle(settings.value) ?: return@launch
+        val actions = active.actions ?: return@launch
+        val branch = active.github?.branch ?: return@launch
+        _busy.value = "Avvio ${workflow.name}…"
+        runCatching { actions.dispatch(workflow.path.substringAfterLast('/'), branch) }
+            .onSuccess { notice("${workflow.name} avviato su $branch") }
+            .onFailure { notice(it.message ?: "Avvio non riuscito") }
+        _busy.value = null
+    }
+
+    fun ciStatus() = viewModelScope.launch {
+        val active = bundle(settings.value) ?: return@launch
+        val actions = active.actions ?: return@launch
+        val branch = active.github?.branch ?: return@launch
+        _busy.value = "Controllo la CI…"
+        runCatching { actions.awaitRun(branch, afterId = 0, waitSeconds = 0) }
+            .onSuccess { run ->
+                notice(
+                    run?.let { "${it.name}: ${it.conclusion ?: it.status}" }
+                        ?: "Nessuna corsa su $branch",
+                )
+            }
+            .onFailure { notice(it.message ?: "Non riesco a leggere la CI") }
+        _busy.value = null
+    }
+
+    /** Dalla schermata Code: manda l'agente a lavorare su un file preciso. */
+    fun askAgentAbout(path: String, request: String) {
+        val goal = buildString {
+            append(request.trim())
+            if (path.isNotBlank()) append("\n\nFile di partenza: $path")
+        }
+        startAgent(goal)
+    }
+
+    // --- artefatti ---------------------------------------------------------
+
+    fun openArtifact(artifact: ArtifactEntity, onResult: (ArtifactTarget) -> Unit) =
+        viewModelScope.launch {
+            val target = when {
+                artifact.location.startsWith("http") -> ArtifactTarget.Web(artifact.location)
+
+                artifact.location.startsWith("ws:") -> {
+                    val relative = artifact.location.removePrefix("ws:")
+                    val uri = attachments.workspaceFileUri(
+                        settings.value.workspace.localTreeUri,
+                        relative,
+                    )
+                    if (uri == null) ArtifactTarget.Missing else ArtifactTarget.Local(uri, "*/*")
+                }
+
+                else -> {
+                    val file = File(artifact.location)
+                    if (!file.exists()) {
+                        ArtifactTarget.Missing
+                    } else {
+                        ArtifactTarget.Local(
+                            attachments.uriForFile(file),
+                            if (artifact.kind == ArtifactReader.AUDIO) "audio/*" else "image/*",
+                        )
+                    }
+                }
+            }
+            onResult(target)
+        }
+
     // --- compiti pianificati ----------------------------------------------
 
     fun saveTask(task: ScheduledTaskEntity) = viewModelScope.launch {
@@ -1151,6 +1364,26 @@ class ChatViewModel(
         if (settings.value.activeProviderId == providerId) {
             val fallback = remaining.first()
             settingsStore.setActiveModel(fallback.id, fallback.models.firstOrNull().orEmpty())
+        }
+    }
+
+    /**
+     * Riallinea gli elenchi con quello che i provider servono oggi: i nomi dei
+     * modelli cambiano, e un nome morto in mano non serve a nessuno.
+     */
+    fun refreshModels(providerId: String? = null) = viewModelScope.launch {
+        _busy.value = "Aggiorno l'elenco dei modelli…"
+        val report = runCatching { modelRefresher.refresh(settings.value, providerId) }.getOrNull()
+        _busy.value = null
+        when {
+            report == null -> notice("Aggiornamento dei modelli non riuscito")
+            report.activeModelChanged != null -> notice(
+                "${report.activeModelChanged!!.first} non c'è più: passo a " +
+                    report.activeModelChanged!!.second,
+            )
+            report.updated.isNotEmpty() -> notice("Modelli aggiornati: ${report.updated.joinToString()}")
+            report.failed.isNotEmpty() -> notice("Non ho potuto aggiornare: ${report.failed.joinToString()}")
+            else -> notice("Gli elenchi erano già aggiornati")
         }
     }
 
@@ -1234,6 +1467,8 @@ class ChatViewModel(
                     agentEngine = container.agentEngine,
                     taskDao = container.taskDao,
                     projectDao = container.projectDao,
+                    modelRefresher = container.modelRefresher,
+                    artifactDao = container.artifactDao,
                 )
             }
         }

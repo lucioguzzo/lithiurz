@@ -95,3 +95,19 @@ interface TaskDao {
     @Query("UPDATE tasks SET lastRunAt = :at, lastOutcome = :outcome WHERE id = :id")
     suspend fun recordRun(id: Long, at: Long, outcome: String)
 }
+
+@Dao
+interface ArtifactDao {
+
+    @Query("SELECT * FROM artifacts ORDER BY createdAt DESC LIMIT 400")
+    fun observeArtifacts(): Flow<List<ArtifactEntity>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(artifact: ArtifactEntity): Long
+
+    @Query("DELETE FROM artifacts WHERE id = :id")
+    suspend fun delete(id: Long)
+
+    @Query("DELETE FROM artifacts")
+    suspend fun deleteAll()
+}

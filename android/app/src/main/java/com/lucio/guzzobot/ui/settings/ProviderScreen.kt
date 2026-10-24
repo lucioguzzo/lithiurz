@@ -82,6 +82,8 @@ fun ProviderScreen(
         val provider = currentProvider()
         viewModel.saveProvider(provider)
         viewModel.setApiKey(provider.id, apiKey)
+        // Appena c'è una chiave, l'elenco vero lo dice il provider.
+        if (apiKey.isNotBlank()) viewModel.refreshModels(provider.id)
         if (activate) {
             provider.models.firstOrNull()?.let { viewModel.selectModel(provider.id, it) }
         }

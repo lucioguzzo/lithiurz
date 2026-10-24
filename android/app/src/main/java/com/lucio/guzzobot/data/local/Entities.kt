@@ -74,3 +74,20 @@ data class ScheduledTaskEntity(
     val lastRunAt: Long? = null,
     val lastOutcome: String? = null,
 )
+
+/** Qualcosa che GUZZOBOT ha prodotto: un file, un'immagine, un audio, una pull request. */
+@Entity(tableName = "artifacts")
+data class ArtifactEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val conversationId: Long?,
+    /** image, audio, file, pull_request. */
+    val kind: String,
+    val name: String,
+    /**
+     * Dove si trova: un percorso assoluto per i file dell'app, "ws:<percorso>"
+     * per quelli dell'area di lavoro locale, un indirizzo https per GitHub.
+     */
+    val location: String,
+    val detail: String? = null,
+    val createdAt: Long,
+)

@@ -29,6 +29,10 @@ class GitHubWorkspace(
 
     override val label: String get() = "${client.owner}/${client.repo} ($branch)"
 
+    /** Indirizzo da cui si guarda un file del repository nel browser. */
+    val blobBaseUrl: String
+        get() = "https://github.com/${client.owner}/${client.repo}/blob/$branch"
+
     private val json = client.json
 
     // --- branch e pull request --------------------------------------------

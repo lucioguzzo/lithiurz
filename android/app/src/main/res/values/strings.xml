@@ -154,4 +154,18 @@
     <string name="project_none">Nessun progetto</string>
     <string name="project_delete">Elimina il progetto</string>
     <string name="move_to_project">Sposta in un progetto</string>
+    <string name="models_refresh">Aggiorna l\'elenco dei modelli</string>
+    <string name="artifacts">Artefatti</string>
+    <string name="artifacts_all">Tutti</string>
+    <string name="artifacts_files">File</string>
+    <string name="artifacts_images">Immagini</string>
+    <string name="artifacts_prs">Pull request</string>
+    <string name="artifacts_empty">Qui finisce quello che GUZZOBOT produce: file scritti, immagini generate, pull request aperte.</string>
+    <string name="artifacts_missing">Non lo trovo più: forse è stato spostato o cancellato.</string>
+    <string name="code">Code</string>
+    <string name="code_ask_agent">Chiedi all\'agente</string>
+    <string name="code_ask_hint">Per esempio: aggiungi un test per questa funzione e falla girare in CI</string>
+    <string name="code_run_ci">Avvia la CI</string>
+    <string name="code_ci_status">Stato della CI</string>
+    <string name="code_whole_workspace">Tutta l\'area di lavoro</string>
 </resources>

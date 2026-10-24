@@ -84,6 +84,8 @@ fun ChatScreen(
     onOpenAgent: () -> Unit,
     onOpenWorkspace: () -> Unit,
     onOpenTasks: () -> Unit,
+    onOpenCode: () -> Unit,
+    onOpenArtifacts: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
@@ -265,6 +267,14 @@ fun ChatScreen(
                     onOpenTasks = {
                         scope.launch { drawerState.close() }
                         onOpenTasks()
+                    },
+                    onOpenCode = {
+                        scope.launch { drawerState.close() }
+                        onOpenCode()
+                    },
+                    onOpenArtifacts = {
+                        scope.launch { drawerState.close() }
+                        onOpenArtifacts()
                     },
                     onOpenSettings = {
                         scope.launch { drawerState.close() }
@@ -476,6 +486,7 @@ fun ChatScreen(
                 showModelSheet = false
                 onOpenSettings()
             },
+            onRefresh = { viewModel.refreshModels() },
             onDismiss = { showModelSheet = false },
         )
     }

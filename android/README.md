@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.1.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.2.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -240,6 +240,13 @@ invertito per verificare la piece table.
   in **Fissate**, **Progetti** e **Recenti**. Una chat si fissa in alto o si
   sposta in un progetto dal suo menù; i progetti si creano dal pannello e,
   eliminandoli, le conversazioni tornano fra le recenti invece di sparire.
+- **Code** è la sezione per chi scrive codice, non una chat: sfoglia l'area di
+  lavoro (cartella o repository), apre i file in monospazio selezionabile,
+  avvia un workflow e ne legge l'esito, e da qualsiasi punto manda l'agente a
+  lavorare su quel file preciso, che gli arriva come contesto dell'obiettivo.
+- **Artefatti** raccoglie quello che GUZZOBOT produce: file scritti (con il
+  link al commit su GitHub o il percorso nella cartella), immagini generate,
+  audio e pull request aperte. Un tocco apre l'elemento dove si trova.
 - **Agente Bot** è il posto da cui si comanda l'agente: stato dell'area di
   lavoro, lancio di un obiettivo, tetto di sicurezza (passi e minuti),
   autonomia, lavoro in background e compiti pianificati.
@@ -255,6 +262,30 @@ invertito per verificare la piece table.
   tocco la salta.
 - **Impostazioni**: prompt di sistema, temperatura, token massimi, messaggi di
   contesto, tema chiaro/scuro/sistema, visibilità del ragionamento.
+
+## I modelli cambiano: l'app se ne accorge
+
+Le sigle dei modelli invecchiano in fretta — `deepseek-chat` è stato ritirato,
+GLM e Kimi cambiano versione di mese in mese. Per questo l'elenco scritto
+nell'app è solo un punto di partenza e la verità è l'endpoint `/models` del
+provider:
+
+- una volta a settimana un lavoro in background ricontrolla i provider per cui
+  hai una chiave e riallinea gli elenchi;
+- lo stesso avviene appena salvi una chiave, e a mano dal selettore dei modelli
+  (*Aggiorna l'elenco dei modelli*);
+- se il provider serve pochi modelli, il suo elenco sostituisce il nostro; se ne
+  serve centinaia, come OpenRouter, si tiene la selezione curata togliendo
+  quelli che non esistono più;
+- se il modello che stavi usando sparisce, l'app passa al parente più prossimo
+  — quello che condivide il prefisso più lungo, `glm-5.4` → `glm-5.3` — e te lo
+  dice, invece di lasciarti con un nome morto in mano.
+
+Preconfigurati, oltre ai precedenti: **Z.ai (GLM)** su
+`https://api.z.ai/api/paas/v4` e **Moonshot (Kimi)** su
+`https://api.moonshot.ai/v1` — con chiavi della piattaforma cinese il dominio è
+`api.moonshot.cn`. I nomi dei modelli che trovi preimpostati valgono finché il
+primo aggiornamento non li corregge con quelli veri.
 
 ## Privacy
 

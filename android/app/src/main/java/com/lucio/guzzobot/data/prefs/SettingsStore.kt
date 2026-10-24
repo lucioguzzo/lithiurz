@@ -48,6 +48,7 @@ class SettingsStore(context: Context, private val json: Json) {
         val backgroundWork = booleanPreferencesKey("background_work")
         val agentMaxSteps = intPreferencesKey("agent_max_steps")
         val agentMaxMinutes = intPreferencesKey("agent_max_minutes")
+        val modelsRefreshedAt = androidx.datastore.preferences.core.longPreferencesKey("models_at")
     }
 
     /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
@@ -98,6 +99,7 @@ class SettingsStore(context: Context, private val json: Json) {
             backgroundWork = prefs[Keys.backgroundWork] ?: true,
             agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
+            modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
         )
     }
 
@@ -144,6 +146,10 @@ class SettingsStore(context: Context, private val json: Json) {
 
     suspend fun setBackgroundWork(value: Boolean) = store.edit {
         it[Keys.backgroundWork] = value
+    }
+
+    suspend fun setModelsRefreshedAt(value: Long) = store.edit {
+        it[Keys.modelsRefreshedAt] = value
     }
 
     suspend fun setAgentBudget(steps: Int, minutes: Int) = store.edit {

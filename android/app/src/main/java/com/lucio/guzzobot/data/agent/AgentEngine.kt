@@ -1,5 +1,7 @@
 package com.lucio.guzzobot.data.agent
 
+import com.lucio.guzzobot.data.local.ArtifactDao
+import com.lucio.guzzobot.data.local.ArtifactEntity
 import com.lucio.guzzobot.data.local.MessageEntity
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.Provider
@@ -15,6 +17,7 @@ import com.lucio.guzzobot.data.repo.ChatRepository
 import com.lucio.guzzobot.data.workspace.GitHubActions
 import com.lucio.guzzobot.data.workspace.GitHubWorkspace
 import com.lucio.guzzobot.data.workspace.Workspace
+import com.lucio.guzzobot.data.workspace.ArtifactReader
 import com.lucio.guzzobot.data.workspace.WorkspaceTools
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -34,6 +37,7 @@ class AgentEngine(
     private val repository: ChatRepository,
     private val chatApi: ChatApi,
     private val json: Json,
+    private val artifacts: ArtifactDao,
 ) {
 
     suspend fun run(
@@ -150,6 +154,9 @@ class AgentEngine(
                         toolCallId = call.id,
                         toolName = description,
                     )
+                    if (!result.second) {
+                        record(conversationId, call.name, call.arguments, result.first, github)
+                    }
                     run.onToolResult(failed = result.second)
                     onProgress(run)
                     if (!run.running) break
@@ -171,6 +178,28 @@ class AgentEngine(
             }
         }
         return run
+    }
+
+    /** Ciò che l'agente produce finisce anche fra gli artefatti, per ritrovarlo. */
+    private suspend fun record(
+        conversationId: Long,
+        tool: String,
+        arguments: String,
+        result: String,
+        github: GitHubWorkspace?,
+    ) {
+        ArtifactReader.from(tool, arguments, result, github?.blobBaseUrl).forEach { draft ->
+            artifacts.insert(
+                ArtifactEntity(
+                    conversationId = conversationId,
+                    kind = draft.kind,
+                    name = draft.name,
+                    location = draft.location,
+                    detail = draft.detail,
+                    createdAt = System.currentTimeMillis(),
+                ),
+            )
+        }
     }
 
     private suspend fun persist(
