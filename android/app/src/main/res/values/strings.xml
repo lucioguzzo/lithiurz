@@ -273,4 +273,5 @@
     <string name="skill_home">Casa e ufficio</string>
     <string name="skill_analysis">Analisi</string>
     <string name="free_install">Scarica Ollama</string>
+    <string name="edit_image">Modifica l\'immagine allegata</string>
 </resources>

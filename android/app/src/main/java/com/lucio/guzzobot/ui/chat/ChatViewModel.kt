@@ -40,6 +40,7 @@ import com.lucio.guzzobot.data.mcp.McpEntry
 import com.lucio.guzzobot.data.skills.Skill
 import com.lucio.guzzobot.data.skills.SkillCatalog
 import com.lucio.guzzobot.data.skills.SkillComposer
+import com.lucio.guzzobot.data.remote.GoogleImages
 import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.ProviderCatalog
@@ -1100,6 +1101,17 @@ class ChatViewModel(
         }
     }
 
+    /** Un allegato diventa l'immagine di partenza, in base64. */
+    private fun pictureOf(attachment: Attachment): GoogleImages.Picture? {
+        val file = java.io.File(attachment.path)
+        if (!file.exists()) return null
+        val bytes = runCatching { file.readBytes() }.getOrNull() ?: return null
+        return GoogleImages.Picture(
+            base64 = android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP),
+            mimeType = attachment.mime.takeIf { it.startsWith("image/") } ?: "image/jpeg",
+        )
+    }
+
     private fun imagePaths(message: MessageEntity): List<String> =
         message.attachments
             .filterNot { it.hasVisionText }
@@ -1122,11 +1134,22 @@ class ChatViewModel(
 
     // --- generazione -------------------------------------------------------
 
-    /** Genera un'immagine dal testo nel composer e la salva nella conversazione. */
+    /**
+     * Crea un'immagine dal testo nel composer — o, se è allegata una foto, la
+     * modifica secondo quel testo. È lo stesso gesto: cambia solo se c'è
+     * qualcosa da cui partire.
+     */
     fun generateImage() {
         val prompt = _input.value.trim()
+        val sources = _pending.value.filter { it.isImage }
         if (prompt.isEmpty()) {
-            notice("Scrivi che immagine vuoi, poi premi di nuovo")
+            notice(
+                if (sources.isEmpty()) {
+                    "Scrivi che immagine vuoi, poi premi di nuovo"
+                } else {
+                    "Scrivi come vuoi modificarla, poi premi di nuovo"
+                },
+            )
             return
         }
         val current = settings.value
@@ -1145,15 +1168,26 @@ class ChatViewModel(
                         current.activeModel,
                         titleFrom(prompt),
                     ).also { _conversationId.value = it }
-                val bytes = chatApi.generateImage(
-                    baseUrl = provider.baseUrl,
-                    apiKey = secretStore.apiKey(provider.id),
-                    model = ref.model,
-                    prompt = prompt,
-                    size = current.imageSize,
-                )
+                val bytes = if (sources.isEmpty()) {
+                    chatApi.generateImage(
+                        baseUrl = provider.baseUrl,
+                        apiKey = secretStore.apiKey(provider.id),
+                        model = ref.model,
+                        prompt = prompt,
+                        size = current.imageSize,
+                    )
+                } else {
+                    chatApi.editImage(
+                        baseUrl = provider.baseUrl,
+                        apiKey = secretStore.apiKey(provider.id),
+                        model = ref.model,
+                        prompt = prompt,
+                        images = sources.mapNotNull(::pictureOf),
+                    )
+                }
                 _input.value = ""
-                repository.addMessage(id, Roles.USER, prompt)
+                _pending.value = emptyList()
+                repository.addMessage(id, Roles.USER, prompt, attachments = sources)
                 val saved = bytes.map { attachments.saveGeneratedImage(it, prompt) }
                 saved.forEach { image ->
                     saveArtifact(

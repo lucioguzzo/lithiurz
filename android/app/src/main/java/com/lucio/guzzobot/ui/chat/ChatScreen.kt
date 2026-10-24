@@ -437,6 +437,7 @@ fun ChatScreen(
     if (showAttachSheet) {
         AttachmentSheet(
             canGenerateImages = abilities.canGenerateImages,
+            hasImage = pending.any { it.isImage },
             onPhoto = {
                 showAttachSheet = false
                 photoPicker.launch(

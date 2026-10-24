@@ -4,6 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,6 +48,8 @@ import com.lucio.guzzobot.data.mcp.McpCatalog
 import com.lucio.guzzobot.data.mcp.McpCategory
 import com.lucio.guzzobot.data.mcp.McpEntry
 import com.lucio.guzzobot.ui.chat.ChatViewModel
+import com.lucio.guzzobot.ui.components.ConnectorTints
+import com.lucio.guzzobot.ui.components.Monogram
 
 /**
  * Il catalogo dei connettori: indirizzi verificati, pronti da aggiungere.
@@ -54,7 +58,7 @@ import com.lucio.guzzobot.ui.chat.ChatViewModel
  * finti: l'app non sa ancora fare quel giro di autorizzazione, e un pulsante
  * che non funziona sarebbe peggio di un lucchetto che spiega perché.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun CatalogScreen(
     viewModel: ChatViewModel,
@@ -154,6 +158,7 @@ fun CatalogScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun EntryRow(
     entry: McpEntry,
@@ -168,7 +173,13 @@ private fun EntryRow(
     onOpenConnectors: () -> Unit,
 ) {
     val locked = entry.auth == McpAuth.OAUTH
-    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+    Row(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+        Monogram(
+            label = entry.name,
+            tint = ConnectorTints.of(entry.id),
+            modifier = Modifier.padding(end = 14.dp, top = 2.dp),
+        )
+        Column {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -249,7 +260,7 @@ private fun EntryRow(
                             .padding(top = 8.dp),
                     )
                 }
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Button(
                         onClick = onAdd,
                         enabled = entry.auth == McpAuth.NONE || token.isNotBlank(),
@@ -266,7 +277,7 @@ private fun EntryRow(
                 }
             }
 
-            else -> Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            else -> FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 TextButton(onClick = onStart) { Text(stringResource(R.string.catalog_add)) }
                 entry.docsUrl?.let { url ->
                     TextButton(onClick = { onOpen(url) }) {
@@ -274,6 +285,7 @@ private fun EntryRow(
                     }
                 }
             }
+        }
         }
     }
 }

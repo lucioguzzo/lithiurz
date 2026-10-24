@@ -1,5 +1,6 @@
 package com.lucio.guzzobot.data.remote
 
+import android.util.Base64
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -8,6 +9,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -238,6 +240,59 @@ class ChatApi(private val json: Json) {
                 throw ApiException(errorMessage(response.code, response.body?.string()))
             }
             response.body?.bytes() ?: throw ApiException("Risposta audio vuota")
+        }
+    }
+
+    /**
+     * Modifica un'immagine esistente con l'API nativa di Google.
+     *
+     * Due forme di richiesta, provate in quest'ordine: quella corrente e la
+     * precedente. Convivono, e un endpoint che risponde «non esiste» non deve
+     * far fallire la modifica.
+     */
+    suspend fun editImage(
+        baseUrl: String,
+        apiKey: String,
+        model: String,
+        prompt: String,
+        images: List<GoogleImages.Picture>,
+    ): List<ByteArray> = withContext(Dispatchers.IO) {
+        val base = GoogleImages.nativeBase(baseUrl)
+        val attempts = listOf(
+            "$base/interactions" to
+                GoogleImages.interactionsBody(model, prompt, images, "image/png"),
+            "$base/models/$model:generateContent" to
+                GoogleImages.generateContentBody(prompt, images),
+        )
+        var failure: Exception? = null
+        attempts.forEach { (url, body) ->
+            val outcome = runCatching { postForImages(url, apiKey, body) }
+            outcome.getOrNull()?.takeIf { it.isNotEmpty() }?.let { return@withContext it }
+            outcome.exceptionOrNull()?.let { failure = it as? Exception ?: ApiException(it.message.orEmpty()) }
+        }
+        throw failure ?: ApiException("Il modello non ha restituito un'immagine")
+    }
+
+    private fun postForImages(
+        url: String,
+        apiKey: String,
+        body: JsonObject,
+    ): List<ByteArray> {
+        val request = Request.Builder()
+            .url(url)
+            // L'API nativa vuole la chiave in questa intestazione, non in Bearer.
+            .header("x-goog-api-key", apiKey)
+            .header("Content-Type", "application/json")
+            .post(json.encodeToString(JsonObject.serializer(), body).toRequestBody(JSON_MEDIA))
+            .build()
+        client.newCall(request).execute().use { response ->
+            val raw = response.body?.string().orEmpty()
+            if (!response.isSuccessful) throw ApiException(errorMessage(response.code, raw))
+            val parsed = runCatching { json.parseToJsonElement(raw) }.getOrNull()
+                ?: throw ApiException("Risposta non interpretabile")
+            return GoogleImages.extractImages(parsed).mapNotNull { encoded ->
+                runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+            }
         }
     }
 

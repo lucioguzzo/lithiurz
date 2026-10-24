@@ -43,6 +43,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.ui.chat.ChatViewModel
+import com.lucio.guzzobot.ui.components.ConnectorTints
+import com.lucio.guzzobot.ui.components.Monogram
 
 /** I connettori MCP: server remoti che aggiungono strumenti al modello. */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,6 +142,11 @@ fun ConnectorsScreen(
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
+                        Monogram(
+                            label = server.name.ifBlank { server.id },
+                            tint = ConnectorTints.of(server.id),
+                            modifier = Modifier.padding(end = 14.dp),
+                        )
                         Column(
                             modifier = Modifier
                                 .weight(1f)

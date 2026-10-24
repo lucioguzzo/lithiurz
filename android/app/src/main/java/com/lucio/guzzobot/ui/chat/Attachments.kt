@@ -380,6 +380,7 @@ private fun AudioRow(attachment: Attachment, playing: Boolean, onPlay: () -> Uni
 @Composable
 fun AttachmentSheet(
     canGenerateImages: Boolean,
+    hasImage: Boolean = false,
     onPhoto: () -> Unit,
     onCamera: () -> Unit,
     onDocument: () -> Unit,
@@ -405,7 +406,10 @@ fun AttachmentSheet(
             if (canGenerateImages) {
                 SheetRow(
                     icon = Icons.Outlined.AutoAwesome,
-                    label = stringResource(R.string.generate_image),
+                    // Con una foto già allegata lo stesso gesto la modifica.
+                    label = stringResource(
+                        if (hasImage) R.string.edit_image else R.string.generate_image,
+                    ),
                     onClick = onGenerateImage,
                     accent = true,
                 )

@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.7.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.8.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -353,6 +353,31 @@ invertito per verificare la piece table.
 - **Impostazioni**: prompt di sistema, temperatura, token massimi, messaggi di
   contesto, tema chiaro/scuro/sistema, visibilità del ragionamento.
 
+## Creare e modificare immagini
+
+Il pulsante *Genera un'immagine* nel foglio degli allegati fa due cose, e
+sceglie da sé quale: **senza allegati** crea un'immagine dal testo che hai
+scritto; **con una foto allegata** modifica quella, secondo il testo — «falla
+diventare notte», «togli lo sfondo». Il gesto è lo stesso.
+
+Le due strade tecniche però sono diverse, e vale saperlo perché cambia chi può
+farle:
+
+- **Creare** passa da `/images/generations`, l'endpoint compatibile con l'API
+  OpenAI: funziona con Gemini (nel piano **gratuito**), con `gpt-image-1` di
+  OpenAI e con `grok-2-image` di xAI.
+- **Modificare** quella strada non la può fare: accetta solo testo. Serve l'API
+  nativa di Google, che prende prompt e immagine insieme — quindi al momento la
+  modifica è possibile **solo con una chiave Gemini**.
+
+Delle due forme di richiesta che Google espone l'app prova la corrente e, se
+risponde che non esiste, la precedente. E l'immagine nella risposta non viene
+cercata a un indirizzo fisso: si attraversa il JSON raccogliendo i blocchi che
+dichiarano di essere immagini, così uno spostamento di campo non rompe tutto.
+
+Il risultato finisce in chat e in **Artefatti**, con il modello che l'ha
+prodotto.
+
 ## Competenze (Skills)
 
 *Pannello laterale › Competenze*, o *Impostazioni › Competenze*. Una competenza
@@ -374,7 +399,9 @@ Quindici già pronte, divise per ambito:
   in pratica), Dalla foto alla lista, Verbale di riunione.
 - **Analisi** — Riassunto strutturato, Analizza i dati.
 
-Ognuna si può **modificare**, comprese quelle fornite con l'app: il testo
+Ognuna ha il suo segno nell'elenco — scelto per quello che fa — e una
+competenza scritta a mano eredita quello del suo ambito. Ognuna si può
+**modificare**, comprese quelle fornite con l'app: il testo
 giusto per un lavoro lo conosce chi quel lavoro lo fa. Si possono scriverne di
 nuove, disattivare quelle che non servono e cancellarle — e una predefinita
 cancellata non torna al prossimo aggiornamento.
@@ -396,6 +423,13 @@ verificato sulla documentazione del fornitore, e sono tutti sul trasporto
 «streamable HTTP», il solo che il client dell'app sa parlare: un server che
 espone soltanto il vecchio HTTP+SSE non funzionerebbe e non viene spacciato per
 pronto.
+
+Accanto a ogni connettore c'è un monogramma colorato, non il logo del
+servizio: i marchi sono dei rispettivi proprietari, ciascuno con le sue regole
+d'uso, e impacchettarli nell'APK significherebbe ridistribuirli. Scaricarli
+all'avvio sarebbe peggio — una chiamata a dieci domini solo per disegnare un
+elenco, e un elenco grigio quando si è offline. La tinta si ricava dal nome,
+quindi resta la stessa a ogni avvio.
 
 **Pronti subito**
 
@@ -557,7 +591,8 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
 │  ├─ media/               registratore, player, sintesi vocale di sistema
-│  ├─ remote/              chat in streaming, vision, whisper, immagini, voce
+│  ├─ remote/              chat in streaming, vision, whisper, immagini
+│  │                       (creazione e modifica), voce
 │  └─ repo/                ChatRepository
 ├─ service/                servizio in primo piano per il lavoro in background
 ├─ work/                   compiti pianificati con WorkManager

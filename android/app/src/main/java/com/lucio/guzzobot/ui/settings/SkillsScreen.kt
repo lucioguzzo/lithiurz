@@ -214,6 +214,18 @@ private fun SkillRow(
             .padding(start = 20.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        Icon(
+            imageVector = SkillIcons.of(skill),
+            contentDescription = null,
+            tint = if (applied) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+            modifier = Modifier
+                .padding(end = 14.dp)
+                .size(20.dp),
+        )
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
