@@ -59,6 +59,8 @@ fun SettingsScreen(
     onOpenProvider: (String) -> Unit,
     onOpenWorkspace: () -> Unit,
     onOpenTasks: () -> Unit,
+    onOpenConnectors: () -> Unit,
+    onOpenPrivacy: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     var confirmWipe by remember { mutableStateOf(false) }
@@ -284,6 +286,17 @@ fun SettingsScreen(
                 )
             }
 
+            LinkRow(
+                title = stringResource(R.string.connectors),
+                detail = stringResource(R.string.connectors_hint),
+                onClick = onOpenConnectors,
+            )
+            LinkRow(
+                title = stringResource(R.string.privacy),
+                detail = stringResource(R.string.privacy_hint),
+                onClick = onOpenPrivacy,
+            )
+
             Divider()
             SectionTitle(stringResource(R.string.multimodal))
             Text(
@@ -491,6 +504,36 @@ fun SettingsScreen(
                     Text(stringResource(R.string.cancel))
                 }
             },
+        )
+    }
+}
+
+@Composable
+private fun LinkRow(title: String, detail: String, onClick: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(horizontal = 20.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Text(
+                text = detail,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 2,
+            )
+        }
+        Icon(
+            imageVector = Icons.Outlined.ChevronRight,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }

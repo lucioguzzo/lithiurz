@@ -11,6 +11,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.ModelRef
+import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.data.model.WorkspaceConfig
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.Providers
@@ -49,6 +50,7 @@ class SettingsStore(context: Context, private val json: Json) {
         val agentMaxSteps = intPreferencesKey("agent_max_steps")
         val agentMaxMinutes = intPreferencesKey("agent_max_minutes")
         val modelsRefreshedAt = androidx.datastore.preferences.core.longPreferencesKey("models_at")
+        val mcpServers = stringPreferencesKey("mcp_servers")
     }
 
     /** deepseek-chat e deepseek-reasoner sono stati ritirati dal provider. */
@@ -100,6 +102,9 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
+            mcpServers = prefs[Keys.mcpServers]
+                ?.let { runCatching { json.decodeFromString<List<McpServer>>(it) }.getOrNull() }
+                ?: emptyList(),
         )
     }
 
@@ -146,6 +151,10 @@ class SettingsStore(context: Context, private val json: Json) {
 
     suspend fun setBackgroundWork(value: Boolean) = store.edit {
         it[Keys.backgroundWork] = value
+    }
+
+    suspend fun saveMcpServers(servers: List<McpServer>) = store.edit {
+        it[Keys.mcpServers] = json.encodeToString(servers)
     }
 
     suspend fun setModelsRefreshedAt(value: Long) = store.edit {

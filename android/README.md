@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.2.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.3.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -260,8 +260,41 @@ invertito per verificare la piece table.
   iniziale, e dopo un avviso, chiude l'app.
 - **Apertura** con il nome, il glifo e il copyright, che svanisce sulla chat; un
   tocco la salta.
+- **Connettori** collega server MCP remoti e ne mostra gli strumenti; **Privacy
+  e autorizzazioni** raccoglie host, permessi e pulsanti per revocare.
 - **Impostazioni**: prompt di sistema, temperatura, token massimi, messaggi di
   contesto, tema chiaro/scuro/sistema, visibilità del ragionamento.
+
+## Connettori (MCP)
+
+Un connettore è un server [MCP](https://modelcontextprotocol.io) remoto: gli
+strumenti che espone si aggiungono a quelli dell'app e il modello li può usare
+nella stessa conversazione in cui legge i tuoi file. Si gestiscono da
+*Impostazioni › Connettori*.
+
+- **Si aggiunge** con nome, indirizzo `https://…`, intestazione di
+  autenticazione (di norma `Authorization`, il `Bearer ` lo mette l'app) e
+  token. Alla conferma GUZZOBOT fa la stretta di mano, chiede l'elenco degli
+  strumenti e lo mostra; se qualcosa non va, il motivo resta scritto sotto il
+  connettore invece di sparire in un messaggio fugace.
+- **Il token è custodito come le chiavi API**, cifrato dal Keystore: nella
+  pagina non ricompare mai, si può solo sostituire.
+- **Un interruttore per connettore** lo esclude senza cancellarlo, insieme a
+  tutti i suoi strumenti.
+- **I nomi vengono resi univoci** (`mcp_<connettore>__<strumento>`), così due
+  server che espongono entrambi `search` non si pestano i piedi.
+- **I permessi valgono anche qui**: se il server dichiara uno strumento di sola
+  lettura (`readOnlyHint`) GUZZOBOT lo esegue senza chiedere; tutti gli altri
+  passano per la stessa finestra di conferma delle scritture sui file, con
+  nome, argomenti e i pulsanti *Consenti* / *Consenti sempre* / *Rifiuta*.
+- **Valgono in chat e per l'agente**, compresi i compiti pianificati, che però
+  restano sotto il loro tetto di sicurezza.
+
+Un limite onesto: i server MCP **stdio**, quelli che si avviano con `npx` o
+`uvx`, qui non esistono e non possono esistere — un'app Android non lancia
+processi di altri programmi. Servono i server remoti, che è anche l'unica forma
+sensata da un telefono. Senza connettori l'app funziona esattamente come prima:
+nessuna delle due cose dipende dall'altra.
 
 ## I modelli cambiano: l'app se ne accorge
 
@@ -287,14 +320,31 @@ Preconfigurati, oltre ai precedenti: **Z.ai (GLM)** su
 `api.moonshot.cn`. I nomi dei modelli che trovi preimpostati valgono finché il
 primo aggiornamento non li corregge con quelli veri.
 
-## Privacy
+## Privacy e autorizzazioni
 
-Le chiavi API stanno in `EncryptedSharedPreferences`, cifrate con una chiave
-custodita dal Keystore hardware, ed escluse dai backup. Gli allegati vivono nella
-cartella privata dell'app; l'estrazione del testo dai documenti avviene sul
-telefono. Le richieste vanno solo agli host che hai configurato: il traffico in
-chiaro (HTTP) è permesso soltanto verso `localhost` e `10.0.2.2`, per usare
-Ollama o LM Studio sulla propria macchina.
+*Impostazioni › Privacy e autorizzazioni* non è una pagina di promesse: è
+l'elenco di cosa esce, cosa resta e chi ha il permesso di fare cosa, con i
+pulsanti per revocare.
+
+- **Dove vanno le richieste**: gli host configurati, uno per uno, con il motivo
+  per cui ci si parla (il provider di una chiave, un connettore, il repository).
+  Non c'è nessun altro indirizzo, e nessun server di Anthropic: il traffico in
+  chiaro (HTTP) è permesso soltanto verso `localhost` e `10.0.2.2`, per usare
+  Ollama o LM Studio sulla propria macchina.
+- **Cosa resta sul telefono**: quante conversazioni e quanti megabyte di
+  allegati sono salvati. Il testo dei documenti viene estratto qui, non altrove.
+- **Autorizzazioni di sistema**: microfono, notifiche e la cartella di lavoro,
+  ciascuna col suo stato. La cartella si revoca da qui, il resto rimanda alle
+  impostazioni di Android.
+- **Chi decide**: l'interruttore dell'autonomia e il numero di connettori
+  attivi, con la scorciatoia per gestirli.
+- **Dimenticare**: cancellare tutte le conversazioni, o tutte le chiavi e i
+  token dei connettori in un colpo.
+
+Le chiavi API e i token dei connettori stanno in
+`EncryptedSharedPreferences`, cifrate con una chiave custodita dal Keystore
+hardware ed escluse dai backup. Gli allegati vivono nella cartella privata
+dell'app.
 
 ## Primo avvio
 
@@ -339,7 +389,8 @@ android/app/src/main/java/com/lucio/guzzobot/
 │  ├─ model/               provider, preset, impostazioni, allegati, capacità
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
-│  ├─ agent/               ciclo dell'agente, budget, prompt di sistema
+│  ├─ agent/               ciclo dell'agente, budget, prompt, registro strumenti
+│  ├─ mcp/                 connettori MCP: client JSON-RPC, nomi, strumenti
 │  ├─ workspace/           cartella locale, repository GitHub, Actions, strumenti
 │  ├─ files/               import allegati, estrazione testo, PDF e video→immagini
 │  │  └─ office/           lettore OLE2 e parser .doc, .xls, .ppt
@@ -352,7 +403,8 @@ android/app/src/main/java/com/lucio/guzzobot/
    ├─ theme/               palette crema/terracotta, tipografia serif
    ├─ chat/                chat, composer, allegati, drawer, ViewModel
    ├─ markdown/            parser e renderer markdown
-   └─ settings/            impostazioni, ruoli multimodali, editor provider
+   └─ settings/            impostazioni, ruoli multimodali, provider,
+                           connettori, privacy e autorizzazioni
 ```
 
 ## Personalizzare
@@ -374,5 +426,8 @@ due campioni possono sfuggire. L'audio viene sempre trascritto, non inviato come
 forma d'onda ai modelli che accettano audio nativo. Dei vecchi formati Office si
 estrae il testo, non la formattazione: di un `.xls` si perdono formule (resta il
 valore calcolato) e formati numerici, di un `.ppt` la disposizione delle forme.
+Dei connettori si parla soltanto MCP su HTTP: i server `stdio` (`npx`, `uvx`)
+sono fuori portata per un'app Android, e di un server remoto si usano gli
+strumenti, non le sue risorse o i suoi prompt.
 Nessuna sincronizzazione tra dispositivi, per scelta: se disinstalli l'app, le
 conversazioni se ne vanno con lei.

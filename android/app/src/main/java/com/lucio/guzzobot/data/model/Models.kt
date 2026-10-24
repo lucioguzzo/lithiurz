@@ -144,6 +144,8 @@ data class AppSettings(
     val agentMaxMinutes: Int = 25,
     /** Quando gli elenchi dei modelli sono stati riallineati l'ultima volta. */
     val modelsRefreshedAt: Long = 0L,
+    /** I connettori MCP configurati. */
+    val mcpServers: List<com.lucio.guzzobot.data.mcp.McpServer> = emptyList(),
 ) {
     val activeProvider: Provider?
         get() = providers.firstOrNull { it.id == activeProviderId } ?: providers.firstOrNull()

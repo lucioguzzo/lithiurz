@@ -11,6 +11,9 @@ import com.lucio.guzzobot.data.files.AttachmentStore
 import com.lucio.guzzobot.data.agent.AgentEngine
 import com.lucio.guzzobot.data.agent.AgentLimits
 import com.lucio.guzzobot.data.agent.AgentRun
+import com.lucio.guzzobot.data.agent.ToolHub
+import com.lucio.guzzobot.data.mcp.McpClient
+import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.data.files.TextExtractor
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.local.MessageEntity
@@ -144,6 +147,7 @@ class ChatViewModel(
     private val projectDao: ProjectDao,
     private val modelRefresher: ModelRefresher,
     private val artifactDao: ArtifactDao,
+    private val mcpClient: McpClient,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -613,9 +617,9 @@ class ChatViewModel(
             notice("Configura un provider con la sua chiave per usare l'agente")
             return
         }
-        val bundle = bundle(current)
-        if (bundle == null) {
-            notice("L'agente ha bisogno di un'area di lavoro: impostala prima")
+        val tools = hub(current)
+        if (!tools.hasTools) {
+            notice("L'agente ha bisogno di un'area di lavoro o di un connettore")
             return
         }
         _input.value = ""
@@ -640,9 +644,7 @@ class ChatViewModel(
                     apiKey = secretStore.apiKey(provider.id),
                     model = current.activeModel,
                     settings = current,
-                    workspace = bundle.workspace,
-                    github = bundle.github,
-                    actions = bundle.actions,
+                    hub = tools,
                     limits = AgentLimits(
                         maxSteps = current.agentMaxSteps,
                         maxRounds = (current.agentMaxSteps * 2 / 3).coerceAtLeast(6),
@@ -753,9 +755,7 @@ class ChatViewModel(
                             messages = history,
                             temperature = current.temperature,
                             maxTokens = current.maxTokens,
-                            tools = bundle(current)?.let { active ->
-                                WorkspaceTools.definitions(github = active.github != null)
-                            },
+                            tools = hub(current).definitions(agent = false),
                         ).collect { event ->
                             when (event) {
                                 is StreamEvent.Content -> {
@@ -828,7 +828,7 @@ class ChatViewModel(
                                 toolName = call.name,
                                 arguments = call.arguments,
                                 result = outcome.first,
-                                repoUrl = bundle(current)?.github?.blobBaseUrl,
+                                repoUrl = hub(current).github?.blobBaseUrl,
                             ).forEach { draft -> saveArtifact(conversationId, draft) }
                         }
                     }
@@ -844,15 +844,15 @@ class ChatViewModel(
 
     /** Esegue uno strumento, passando dal permesso quando tocca i file. */
     private suspend fun executeTool(call: ToolCall, current: AppSettings): Pair<String, Boolean> {
-        val workspace = workspace(current)
-            ?: return "Nessuna area di lavoro configurata." to true
-        if (WorkspaceTools.modifies(call.name) && !current.autonomousTools && !sessionAutonomy) {
+        val tools = hub(current)
+        if (!tools.hasTools) return "Nessuno strumento disponibile." to true
+        if (tools.modifies(call) && !current.autonomousTools && !sessionAutonomy) {
             val allowed = requestApproval(call)
             if (!allowed) return "L'utente ha rifiutato l'operazione." to true
         }
-        _busy.value = WorkspaceTools.describe(call) + "…"
+        _busy.value = tools.describe(call) + "…"
         return try {
-            WorkspaceTools.execute(workspace, call) to false
+            tools.execute(call, null) to false
         } catch (error: Throwable) {
             (error.message ?: "Operazione non riuscita") to true
         } finally {
@@ -863,9 +863,10 @@ class ChatViewModel(
     private suspend fun requestApproval(call: ToolCall): Boolean {
         val gate = CompletableDeferred<Boolean>()
         approvalGate = gate
+        val tools = hub(settings.value)
         _approval.value = ApprovalRequest(
-            title = WorkspaceTools.describe(call),
-            preview = WorkspaceTools.preview(call),
+            title = tools.describe(call),
+            preview = tools.preview(call),
         )
         return try {
             gate.await()
@@ -882,6 +883,69 @@ class ChatViewModel(
 
     private fun bundle(current: AppSettings): WorkspaceBundle? =
         WorkspaceFactory.create(context, current, secretStore, json)
+
+    /** Area di lavoro e connettori insieme: è quello che il modello può chiamare. */
+    private fun hub(current: AppSettings) = ToolHub(
+        bundle = bundle(current),
+        servers = current.mcpServers,
+        mcpClient = mcpClient,
+        secrets = secretStore,
+        json = json,
+    )
+
+    // --- connettori MCP ----------------------------------------------------
+
+    fun saveConnector(server: McpServer) = viewModelScope.launch {
+        val current = settings.value.mcpServers
+        val updated = if (current.any { it.id == server.id }) {
+            current.map { if (it.id == server.id) server else it }
+        } else {
+            current + server
+        }
+        settingsStore.saveMcpServers(updated)
+    }
+
+    fun deleteConnector(id: String) = viewModelScope.launch {
+        settingsStore.saveMcpServers(settings.value.mcpServers.filterNot { it.id == id })
+        secretStore.setApiKey(McpServer.secretKey(id), "")
+    }
+
+    fun setConnectorToken(id: String, token: String) =
+        secretStore.setApiKey(McpServer.secretKey(id), token)
+
+    fun connectorToken(id: String): String = secretStore.apiKey(McpServer.secretKey(id))
+
+    /** Interroga il connettore e salva l'elenco dei suoi strumenti. */
+    fun testConnector(server: McpServer) = viewModelScope.launch {
+        _busy.value = "Provo ${server.name}…"
+        val token = secretStore.apiKey(McpServer.secretKey(server.id))
+        val result = runCatching { mcpClient.listTools(server, token) }
+        _busy.value = null
+        result.onSuccess { tools ->
+            saveConnector(
+                server.copy(
+                    tools = tools,
+                    lastCheckedAt = System.currentTimeMillis(),
+                    lastError = null,
+                ),
+            )
+            notice(
+                if (tools.isEmpty()) {
+                    "${server.name} risponde ma non espone strumenti"
+                } else {
+                    "${server.name}: ${tools.size} strumenti disponibili"
+                },
+            )
+        }.onFailure { error ->
+            saveConnector(
+                server.copy(
+                    lastCheckedAt = System.currentTimeMillis(),
+                    lastError = error.message ?: "Non risponde",
+                ),
+            )
+            notice(error.message ?: "Il connettore non risponde")
+        }
+    }
 
     private fun workspace(current: AppSettings): Workspace? = bundle(current)?.workspace
 
@@ -1290,6 +1354,74 @@ class ChatViewModel(
         startAgent(goal)
     }
 
+    // --- privacy -----------------------------------------------------------
+
+    /** Gli indirizzi che l'app contatta davvero, con la ragione. */
+    fun endpoints(): List<Pair<String, String>> {
+        val current = settings.value
+        val list = mutableListOf<Pair<String, String>>()
+        current.activeProvider?.let { list += it.baseUrl to "modello in chat (${it.name})" }
+        listOfNotNull(
+            current.visionRef?.let { it to "lettura delle immagini" },
+            current.transcribeRef?.let { it to "trascrizione audio" },
+            current.imageRef?.let { it to "generazione immagini" },
+            current.speechRef?.let { it to "sintesi vocale" },
+        ).forEach { (ref, reason) ->
+            current.providers.firstOrNull { it.id == ref.providerId }?.let { provider ->
+                list += provider.baseUrl to "$reason (${ref.model})"
+            }
+        }
+        when (current.workspace.mode) {
+            com.lucio.guzzobot.data.model.WorkspaceMode.GITHUB ->
+                list += "https://api.github.com" to "area di lavoro ${current.workspace.label}"
+            com.lucio.guzzobot.data.model.WorkspaceMode.LOCAL ->
+                list += current.workspace.label to "cartella sul telefono, non esce da qui"
+            com.lucio.guzzobot.data.model.WorkspaceMode.NONE -> Unit
+        }
+        current.mcpServers.filter { it.enabled }.forEach { server ->
+            list += server.url to "connettore ${server.name}"
+        }
+        return list.distinctBy { it.first }
+    }
+
+    /** Quanto spazio occupano gli allegati salvati. */
+    fun attachmentsBytes(): Long = runCatching {
+        java.io.File(context.filesDir, "attachments").walkTopDown()
+            .filter { it.isFile }
+            .sumOf { it.length() }
+    }.getOrDefault(0L)
+
+    /** Dimentica tutte le chiavi: provider, GitHub e connettori. */
+    fun forgetAllKeys() {
+        val current = settings.value
+        current.providers.forEach { secretStore.setApiKey(it.id, "") }
+        secretStore.setApiKey(WorkspaceConfig.GITHUB_SECRET, "")
+        current.mcpServers.forEach { secretStore.setApiKey(McpServer.secretKey(it.id), "") }
+        notice("Chiavi cancellate dal dispositivo")
+    }
+
+    /** Restituisce il permesso sulla cartella e dimentica l'area di lavoro. */
+    fun revokeWorkspaceFolder() = viewModelScope.launch {
+        val current = settings.value.workspace
+        current.localTreeUri?.let { uri ->
+            runCatching {
+                context.contentResolver.releasePersistableUriPermission(
+                    Uri.parse(uri),
+                    android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION,
+                )
+            }
+        }
+        settingsStore.setWorkspace(
+            current.copy(
+                mode = com.lucio.guzzobot.data.model.WorkspaceMode.NONE,
+                localTreeUri = null,
+                localLabel = null,
+            ),
+        )
+        notice("Permesso sulla cartella restituito")
+    }
+
     // --- artefatti ---------------------------------------------------------
 
     fun openArtifact(artifact: ArtifactEntity, onResult: (ArtifactTarget) -> Unit) =
@@ -1469,6 +1601,7 @@ class ChatViewModel(
                     projectDao = container.projectDao,
                     modelRefresher = container.modelRefresher,
                     artifactDao = container.artifactDao,
+                    mcpClient = container.mcpClient,
                 )
             }
         }

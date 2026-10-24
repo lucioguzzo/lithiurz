@@ -14,6 +14,7 @@ import com.lucio.guzzobot.GuzzoBotApp
 import com.lucio.guzzobot.MainActivity
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.agent.AgentLimits
+import com.lucio.guzzobot.data.agent.ToolHub
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.workspace.WorkspaceFactory
 import kotlinx.coroutines.flow.first
@@ -68,9 +69,13 @@ class AgentWorker(
             apiKey = container.secretStore.apiKey(provider.id),
             model = settings.activeModel,
             settings = settings,
-            workspace = bundle.workspace,
-            github = bundle.github,
-            actions = bundle.actions,
+            hub = ToolHub(
+                bundle = bundle,
+                servers = settings.mcpServers,
+                mcpClient = container.mcpClient,
+                secrets = container.secretStore,
+                json = container.json,
+            ),
             limits = AgentLimits(maxSteps = 25, maxRounds = 18, maxMinutes = 8),
             approve = { task.mayWrite },
         )

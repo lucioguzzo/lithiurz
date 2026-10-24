@@ -5,6 +5,7 @@ import com.lucio.guzzobot.data.agent.AgentEngine
 import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.work.ModelRefreshWorker
 import com.lucio.guzzobot.data.files.AttachmentStore
+import com.lucio.guzzobot.data.mcp.McpClient
 import com.lucio.guzzobot.data.local.GuzzoBotDatabase
 import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
@@ -40,6 +41,7 @@ class AppContainer(private val app: Application) {
     val deviceSpeaker = DeviceSpeaker(app)
     val agentEngine = AgentEngine(repository, chatApi, json, artifactDao)
     val modelRefresher = ModelRefresher(chatApi, settingsStore, secretStore)
+    val mcpClient = McpClient(json)
 }
 
 class GuzzoBotApp : Application() {

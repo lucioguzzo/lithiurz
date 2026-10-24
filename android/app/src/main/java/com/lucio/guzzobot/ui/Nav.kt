@@ -16,6 +16,8 @@ import com.lucio.guzzobot.ui.settings.SettingsScreen
 import com.lucio.guzzobot.ui.settings.AgentScreen
 import com.lucio.guzzobot.ui.settings.ArtifactsScreen
 import com.lucio.guzzobot.ui.settings.CodeScreen
+import com.lucio.guzzobot.ui.settings.ConnectorsScreen
+import com.lucio.guzzobot.ui.settings.PrivacyScreen
 import com.lucio.guzzobot.ui.settings.TasksScreen
 import com.lucio.guzzobot.ui.settings.WorkspaceScreen
 
@@ -28,6 +30,8 @@ object Routes {
     const val AGENT = "agent"
     const val CODE = "code"
     const val ARTIFACTS = "artifacts"
+    const val CONNECTORS = "connectors"
+    const val PRIVACY = "privacy"
 }
 
 @Composable
@@ -75,6 +79,18 @@ fun GuzzoBotNavHost(
                 },
                 onOpenWorkspace = { navController.navigate(Routes.WORKSPACE) },
                 onOpenTasks = { navController.navigate(Routes.TASKS) },
+                onOpenConnectors = { navController.navigate(Routes.CONNECTORS) },
+                onOpenPrivacy = { navController.navigate(Routes.PRIVACY) },
+            )
+        }
+        composable(Routes.CONNECTORS) {
+            ConnectorsScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
+        }
+        composable(Routes.PRIVACY) {
+            PrivacyScreen(
+                viewModel = viewModel,
+                onBack = { navController.popBackStack() },
+                onOpenConnectors = { navController.navigate(Routes.CONNECTORS) },
             )
         }
         composable(Routes.CODE) {
