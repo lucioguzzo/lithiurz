@@ -38,12 +38,14 @@ object ModelCatalog {
     private val accessoryMarkers = listOf(
         "embedding", "embed-", "-tts", "tts-", "-live", "transcribe", "whisper",
         "-image", "image-", "dall-e", "moderation", "rerank", "guard", "-asr",
+        // I modelli immagine di Google non hanno «image» nel nome.
+        "nano-banana", "imagen",
     )
 
     /** I modelli di un elenco capaci di generare immagini. */
     fun imageModels(models: List<String>): List<String> =
         models.filter { model ->
-            listOf("image", "dall-e", "imagen", "flux", "sdxl", "diffusion")
+            listOf("image", "dall-e", "imagen", "flux", "sdxl", "diffusion", "nano-banana")
                 .any { model.contains(it, ignoreCase = true) }
         }
 

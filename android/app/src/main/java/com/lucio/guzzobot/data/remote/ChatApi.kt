@@ -33,6 +33,8 @@ data class ToolCall(
     val id: String,
     val name: String,
     val arguments: String,
+    /** Da restituire tale e quale al provider: vedi ApiToolCall.extraContent. */
+    val extra: JsonObject? = null,
 )
 
 class ApiException(message: String) : IOException(message)
@@ -110,6 +112,7 @@ class ChatApi(private val json: Json) {
                             fragment.id?.let { slot.id = it }
                             fragment.function?.name?.let { slot.name = it }
                             fragment.function?.arguments?.let { slot.arguments.append(it) }
+                            fragment.extraContent?.let { slot.extra = it }
                         }
                     }
                     val requested = pendingTools.values
@@ -398,12 +401,14 @@ class ChatApi(private val json: Json) {
         var id: String = "",
         var name: String = "",
         val arguments: StringBuilder = StringBuilder(),
+        var extra: JsonObject? = null,
     )
 
     private fun StreamEventToolCall(partial: PartialToolCall) = ToolCall(
         id = partial.id.ifBlank { "call_${partial.name}" },
         name = partial.name,
         arguments = partial.arguments.toString(),
+        extra = partial.extra,
     )
 
     private companion object {

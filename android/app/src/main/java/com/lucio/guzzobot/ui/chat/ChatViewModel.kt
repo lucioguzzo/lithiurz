@@ -995,6 +995,9 @@ class ChatViewModel(
             ApiToolCall(
                 id = call.id,
                 function = ApiToolFunction(name = call.name, arguments = call.arguments),
+                // Senza questo, al giro dopo Gemini 3 rifiuta tutta la
+                // conversazione: la firma va restituita identica.
+                extraContent = call.extra,
             )
         },
     )

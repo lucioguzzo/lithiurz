@@ -68,6 +68,37 @@ class ChatApiStreamTest {
     }
 
     @Test
+    fun `la firma agganciata alla chiamata viene conservata`() = runTest {
+        // Gemini 3 aggancia qui la «firma del pensiero» e al giro dopo la
+        // pretende indietro identica, altrimenti rifiuta tutto con un 400.
+        server.enqueue(
+            sse(
+                """{"choices":[{"delta":{"tool_calls":[{"index":0,"id":"c1","function":{"name":"image_create"},"extra_content":{"google":{"thought_signature":"AbCdEf=="}}}]}}]}""",
+                """{"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{}"}}]}}]}""",
+                """{"choices":[{"delta":{},"finish_reason":"tool_calls"}]}""",
+            ),
+        )
+        val call = collect().filterIsInstance<StreamEvent.ToolRequests>().single().calls.single()
+        assertEquals("image_create", call.name)
+        val signature = call.extra
+            ?.get("google")?.let { it as kotlinx.serialization.json.JsonObject }
+            ?.get("thought_signature")
+            ?.let { (it as kotlinx.serialization.json.JsonPrimitive).content }
+        assertEquals("AbCdEf==", signature)
+    }
+
+    @Test
+    fun `una chiamata senza firma resta valida`() = runTest {
+        server.enqueue(
+            sse(
+                """{"choices":[{"delta":{"tool_calls":[{"index":0,"id":"c1","function":{"name":"workspace_list","arguments":"{}"}}]}}]}""",
+            ),
+        )
+        val call = collect().filterIsInstance<StreamEvent.ToolRequests>().single().calls.single()
+        assertEquals(null, call.extra)
+    }
+
+    @Test
     fun `tiene distinte due chiamate nello stesso turno`() = runTest {
         server.enqueue(
             sse(

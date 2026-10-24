@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -31,6 +32,15 @@ data class ApiToolCall(
     val function: ApiToolFunction? = null,
     /** Presente solo nei frammenti in streaming: dice a quale chiamata appartengono. */
     val index: Int? = null,
+    /**
+     * Quello che il provider aggancia alla chiamata e pretende indietro.
+     *
+     * Gemini 3 ci mette la «firma del pensiero» e, se al giro dopo non la
+     * ritrova identica, rifiuta tutta la conversazione con un 400. Si tiene
+     * l'oggetto intero invece del singolo campo: così torna indietro qualunque
+     * cosa ci infilino, senza dover rincorrere il nome esatto.
+     */
+    @SerialName("extra_content") val extraContent: JsonObject? = null,
 )
 
 @Serializable

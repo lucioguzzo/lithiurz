@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.9.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.10.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -517,6 +517,21 @@ Un limite onesto: i server MCP **stdio**, quelli che si avviano con `npx` o
 processi di altri programmi. Servono i server remoti, che è anche l'unica forma
 sensata da un telefono. Senza connettori l'app funziona esattamente come prima:
 nessuna delle due cose dipende dall'altra.
+
+### Le firme del pensiero di Gemini 3
+
+Un dettaglio che vale la pena conoscere, perché senza non funziona niente. I
+modelli Gemini 3 agganciano a ogni chiamata di strumento una *firma del
+pensiero*, e al giro successivo la pretendono indietro **identica**: se manca,
+rifiutano l'intera conversazione con un `400 · Function call is missing a
+thought_signature`. Un client che decodifica `tool_calls` in una struttura
+fissa la perde per strada, e da quel momento nessuno strumento funziona più —
+né le immagini, né l'area di lavoro, né i connettori.
+
+GUZZOBOT conserva l'intero oggetto `extra_content` che accompagna la chiamata,
+lo salva insieme al messaggio e lo rimanda tale e quale. Tenere l'oggetto
+intero invece del singolo campo è deliberato: così torna indietro qualunque
+cosa il provider ci infili, senza rincorrere il nome esatto a ogni versione.
 
 ## I modelli cambiano: l'app se ne accorge
 
