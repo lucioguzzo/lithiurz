@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.4.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-4.5.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -48,6 +48,48 @@ finire nel codice: `GUZZOBOT_KEYSTORE_BASE64` (il `.jks` in base64),
 workflow ricostruisce il file prima della build e, se i segreti non ci sono,
 procede con la chiave di debug.
 
+## Il primo avvio
+
+GUZZOBOT non ha server propri, quindi senza un modello configurato non può dire
+niente: è il muro su cui si ferma chi non ha voglia di smanettare. Al primo
+lancio ci sono tre schermate per smontarlo, e **ognuna si salta**.
+
+1. **Cos'è** — che l'app parla direttamente col modello che scegli tu, che le
+   conversazioni restano sul telefono, e che si può partire gratis.
+2. **Partire gratis con Gemini** — il pulsante apre la pagina della chiave nel
+   browser del telefono, dove **l'account Google è già connesso**: nessun
+   accesso da rifare. Si tocca *Crea chiave API*, si copia, si torna. Al
+   ritorno l'app **guarda gli appunti** e, se trovano qualcosa con la forma di
+   una chiave Google, la propone con un tocco: niente da trascrivere. Poi la
+   prova davvero contro il provider e dice quanti modelli ha trovato, o il
+   motivo vero del rifiuto.
+3. **Due permessi** — notifiche e microfono, spiegati per quello che fanno,
+   chiesti uno alla volta. Android concede una sola richiesta dopo un rifiuto:
+   da quel momento l'app manda alle impostazioni di sistema, invece di
+   ripresentare una finestra che non comparirà più. Per documenti e foto non
+   serve nessun permesso: il file lo scegli ogni volta tu, e l'app vede solo
+   quello.
+
+Chi aggiorna avendo già una chiave configurata non lo vede: per lui il primo
+avvio è già passato.
+
+### Perché non c'è un «accedi con Google»
+
+Sarebbe la cosa più comoda e **non è possibile**, non per pigrizia nostra.
+
+- Le chiavi di Google AI Studio si creano a mano nella console di Google;
+  **non esiste nessun OAuth né API che permetta a un'app di terzi di farsene
+  rilasciare una** per conto dell'utente. Google ha anche chiuso, nel giugno
+  2026, l'accesso «Login with Google» che la CLI di Gemini usava.
+- L'alternativa, Vertex AI, si autentica contro il progetto Google Cloud **di
+  chi sviluppa l'app**, con fatturazione attiva: l'uso finirebbe sul nostro
+  conto, non sarebbe gratuito per nessuno.
+- E un'app non verificata che chiede l'accesso all'account Google spaventerebbe
+  di più di quanto semplifichi, ottenendo in cambio niente di utilizzabile.
+
+Quindi la chiave resta da creare. Quello che si può togliere — trovare la
+pagina, capire cosa premere, trascrivere quaranta caratteri — è tolto.
+
 ## Partire gratis
 
 *Impostazioni › Modelli gratuiti* esiste perché l'app senza una chiave non
@@ -70,7 +112,8 @@ Nessuna carta di credito, in nessuno dei casi.
 | **Mistral** | Circa un miliardo di token al mese sul piano *Experiment*, che però **obbliga a cedere i dati** per l'addestramento |
 | **Ollama** | L'unico davvero senza chiave, ma vuole un computer accesso nella stessa rete |
 
-L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
+Quando tocchi *Incolla la chiave*, se è già negli appunti il campo arriva
+compilato. L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
 GUZZOBOT, non un generico "sono più lenti": i limiti al minuto e al giorno che
 un obiettivo dell'agente brucia in fretta; le immagini che solo Gemini accetta;
 la generazione di immagini e la lettura ad alta voce che gratis non esistono da
@@ -434,7 +477,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 ├─ GuzzoBotApp.kt          Application + container delle dipendenze
 ├─ MainActivity.kt         edge-to-edge, tema, intent di condivisione
 ├─ data/
-│  ├─ model/               provider, piani gratuiti, impostazioni, capacità
+│  ├─ model/               provider, piani gratuiti, chiavi, impostazioni
 │  ├─ local/               Room: conversazioni, messaggi, allegati
 │  ├─ prefs/               DataStore (impostazioni) + chiavi cifrate
 │  ├─ agent/               ciclo dell'agente, budget, prompt, registro strumenti
@@ -449,6 +492,7 @@ android/app/src/main/java/com/lucio/guzzobot/
 ├─ work/                   compiti pianificati con WorkManager
 └─ ui/
    ├─ theme/               palette crema/terracotta, tipografia serif
+   ├─ onboarding/          primo avvio: chiave guidata e permessi
    ├─ chat/                chat, composer, allegati, drawer, ViewModel
    ├─ markdown/            parser e renderer markdown
    └─ settings/            impostazioni, ruoli multimodali, provider,

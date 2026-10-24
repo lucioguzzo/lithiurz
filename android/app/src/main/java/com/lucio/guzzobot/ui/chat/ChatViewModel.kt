@@ -34,6 +34,7 @@ import com.lucio.guzzobot.data.model.ModelRef
 import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.data.model.VisionRouting
 import com.lucio.guzzobot.data.model.Provider
+import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ProviderCatalog
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.model.ThemeMode
@@ -68,6 +69,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
@@ -153,6 +155,20 @@ class ChatViewModel(
 
     val settings: StateFlow<AppSettings> =
         settingsStore.settings.stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
+
+    /**
+     * Se mostrare il primo avvio: resta null finché le impostazioni non sono
+     * state lette da disco, altrimenti a ogni lancio comparirebbe per un
+     * istante anche a chi l'ha già fatto.
+     */
+    val onboardingNeeded: StateFlow<Boolean?> = settingsStore.settings
+        .map { current ->
+            // Chi aggiorna avendo già configurato una chiave non va portato a
+            // configurarne un'altra: per lui il primo avvio è già passato.
+            !current.onboardingDone &&
+                current.providers.none { secretStore.apiKey(it.id).isNotBlank() }
+        }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val conversations: StateFlow<List<ConversationEntity>> =
         repository.conversations().stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -1521,13 +1537,35 @@ class ChatViewModel(
     fun isFreeModel(providerId: String, model: String): Boolean =
         ProviderCatalog.isFree(settings.value.providers, providerId, model)
 
-    /** Nessuna chiave da nessuna parte: l'app non può ancora parlare con niente. */
-    fun hasNoKeys(): Boolean = settings.value.providers.none { provider ->
-        apiKey(provider.id).isNotBlank() ||
-            provider.baseUrl.startsWith("http://", ignoreCase = true)
-    }
+    /**
+     * Nessuna chiave da nessuna parte: l'app non può ancora parlare con
+     * niente. Ollama non conta: c'è di serie su ogni installazione, e
+     * contarlo come «configurato» nasconderebbe l'avviso a tutti.
+     */
+    fun hasNoKeys(): Boolean =
+        settings.value.providers.none { apiKey(it.id).isNotBlank() }
 
     fun acceptFreeDisclaimer() = viewModelScope.launch { settingsStore.acceptFreeDisclaimer() }
+
+    fun completeOnboarding() = viewModelScope.launch { settingsStore.completeOnboarding() }
+
+    /** Una chiave trovata negli appunti, se calza questo provider. */
+    fun keyFromClipboard(providerId: String, clipboard: String?): String? {
+        val provider = settings.value.providers.firstOrNull { it.id == providerId }
+            ?: return null
+        return KeyDetector.forProvider(clipboard, provider)
+    }
+
+    /**
+     * Prova la chiave prima di salvarla, chiedendo al provider l'elenco dei
+     * suoi modelli: se risponde, la chiave è buona; se no, si riporta il
+     * motivo vero invece di un generico "errore".
+     */
+    suspend fun verifyKey(providerId: String, key: String): Result<Int> {
+        val provider = settings.value.providers.firstOrNull { it.id == providerId }
+            ?: return Result.failure(IllegalStateException("Provider sconosciuto"))
+        return runCatching { chatApi.listModels(provider.baseUrl, key.trim()).size }
+    }
 
     /**
      * Salva la chiave di un provider gratuito, sceglie subito un suo modello

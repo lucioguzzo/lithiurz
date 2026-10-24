@@ -41,6 +41,7 @@ fun GuzzoBotNavHost(
     viewModel: ChatViewModel,
     sharedText: String?,
     sharedFile: Pair<Uri, String>? = null,
+    openFree: Boolean = false,
 ) {
     val navController = rememberNavController()
 
@@ -58,6 +59,11 @@ fun GuzzoBotNavHost(
             else -> AttachmentKind.DOCUMENT
         }
         viewModel.attach(uri, kind)
+    }
+
+    // Chi esce dal primo avvio chiedendo gli altri gratuiti ci arriva diretto.
+    LaunchedEffect(openFree) {
+        if (openFree) navController.navigate(Routes.FREE)
     }
 
     NavHost(navController = navController, startDestination = Routes.CHAT) {

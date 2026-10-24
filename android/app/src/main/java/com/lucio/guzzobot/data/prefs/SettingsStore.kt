@@ -53,6 +53,7 @@ class SettingsStore(context: Context, private val json: Json) {
         val agentMaxMinutes = intPreferencesKey("agent_max_minutes")
         val modelsRefreshedAt = androidx.datastore.preferences.core.longPreferencesKey("models_at")
         val mcpServers = stringPreferencesKey("mcp_servers")
+        val onboardingDone = booleanPreferencesKey("onboarding_done")
         val freeDisclaimer = booleanPreferencesKey("free_disclaimer")
         val removedProviders = stringSetPreferencesKey("removed_providers")
     }
@@ -112,6 +113,7 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
+            onboardingDone = prefs[Keys.onboardingDone] ?: false,
             freeDisclaimerAccepted = prefs[Keys.freeDisclaimer] ?: false,
             removedProviders = removed,
             mcpServers = prefs[Keys.mcpServers]
@@ -197,4 +199,6 @@ class SettingsStore(context: Context, private val json: Json) {
     }
 
     suspend fun acceptFreeDisclaimer() = store.edit { it[Keys.freeDisclaimer] = true }
+
+    suspend fun completeOnboarding() = store.edit { it[Keys.onboardingDone] = true }
 }

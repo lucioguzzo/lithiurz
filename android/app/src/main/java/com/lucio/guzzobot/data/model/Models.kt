@@ -18,6 +18,12 @@ data class Provider(
     val builtIn: Boolean = false,
     /** Se il provider ha un piano gratuito vero, cosa offre e cosa chiede. */
     val freeTier: FreeTier? = null,
+    /**
+     * Come si riconosce una chiave di questo provider. Serve a non far
+     * trascrivere a mano una stringa di quaranta caratteri: se è negli
+     * appunti, l'app se ne accorge e la propone.
+     */
+    val keyPattern: String? = null,
 )
 
 /**
@@ -64,6 +70,7 @@ object Providers {
     val defaults: List<Provider> = listOf(
         Provider(
             id = "deepseek",
+            keyPattern = "sk-[A-Za-z0-9]{20,}",
             name = "DeepSeek",
             baseUrl = "https://api.deepseek.com/v1",
             // Nomi aggiornati: deepseek-chat e deepseek-reasoner sono stati ritirati.
@@ -73,6 +80,7 @@ object Providers {
         ),
         Provider(
             id = "openrouter",
+            keyPattern = "sk-or-v1-[A-Za-z0-9]{32,}",
             name = "OpenRouter",
             baseUrl = "https://openrouter.ai/api/v1",
             models = listOf(
@@ -93,6 +101,7 @@ object Providers {
         ),
         Provider(
             id = "groq",
+            keyPattern = "gsk_[A-Za-z0-9]{40,}",
             name = "Groq",
             baseUrl = "https://api.groq.com/openai/v1",
             models = listOf(
@@ -124,6 +133,7 @@ object Providers {
         ),
         Provider(
             id = "xai",
+            keyPattern = "xai-[A-Za-z0-9]{40,}",
             name = "xAI",
             baseUrl = "https://api.x.ai/v1",
             models = listOf("grok-2-latest"),
@@ -147,6 +157,7 @@ object Providers {
         ),
         Provider(
             id = "moonshot",
+            keyPattern = "sk-[A-Za-z0-9]{32,}",
             name = "Moonshot (Kimi)",
             baseUrl = "https://api.moonshot.ai/v1",
             models = listOf("kimi-k3.1", "kimi-k3", "kimi-k2.6"),
@@ -155,6 +166,7 @@ object Providers {
         ),
         Provider(
             id = "google",
+            keyPattern = "AIza[0-9A-Za-z_\\-]{35}",
             name = "Google AI Studio (Gemini)",
             // L'endpoint compatibile con l'API OpenAI, documentato da Google:
             // regge /chat/completions in streaming, /models e le immagini.
@@ -171,6 +183,7 @@ object Providers {
         ),
         Provider(
             id = "cerebras",
+            keyPattern = "csk-[A-Za-z0-9]{20,}",
             name = "Cerebras",
             baseUrl = "https://api.cerebras.ai/v1",
             models = listOf("gpt-oss-120b", "qwen-3.8-27b"),
@@ -184,6 +197,7 @@ object Providers {
         ),
         Provider(
             id = "openai",
+            keyPattern = "sk-[A-Za-z0-9_\\-]{20,}",
             name = "OpenAI",
             baseUrl = "https://api.openai.com/v1",
             models = listOf("gpt-4o", "gpt-4o-mini", "whisper-1", "gpt-image-1", "tts-1"),
@@ -242,6 +256,8 @@ data class AppSettings(
     val agentMaxMinutes: Int = 25,
     /** Quando gli elenchi dei modelli sono stati riallineati l'ultima volta. */
     val modelsRefreshedAt: Long = 0L,
+    /** Il primo avvio è stato completato (o saltato). */
+    val onboardingDone: Boolean = false,
     /** L'avviso sui modelli gratuiti è stato letto. */
     val freeDisclaimerAccepted: Boolean = false,
     /** Provider predefiniti che l'utente ha cancellato: non vanno resuscitati. */

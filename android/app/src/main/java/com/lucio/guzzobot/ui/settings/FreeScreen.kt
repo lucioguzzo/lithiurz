@@ -194,7 +194,17 @@ fun FreeScreen(
                                     Text(stringResource(R.string.free_use_now))
                                 }
                             } else {
-                                TextButton(onClick = { editing = provider.id; draft = "" }) {
+                                TextButton(
+                                    onClick = {
+                                        editing = provider.id
+                                        // Se la chiave è già negli appunti,
+                                        // il campo arriva compilato.
+                                        draft = viewModel.keyFromClipboard(
+                                            provider.id,
+                                            clipboardText(context),
+                                        ).orEmpty()
+                                    },
+                                ) {
                                     Text(stringResource(R.string.free_paste_key))
                                 }
                             }
@@ -216,6 +226,13 @@ fun FreeScreen(
         }
     }
 }
+
+/** Il testo negli appunti, per non far trascrivere a mano una chiave. */
+private fun clipboardText(context: android.content.Context): String? = runCatching {
+    val manager = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE)
+        as? android.content.ClipboardManager
+    manager?.primaryClip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.text?.toString()
+}.getOrNull()
 
 /** L'avviso sta in cima e non si chiude: è il prezzo del gratuito. */
 @Composable

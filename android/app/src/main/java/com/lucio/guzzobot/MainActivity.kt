@@ -20,6 +20,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.lucio.guzzobot.ui.GuzzoBotNavHost
 import com.lucio.guzzobot.ui.chat.ChatViewModel
+import com.lucio.guzzobot.ui.onboarding.OnboardingScreen
 import com.lucio.guzzobot.ui.splash.SplashScreen
 import com.lucio.guzzobot.ui.theme.GuzzoBotTheme
 
@@ -35,15 +36,33 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: ChatViewModel = viewModel(factory = ChatViewModel.factory(container))
             val settings by viewModel.settings.collectAsStateWithLifecycle()
+            val onboardingNeeded by viewModel.onboardingNeeded.collectAsStateWithLifecycle()
             // rememberSaveable: una rotazione non fa ricomparire lo splash.
             var splashVisible by rememberSaveable { mutableStateOf(true) }
+            var openFree by rememberSaveable { mutableStateOf(false) }
             GuzzoBotTheme(mode = settings.themeMode) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     GuzzoBotNavHost(
                         viewModel = viewModel,
                         sharedText = shared,
                         sharedFile = sharedFile,
+                        openFree = openFree,
                     )
+                    // Solo quando le impostazioni sono state lette: finché è
+                    // null non si sa, e indovinare farebbe lampeggiare il
+                    // primo avvio a chi l'ha già fatto.
+                    AnimatedVisibility(
+                        visible = onboardingNeeded == true,
+                        exit = fadeOut(tween(300)),
+                    ) {
+                        OnboardingScreen(
+                            viewModel = viewModel,
+                            onOpenFree = {
+                                openFree = true
+                                viewModel.completeOnboarding()
+                            },
+                        )
+                    }
                     AnimatedVisibility(
                         visible = splashVisible,
                         exit = fadeOut(tween(420)),
