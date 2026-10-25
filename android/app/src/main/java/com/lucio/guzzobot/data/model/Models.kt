@@ -72,11 +72,22 @@ data class FreeTier(
     val limits: String = "",
     /** Se solo una parte del catalogo è gratis, come si riconosce. */
     val freeMarker: String? = null,
+    /**
+     * I modelli gratuiti, quando sono un elenco preciso e non una famiglia.
+     *
+     * Serve dove il nome inganna: da Z.ai «flash» non vuol dire gratuito —
+     * GLM-5.3-Flash si paga, GLM-4.7-Flash no — e un marcatore prometterebbe
+     * gratis quello che gratis non è.
+     */
+    val freeModels: List<String> = emptyList(),
     val notes: List<FreeNote> = emptyList(),
 ) {
-    /** Un modello è gratuito se lo è tutto il provider o se porta il marcatore. */
-    fun covers(model: String): Boolean =
-        freeMarker == null || model.contains(freeMarker, ignoreCase = true)
+    /** Un modello è gratuito se è nell'elenco, se porta il marcatore, o se lo è tutto. */
+    fun covers(model: String): Boolean = when {
+        freeModels.isNotEmpty() -> freeModels.any { model.contains(it, ignoreCase = true) }
+        freeMarker != null -> model.contains(freeMarker, ignoreCase = true)
+        else -> true
+    }
 }
 
 /** Quello che un piano gratuito dà in più, o si prende in cambio. */
@@ -154,7 +165,9 @@ object Providers {
             builtIn = true,
             freeTier = FreeTier(
                 signupUrl = "https://console.groq.com/keys",
-                limits = "30 richieste al minuto",
+                // I limiti del piano gratuito Groq non li pubblica: stanno
+                // nella console dell'account. Meglio dirlo che inventarli.
+                limits = "limiti per modello, visibili nella console di Groq",
                 notes = listOf(FreeNote.NO_CARD, FreeNote.TRANSCRIBES),
             ),
         ),
@@ -167,8 +180,8 @@ object Providers {
             builtIn = true,
             freeTier = FreeTier(
                 signupUrl = "https://console.mistral.ai/api-keys",
-                limits = "1 richiesta al secondo, circa 1 miliardo di token al mese",
-                notes = listOf(FreeNote.NO_CARD, FreeNote.TRAINS_ON_DATA),
+                limits = "limiti del piano «Free», visibili nel pannello Mistral",
+                notes = listOf(FreeNote.NO_CARD),
             ),
         ),
         Provider(
@@ -185,13 +198,20 @@ object Providers {
             name = "Z.ai (GLM)",
             baseUrl = "https://api.z.ai/api/paas/v4",
             // Punto di partenza: l'elenco vero arriva dall'endpoint /models.
-            models = listOf("glm-5.4", "glm-5.1", "glm-4.6v"),
+            // I primi tre sono quelli dichiarati gratuiti dal listino Z.ai.
+            models = listOf(
+                "glm-4.7-flash",
+                "glm-4.5-flash",
+                "glm-4.6v-flash",
+                "glm-5.4",
+                "glm-5.1",
+            ),
             keyUrl = "https://z.ai/manage-apikey/apikey-list",
             builtIn = true,
             freeTier = FreeTier(
                 signupUrl = "https://z.ai/manage-apikey/apikey-list",
-                limits = "limiti non dichiarati dal provider",
-                freeMarker = "flash",
+                limits = "senza costo a token; limiti non dichiarati dal provider",
+                freeModels = listOf("glm-4.7-flash", "glm-4.5-flash", "glm-4.6v-flash"),
                 notes = listOf(FreeNote.NO_CARD, FreeNote.PARTIAL_CATALOG),
             ),
         ),
@@ -245,11 +265,10 @@ object Providers {
             models = listOf("gpt-oss-120b", "qwen-3.8-27b"),
             keyUrl = "https://cloud.cerebras.ai",
             builtIn = true,
-            freeTier = FreeTier(
-                signupUrl = "https://cloud.cerebras.ai",
-                limits = "30 richieste al minuto, finestra ridotta rispetto al piano a pagamento",
-                notes = listOf(FreeNote.NO_CARD),
-            ),
+            // Niente piano gratuito: i documenti di Cerebras dicono che non
+            // esiste più una quota a costo zero rinnovabile, e che i 5 dollari
+            // di prova arrivano solo dopo aver inserito un metodo di pagamento.
+            // In una sezione che promette «nessuna carta» non può starci.
         ),
         Provider(
             id = "openai",

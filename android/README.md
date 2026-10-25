@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.3.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.4.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -102,23 +102,28 @@ per ogni provider c'è il pulsante che apre la pagina giusta, il campo in cui
 incollare, e poi l'app chiede da sé a `/models` quali modelli esistono davvero.
 Nessuna carta di credito, in nessuno dei casi.
 
-| Provider | Cosa dà di gratuito |
-|---|---|
-| **Google AI Studio (Gemini)** | L'unico gratuito che **vede** le immagini. **Generarle no**: nessun modello di immagini di Google è nel piano gratuito. Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
-| **Groq** | 30 richieste al minuto e `/audio/transcriptions`: è l'unico gratuito che **trascrive gli audio** |
-| **Cerebras** | 30 richieste al minuto, latenza bassissima, finestra ridotta rispetto al piano a pagamento |
-| **OpenRouter** | I modelli con il suffisso `:free` — 20 richieste al minuto, 50 al giorno |
-| **Z.ai (GLM)** | Le varianti `flash` |
-| **Mistral** | Circa un miliardo di token al mese sul piano *Experiment*, che però **obbliga a cedere i dati** per l'addestramento |
-| **Pollinations** | **Immagini senza alcuna chiave**: una alla volta, 45 secondi d'attesa, col logo, a un indirizzo pubblico |
-| **Ollama** | Senza chiave, ma vuole un computer acceso nella stessa rete |
+| Provider | Cosa dà di gratuito | Verificato su |
+|---|---|---|
+| **Google AI Studio (Gemini)** | I modelli Flash in chat, **gratis** e senza carta; l'unico gratuito che **vede** le immagini. **Generarle no.** Sul piano gratuito i dati sono usati per migliorare i prodotti Google | [listino Gemini](https://ai.google.dev/gemini-api/docs/pricing) |
+| **Groq** | Piano gratuito senza carta, trascrizione audio inclusa. I limiti non sono pubblicati: stanno nella console | [FAQ fatturazione Groq](https://console.groq.com/docs/billing-faqs) |
+| **OpenRouter** | I modelli col suffisso `:free` — 20 richieste al minuto, 50 al giorno | [limiti OpenRouter](https://openrouter.ai/docs/api-reference/limits) |
+| **Z.ai (GLM)** | **Solo** GLM-4.7-Flash, GLM-4.5-Flash e GLM-4.6V-Flash. GLM-5.3-Flash si paga, nonostante il nome | [listino Z.ai](https://docs.z.ai/guides/overview/pricing) |
+| **Mistral** | Piano «Free» attivo di default, senza carta. I limiti stanno nel pannello | [attivazione Studio](https://docs.mistral.ai/getting-started/quickstarts/studio/activate-and-generate-api-key) |
+| **Pollinations** | **Immagini senza alcuna chiave**: una alla volta, 45 secondi d'attesa, col logo, a un indirizzo pubblico | [documentazione API](https://github.com/pollinations/pollinations/blob/master/APIDOCS.md) |
+| **Ollama** | Senza chiave, ma vuole un computer acceso nella stessa rete | — |
 
-Quando tocchi *Incolla la chiave*, se è già negli appunti il campo arriva
-compilato. L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
+**Cerebras c'era e non c'è più.** I suoi documenti dicono che non esiste più
+una quota a costo zero rinnovabile, e che i cinque dollari di prova arrivano
+solo dopo aver inserito un metodo di pagamento. In una sezione che promette
+«nessuna carta di credito» non può starci, quindi resta fra i provider ma
+fuori dai gratuiti.
+
+L'avviso in cima alla schermata non si chiude, e dice cosa si rompe davvero in
 GUZZOBOT, non un generico "sono più lenti": i limiti al minuto e al giorno che
 un obiettivo dell'agente brucia in fretta; le immagini che solo Gemini accetta;
-la lettura ad alta voce che gratis non esiste da nessuna parte, quindi quella
-funzione resta spenta; il tool calling
+la generazione di immagini, che gratis esiste solo con Pollinations — nemmeno
+Gemini la dà, le fa pagare tutte — e la lettura ad alta voce, che gratis non
+esiste da nessuna parte; il tool calling
 irregolare, che può far sbagliare agente e connettori; e dove accade, i prompt
 usati per addestrare.
 
