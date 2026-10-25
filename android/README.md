@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.0.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.1.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -576,6 +576,11 @@ provider:
   vince il primo di quelli scelti dall'app che esiste ancora, poi uno normale;
 - se un modello rifiuta gli strumenti, la richiesta viene **rifatta senza**
   invece di restituire un errore: parlare lo sa comunque, e te lo dice;
+- quando il provider risponde che è sovraccarico — `503 · high demand`, il
+  tipico «riprova più tardi» — l'app **riprova da sé**, due volte, aspettando
+  un po' di più a ogni tentativo. Vale per la chat e per le immagini. Se la
+  quota del giorno è esaurita invece non riprova: sarebbe tempo perso, e te lo
+  dice chiaramente;
 - i modelli che non possono reggere una conversazione — embedding, voce, live,
   immagini — restano nell'elenco del provider, perché sono quelli che servono
   ai ruoli multimodali, ma sono nascosti nel selettore della chat, dove

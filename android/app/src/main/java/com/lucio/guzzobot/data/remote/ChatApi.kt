@@ -40,7 +40,7 @@ data class ToolCall(
     val extra: JsonObject? = null,
 )
 
-class ApiException(message: String) : IOException(message)
+class ApiException(message: String, val code: Int = 0) : IOException(message)
 
 /** Client per endpoint compatibili con l'API OpenAI. */
 class ChatApi(private val json: Json) {
@@ -80,29 +80,41 @@ class ChatApi(private val json: Json) {
         var call = client.newCall(request(tools))
         launch(Dispatchers.IO) {
             try {
-                call.execute().use { response ->
-                    if (!response.isSuccessful) {
-                        val body = response.body?.string()
-                        // Alcuni modelli — quasi tutti quelli gratuiti più
-                        // piccoli — non sanno usare strumenti. Rispondere
-                        // «errore» sarebbe assurdo: sanno comunque parlare.
-                        if (tools != null && ApiErrors.toolsUnsupported(body)) {
-                            send(StreamEvent.ToolsDropped)
-                            call = client.newCall(request(null))
-                            call.execute().use { retry ->
-                                if (!retry.isSuccessful) {
-                                    throw ApiException(
-                                        errorMessage(retry.code, retry.body?.string()),
-                                    )
-                                }
-                                stream(retry, this@callbackFlow)
-                            }
-                            close()
-                            return@launch
+                var attempts = 0
+                var currentTools = tools
+                while (true) {
+                    val retry = call.execute().use { response ->
+                        if (response.isSuccessful) {
+                            stream(response, this@callbackFlow)
+                            return@use false
                         }
-                        throw ApiException(errorMessage(response.code, body))
+                        val body = response.body?.string()
+                        when {
+                            // «Riprova fra poco» lo dice il provider: non è un
+                            // guasto da mostrare, è una coda da aspettare.
+                            ApiErrors.transient(response.code, body) && attempts < MAX_RETRIES -> {
+                                attempts++
+                                true
+                            }
+                            // Quasi tutti i modelli gratuiti più piccoli non
+                            // sanno usare strumenti. Rispondere «errore»
+                            // sarebbe assurdo: parlare lo sanno comunque.
+                            currentTools != null && ApiErrors.toolsUnsupported(body) -> {
+                                send(StreamEvent.ToolsDropped)
+                                currentTools = null
+                                true
+                            }
+                            ApiErrors.transient(response.code, body) ->
+                                throw ApiException(ApiErrors.exhausted(response.code), response.code)
+                            else ->
+                                throw ApiException(errorMessage(response.code, body), response.code)
+                        }
                     }
-                    stream(response, this@callbackFlow)
+                    if (!retry) break
+                    // L'attesa cresce a ogni tentativo, per non insistere
+                    // addosso a un servizio già in affanno.
+                    if (attempts > 0) kotlinx.coroutines.delay(1_200L * attempts * attempts)
+                    call = client.newCall(request(currentTools))
                 }
                 close()
             } catch (e: Throwable) {
@@ -242,9 +254,13 @@ class ChatApi(private val json: Json) {
         )
         // gpt-image-1 e altri rifiutano response_format: al primo rifiuto
         // riproviamo senza, perché quei modelli restituiscono già base64.
-        val images = requestImages(baseUrl, apiKey, base).getOrElse { error ->
-            if (error is ApiException && error.message?.contains("response_format", true) == true) {
-                requestImages(baseUrl, apiKey, base.copy(responseFormat = null)).getOrThrow()
+        val images = try {
+            retrying { requestImages(baseUrl, apiKey, base).getOrThrow() }
+        } catch (error: ApiException) {
+            if (error.message?.contains("response_format", true) == true) {
+                retrying {
+                    requestImages(baseUrl, apiKey, base.copy(responseFormat = null)).getOrThrow()
+                }
             } else {
                 throw error
             }
@@ -297,6 +313,7 @@ class ChatApi(private val json: Json) {
             .url(Pollinations.url(prompt = prompt, size = size, baseUrl = baseUrl))
             .get()
             .build()
+        retrying {
         client.newCall(request).execute().use { response ->
             // 402 qui non vuol dire «paga»: vuol dire «stai andando troppo in fretta».
             if (response.code == 402 || response.code == 429) {
@@ -310,6 +327,7 @@ class ChatApi(private val json: Json) {
                 throw ApiException("Pollinations non ha restituito un'immagine")
             }
             listOf(bytes)
+        }
         }
     }
 
@@ -336,7 +354,7 @@ class ChatApi(private val json: Json) {
         )
         var failure: Exception? = null
         attempts.forEach { (url, body) ->
-            val outcome = runCatching { postForImages(url, apiKey, body) }
+            val outcome = runCatching { retrying { postForImages(url, apiKey, body) } }
             outcome.getOrNull()?.takeIf { it.isNotEmpty() }?.let { return@withContext it }
             outcome.exceptionOrNull()?.let { failure = it as? Exception ?: ApiException(it.message.orEmpty()) }
         }
@@ -357,11 +375,40 @@ class ChatApi(private val json: Json) {
             .build()
         client.newCall(request).execute().use { response ->
             val raw = response.body?.string().orEmpty()
-            if (!response.isSuccessful) throw ApiException(errorMessage(response.code, raw))
+            if (!response.isSuccessful) {
+                throw ApiException(errorMessage(response.code, raw), response.code)
+            }
             val parsed = runCatching { json.parseToJsonElement(raw) }.getOrNull()
                 ?: throw ApiException("Risposta non interpretabile")
             return GoogleImages.extractImages(parsed).mapNotNull { encoded ->
                 runCatching { Base64.decode(encoded, Base64.DEFAULT) }.getOrNull()
+            }
+        }
+    }
+
+
+    /**
+     * Riprova quando il provider dice che è questione di attesa.
+     *
+     * Vale per le immagini quanto per la chat: un 503 «high demand» non è un
+     * errore da mostrare all'utente, è una coda. Dopo i tentativi previsti si
+     * lascia passare l'errore, con un messaggio che dice cosa è successo
+     * invece del JSON del provider.
+     */
+    private suspend fun <T> retrying(block: () -> T): T {
+        var attempt = 0
+        while (true) {
+            try {
+                return block()
+            } catch (error: ApiException) {
+                if (!ApiErrors.transient(error.code, error.message) || attempt >= MAX_RETRIES) {
+                    if (ApiErrors.transient(error.code, error.message)) {
+                        throw ApiException(ApiErrors.exhausted(error.code), error.code)
+                    }
+                    throw error
+                }
+                attempt++
+                kotlinx.coroutines.delay(1_200L * attempt * attempt)
             }
         }
     }
@@ -378,7 +425,9 @@ class ChatApi(private val json: Json) {
             .build()
         client.newCall(request).execute().use { response ->
             val raw = response.body?.string().orEmpty()
-            if (!response.isSuccessful) throw ApiException(errorMessage(response.code, raw))
+            if (!response.isSuccessful) {
+                throw ApiException(errorMessage(response.code, raw), response.code)
+            }
             json.decodeFromString<ImageResponse>(raw).data
         }
     }
@@ -450,6 +499,9 @@ class ChatApi(private val json: Json) {
     )
 
     private companion object {
+        /** Oltre questi non è più una coda: è un servizio che non c'è. */
+        const val MAX_RETRIES = 2
+
         val JSON_MEDIA = "application/json; charset=utf-8".toMediaType()
     }
 }
