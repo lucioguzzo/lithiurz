@@ -32,6 +32,7 @@ import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
 import com.lucio.guzzobot.data.media.DeviceListener
 import com.lucio.guzzobot.data.media.SpeechText
+import com.lucio.guzzobot.data.media.VoiceOption
 import com.lucio.guzzobot.data.media.VoiceSetup
 import com.lucio.guzzobot.data.media.DeviceSpeaker
 import com.lucio.guzzobot.data.model.AppSettings
@@ -1575,8 +1576,23 @@ class ChatViewModel(
         settingsStore.setVoiceShape(rate, pitch)
     }
 
+    /** Quando il motore di sintesi è pronto: prima, l'elenco voci è vuoto. */
+    val speakerReady: StateFlow<Boolean> = deviceSpeaker.readyState
+
     /** Le voci installate sul telefono per la lingua scelta. */
-    fun deviceVoices(): List<String> = deviceSpeaker.voices(settings.value.voiceLanguage)
+    fun deviceVoices(): List<VoiceOption> = deviceSpeaker.voices(settings.value.voiceLanguage)
+
+    /** Fa sentire una voce prima di sceglierla. */
+    fun tryVoice(voiceId: String) {
+        val current = settings.value
+        deviceSpeaker.speak(
+            text = "Ciao, sono GUZZOBOT. Posso leggere le risposte con questa voce.",
+            language = current.voiceLanguage,
+            voice = voiceId,
+            rate = current.voiceRate,
+            pitch = current.voicePitch,
+        )
+    }
 
     fun deviceLanguages(): List<String> = deviceSpeaker.languages()
 

@@ -142,6 +142,13 @@ class DeviceSpeaker(context: Context) {
     val finished: SharedFlow<Unit> = _finished
 
     private var ready = false
+
+    /**
+     * L'inizializzazione del motore è asincrona: chi legge l'elenco delle
+     * voci subito lo trova vuoto. Questo dice quando ha senso rileggerlo.
+     */
+    private val _ready = MutableStateFlow(false)
+    val readyState: StateFlow<Boolean> = _ready
     private val pending = java.util.concurrent.atomic.AtomicInteger(0)
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
@@ -160,6 +167,7 @@ class DeviceSpeaker(context: Context) {
 
     private val engine: TextToSpeech = TextToSpeech(context) { status ->
         ready = status == TextToSpeech.SUCCESS
+        _ready.value = ready
         if (ready) engine.setOnUtteranceProgressListener(listener)
     }
 
@@ -189,16 +197,30 @@ class DeviceSpeaker(context: Context) {
     fun usesGoogleEngine(): Boolean =
         runCatching { engine.defaultEngine == VoiceSetup.GOOGLE_TTS }.getOrDefault(false)
 
-    /** Le voci disponibili per una lingua, come le chiama il motore. */
-    fun voices(language: String?): List<String> = runCatching {
+    /**
+     * Le voci disponibili per una lingua, descritte in modo leggibile.
+     *
+     * Il motore le chiama «it-it-x-kda-local»: un nome così non aiuta a
+     * scegliere. Qui diventano lingua, qualità e se funzionano offline — le
+     * tre cose che contano davvero — con le migliori in cima.
+     */
+    fun voices(language: String?): List<VoiceOption> = runCatching {
         engine.voices.orEmpty()
             .filter { voice ->
                 language.isNullOrBlank() ||
                     voice.locale.language.equals(localeOf(language).language, ignoreCase = true)
             }
-            .filterNot { it.isNetworkConnectionRequired && it.features.contains("notInstalled") }
-            .map { it.name }
-            .sorted()
+            .filterNot { it.features.orEmpty().contains("notInstalled") }
+            .map { voice ->
+                VoiceOption(
+                    id = voice.name,
+                    locale = voice.locale.displayName.replaceFirstChar(Char::uppercase),
+                    quality = voice.quality,
+                    offline = !voice.isNetworkConnectionRequired,
+                )
+            }
+            // Prima le migliori, poi quelle che funzionano senza rete.
+            .sortedWith(compareByDescending<VoiceOption> { it.quality }.thenByDescending { it.offline })
     }.getOrDefault(emptyList())
 
     /** Le lingue che il motore sa pronunciare. */

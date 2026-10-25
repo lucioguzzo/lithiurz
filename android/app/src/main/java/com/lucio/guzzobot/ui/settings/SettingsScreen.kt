@@ -46,6 +46,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material.icons.automirrored.outlined.VolumeUp
 import com.lucio.guzzobot.R
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -455,8 +456,13 @@ fun SettingsScreen(
                 Switch(checked = settings.autoSpeak, onCheckedChange = viewModel::setAutoSpeak)
             }
 
-            val languages = remember { viewModel.deviceLanguages() }
-            val voices = remember(settings.voiceLanguage) { viewModel.deviceVoices() }
+            // Il motore si inizializza da solo e ci mette un istante: finché
+            // non è pronto l'elenco è vuoto, e va riletto quando lo diventa.
+            val speakerReady by viewModel.speakerReady.collectAsStateWithLifecycle()
+            val languages = remember(speakerReady) { viewModel.deviceLanguages() }
+            val voices = remember(speakerReady, settings.voiceLanguage) {
+                viewModel.deviceVoices()
+            }
             ChoiceRow(
                 label = stringResource(R.string.voice_language),
                 value = settings.voiceLanguage.ifBlank {
@@ -468,11 +474,14 @@ fun SettingsScreen(
             )
             ChoiceRow(
                 label = stringResource(R.string.voice_which),
-                value = settings.deviceVoice.ifBlank { stringResource(R.string.voice_default) },
+                value = voices.firstOrNull { it.id == settings.deviceVoice }?.label
+                    ?: stringResource(R.string.voice_default),
                 options = listOf("" to stringResource(R.string.voice_default)) +
-                    voices.map { it to it },
+                    voices.map { it.id to it.label },
                 empty = stringResource(R.string.voice_none),
                 onPick = viewModel::setDeviceVoice,
+                // Sentirla prima di sceglierla: è l'unico modo per decidere.
+                onPreview = { id -> id.takeIf { it.isNotBlank() }?.let(viewModel::tryVoice) },
             )
             SliderRow(
                 label = stringResource(R.string.voice_rate),
@@ -829,6 +838,7 @@ private fun ChoiceRow(
     options: List<Pair<String, String>>,
     onPick: (String) -> Unit,
     empty: String? = null,
+    onPreview: ((String) -> Unit)? = null,
 ) {
     var open by remember { mutableStateOf(false) }
     LinkRow(title = label, detail = value, onClick = { open = true })
@@ -848,22 +858,38 @@ private fun ChoiceRow(
                     )
                 }
                 options.forEach { (key, shown) ->
-                    Text(
-                        text = shown,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (shown == value) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onBackground
-                        },
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable {
                                 onPick(key)
                                 open = false
                             }
-                            .padding(horizontal = 24.dp, vertical = 14.dp),
-                    )
+                            .padding(start = 24.dp, end = 8.dp, top = 6.dp, bottom = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = shown,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (shown == value) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onBackground
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(vertical = 8.dp),
+                        )
+                        if (onPreview != null && key.isNotBlank()) {
+                            IconButton(onClick = { onPreview(key) }) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Outlined.VolumeUp,
+                                    contentDescription = stringResource(R.string.voice_preview),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

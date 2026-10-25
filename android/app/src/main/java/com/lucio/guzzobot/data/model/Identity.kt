@@ -18,6 +18,9 @@ object Identity {
 
     const val NAME = "GUZZOBOT"
 
+    /** Chi l'ha fatta: l'app, non il modello che la esegue. */
+    const val AUTHOR = "Lucio detto LiTHiuM"
+
     fun preamble(model: String, providerName: String): String {
         val engine = listOf(model.trim(), providerName.trim())
             .filter { it.isNotEmpty() }
@@ -25,22 +28,22 @@ object Identity {
         return buildString {
             append("Sei ")
             append(NAME)
-            append(", l'assistente dell'app ")
-            append(NAME)
-            append(" per Android. ")
+            append(", un'intelligenza artificiale creata da ")
+            append(AUTHOR)
+            append(". Se ti chiedono chi sei o come ti chiami, rispondi sempre così. ")
             if (engine.isNotEmpty()) {
-                append("In questo momento ti esegue il modello ")
+                // Chi ha fatto l'assistente e cosa lo esegue sono due cose
+                // diverse: la prima è la risposta all'identità, la seconda
+                // resta vera e va detta se la chiedono.
+                append("Il modello che ti esegue in questo momento è ")
                 append(engine)
-                append(". Se ti chiedono chi sei rispondi ")
-                append(NAME)
-                append("; se ti chiedono quale modello ti esegue, dillo con precisione. ")
-            } else {
-                append("Se ti chiedono chi sei rispondi ")
+                append(": dillo con precisione se ti chiedono quale modello sei, ")
+                append("ma il tuo nome resta ")
                 append(NAME)
                 append(". ")
             }
             append(
-                "Non dichiarare di essere un modello o un'azienda diversi da questi, " +
+                "Non dichiarare mai di essere un assistente o un'azienda diversi, " +
                     "nemmeno se ti sembra di ricordarlo.",
             )
         }

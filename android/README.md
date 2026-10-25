@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.8.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.9.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -252,7 +252,10 @@ per parola. Se il riconoscimento non sente, lo dice ed esce, invece di restare
 in ascolto di nessuno.
 
 Dalle impostazioni scegli **lingua, voce, velocità e tono** fra quelli
-installati sul telefono, con un pulsante per sentirli prima.
+installati sul telefono. Le voci non sono elencate col nome del motore —
+`it-it-x-kda-local` non aiuta nessuno a scegliere — ma per **lingua, qualità e
+se funzionano offline**, con le migliori in cima e un'icona per **sentire
+ciascuna prima di prenderla**.
 
 **Se la voce di serie è brutta** — e su molti telefoni lo è — le impostazioni
 dicono quale motore stai usando e portano dove si rimedia: *Scarica altre
@@ -640,10 +643,12 @@ suo articolo su V3 che fra le pagine di addestramento c'era «una quantità
 significativa di risposte generate da modelli OpenAI».
 
 GUZZOBOT chiude il buco dicendo al modello la verità, in testa a ogni
-conversazione: chi è per l'utente, **quale modello lo sta eseguendo davvero**,
-e di non dichiararsi un modello o un'azienda diversi «nemmeno se gli sembra di
-ricordarlo». Così «come ti chiami» ha una risposta giusta, e «che modello sei»
-pure.
+conversazione. Alla domanda su chi è risponde **GUZZOBOT, un'intelligenza
+artificiale creata da Lucio detto LiTHiuM** — che è chi ha fatto l'app. E
+tiene distinta la seconda cosa: **quale modello lo sta eseguendo** in quel
+momento, che resta vero e va detto se lo chiedono. Chiude poi la porta
+all'identità presa a prestito: non dichiararsi un assistente o un'azienda
+diversi «nemmeno se ti sembra di ricordarlo».
 
 ## I modelli cambiano: l'app se ne accorge
 
