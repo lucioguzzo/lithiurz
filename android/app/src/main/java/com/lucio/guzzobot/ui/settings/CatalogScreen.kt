@@ -138,6 +138,10 @@ fun CatalogScreen(
                                 }
                             }
                         },
+                        onPasteToken = {
+                            editing = entry.id
+                            token = ""
+                        },
                         onAdd = {
                             viewModel.addFromCatalog(entry, token)
                             editing = null
@@ -173,6 +177,7 @@ private fun EntryRow(
     onToken: (String) -> Unit,
     onOpen: (String) -> Unit,
     onStart: () -> Unit,
+    onPasteToken: () -> Unit,
     onAdd: () -> Unit,
     onCancel: () -> Unit,
     onOpenConnectors: () -> Unit,
@@ -239,7 +244,7 @@ private fun EntryRow(
             }
 
             editing -> {
-                if (entry.auth == McpAuth.TOKEN) {
+                if (entry.auth == McpAuth.TOKEN || entry.alsoToken) {
                     OutlinedTextField(
                         value = token,
                         onValueChange = onToken,
@@ -274,6 +279,12 @@ private fun EntryRow(
                             if (locked) R.string.catalog_connect else R.string.catalog_add,
                         ),
                     )
+                }
+                // Via d'uscita quando il giro nel browser non va a buon fine.
+                if (locked && entry.alsoToken) {
+                    TextButton(onClick = onPasteToken) {
+                        Text(stringResource(R.string.catalog_use_token))
+                    }
                 }
                 entry.docsUrl?.let { url ->
                     TextButton(onClick = { onOpen(url) }) {

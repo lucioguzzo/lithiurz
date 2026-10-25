@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.4.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.5.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -510,32 +510,31 @@ all'avvio sarebbe peggio — una chiamata a dieci domini solo per disegnare un
 elenco, e un elenco grigio quando si è offline. La tinta si ricava dal nome,
 quindi resta la stessa a ogni avvio.
 
-**Pronti subito**
+**Pronti subito** — un token da incollare, o niente
 
-| Connettore | Cosa dà | Serve |
+| Connettore | Cosa dà | Serve | Verificato su |
+|---|---|---|---|
+| **Zapier** | Gmail, Calendar, Slack, Fogli, Drive e migliaia di app | un token | [docs.zapier.com](https://docs.zapier.com/mcp/overview) |
+| **GitHub** | Repository, issue, PR, ricerca nel codice | un token (quello dell'area di lavoro viene riusato) | [github-mcp-server](https://github.com/github/github-mcp-server) |
+| **DeepWiki** | La documentazione di qualunque repository pubblico | **niente** | [docs.devin.ai](https://docs.devin.ai/work-with-devin/deepwiki-mcp) |
+| **Hugging Face** | Modelli, dataset, spazi | un token | [huggingface.co/blog](https://huggingface.co/blog/building-hf-mcp) |
+| **Apify** | Estrazione dati dal web | un token | [docs.apify.com](https://docs.apify.com/platform/integrations/mcp) |
+| **Tally** | Moduli e risposte (server in beta) | un token | [developers.tally.so](https://developers.tally.so/api-reference/mcp) |
+
+**Con accesso nel browser**
+
+| Connettore | Autenticazione | Verificato su |
 |---|---|---|
-| **Zapier** | Gmail, Calendar, Slack, Fogli, Drive e migliaia di app | un token |
-| **GitHub** | Repository, issue, pull request, ricerca nel codice | un token (quello dell'area di lavoro viene riusato) |
-| **DeepWiki** | La documentazione di qualunque repository pubblico | niente |
-| **Hugging Face** | Modelli, dataset, spazi | un token |
-| **Apify** | Estrazione dati dal web | un token |
-| **Tally** | Moduli e risposte | un token |
+| **Notion** | Solo OAuth | [developers.notion.com](https://developers.notion.com/guides/mcp/get-started-with-mcp) |
+| **Linear** | OAuth 2.1 con registrazione dinamica, **oppure** un token | [linear.app/docs](https://linear.app/docs/mcp) |
+| **Stripe** | OAuth, **oppure** una chiave «agent» | [docs.stripe.com](https://docs.stripe.com/mcp) |
+| **Sentry** | Solo OAuth | [mcp.sentry.dev](https://mcp.sentry.dev/) |
 
-**Con accesso nel browser**: Notion, Linear, Stripe, Sentry. Si tocca
-*Collega* e l'app fa da sé tutto il giro previsto dalla specifica MCP: chiede
-al connettore chi lo autorizza, legge i metadati del servizio di
-autorizzazione, **si registra come client** (RFC 7591), genera il segreto PKCE
-e apre la pagina di accesso. Tornando, il codice viene scambiato con un token
-che resta cifrato nel Keystore e **si rinnova da solo** quando scade; se il
-rinnovo non basta, il connettore chiede di rifare l'accesso invece di fallire
-in silenzio.
-
-Tre cose che l'app controlla e che vale dire: lo **stato** al ritorno dal
-browser (una risposta che non è nostra viene scartata), che il servizio
-supporti **PKCE con S256** (altrimenti si ferma e lo dice), e che permetta la
-registrazione automatica dei client — senza quella un'app come questa non
-potrebbe collegarsi, e preferiamo dirlo che lasciarti girare a vuoto. La tua
-password non passa mai da GUZZOBOT.
+Dove il fornitore accetta entrambe le strade, l'app offre anche *Usa un token*.
+Non è un ripensamento: il giro di OAuth passa per la registrazione dinamica
+del client e per il ritorno dal browser, e se lì qualcosa si inceppa un token
+resta una strada che funziona. Un test blocca i dieci indirizzi verificati,
+così se una riga cambia è una scelta e non una svista.
 
 **Zapier è la via d'uscita da quel lucchetto**, e per questo sta in cima: un
 token solo e dentro ci sono Gmail, Calendar, Slack, Fogli e migliaia di altre

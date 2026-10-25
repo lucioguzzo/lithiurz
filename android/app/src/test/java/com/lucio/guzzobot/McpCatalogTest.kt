@@ -76,4 +76,38 @@ class McpCatalogTest {
         val grouped = McpCatalog.byCategory().values.flatten()
         assertEquals(McpCatalog.entries.size, grouped.size)
     }
+
+    @Test
+    fun `chi offre anche il token dice dove prenderlo`() {
+        // La via d'uscita serve se il giro nel browser si inceppa: senza
+        // l'indirizzo per la chiave non sarebbe una via d'uscita.
+        McpCatalog.withTokenEscape().forEach { entry ->
+            assertEquals(entry.name, McpAuth.OAUTH, entry.auth)
+            assertNotNull(entry.name, entry.tokenUrl)
+            assertTrue(entry.name, entry.tokenUrl!!.startsWith("https://"))
+        }
+    }
+
+    @Test
+    fun `gli indirizzi verificati non cambiano per sbaglio`() {
+        // Ciascuno controllato sulla documentazione del fornitore: se una
+        // riga cambia, deve essere una scelta, non una svista.
+        val expected = mapOf(
+            "zapier" to "https://mcp.zapier.com/api/v1/connect",
+            "github" to "https://api.githubcopilot.com/mcp/",
+            "deepwiki" to "https://mcp.deepwiki.com/mcp",
+            "huggingface" to "https://huggingface.co/mcp",
+            "apify" to "https://mcp.apify.com",
+            "tally" to "https://api.tally.so/mcp",
+            "notion" to "https://mcp.notion.com/mcp",
+            "linear" to "https://mcp.linear.app/mcp",
+            "stripe" to "https://mcp.stripe.com",
+            "sentry" to "https://mcp.sentry.dev/mcp",
+        )
+        expected.forEach { (id, url) ->
+            assertEquals(id, url, McpCatalog.entries.first { it.id == id }.url)
+        }
+        assertEquals(expected.size, McpCatalog.entries.size)
+    }
 }
+

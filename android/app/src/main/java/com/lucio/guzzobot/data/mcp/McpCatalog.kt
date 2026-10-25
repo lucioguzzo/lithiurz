@@ -33,6 +33,15 @@ data class McpEntry(
     /** La documentazione del fornitore, per chi vuole leggere prima. */
     val docsUrl: String? = null,
     val authHeader: String = "Authorization",
+    /**
+     * Vero se il servizio, oltre all'accesso nel browser, accetta anche un
+     * token incollato a mano.
+     *
+     * Vale come via d'uscita: il giro di OAuth passa per la registrazione
+     * dinamica del client e per il ritorno dal browser, e se qualcosa lì si
+     * inceppa un token resta una strada che funziona.
+     */
+    val alsoToken: Boolean = false,
 )
 
 /**
@@ -106,7 +115,7 @@ object McpCatalog {
         McpEntry(
             id = "tally",
             name = "Tally",
-            summary = "Moduli e risposte raccolte",
+            summary = "Moduli e risposte raccolte (server in beta)",
             url = "https://api.tally.so/mcp",
             auth = McpAuth.TOKEN,
             category = McpCategory.PRODUTTIVITA,
@@ -129,7 +138,9 @@ object McpCatalog {
             url = "https://mcp.linear.app/mcp",
             auth = McpAuth.OAUTH,
             category = McpCategory.SVILUPPO,
+            tokenUrl = "https://linear.app/settings/account/security",
             docsUrl = "https://linear.app/docs/mcp",
+            alsoToken = true,
         ),
         McpEntry(
             id = "stripe",
@@ -138,7 +149,11 @@ object McpCatalog {
             url = "https://mcp.stripe.com",
             auth = McpAuth.OAUTH,
             category = McpCategory.AFFARI,
+            // Le chiavi «agent», non le vecchie chiavi segrete: dal dicembre
+            // 2026 Stripe accetta solo quelle.
+            tokenUrl = "https://dashboard.stripe.com/apikeys",
             docsUrl = "https://docs.stripe.com/mcp",
+            alsoToken = true,
         ),
         McpEntry(
             id = "sentry",
@@ -153,6 +168,9 @@ object McpCatalog {
 
     /** Quelli che si possono attivare adesso. */
     fun ready(): List<McpEntry> = entries.filter { it.auth != McpAuth.OAUTH }
+
+    /** Quelli che, pur usando OAuth, accettano anche un token incollato. */
+    fun withTokenEscape(): List<McpEntry> = entries.filter { it.alsoToken }
 
     /** Quelli che aspettano l'autorizzazione OAuth. */
     fun pending(): List<McpEntry> = entries.filter { it.auth == McpAuth.OAUTH }

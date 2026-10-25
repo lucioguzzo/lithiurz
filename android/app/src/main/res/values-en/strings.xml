@@ -282,4 +282,5 @@
     <string name="image_fallback">Free fallback</string>
     <string name="image_fallback_detail">If the chosen model is overloaded or out of quota, create the image with Pollinations. No key needed, but the result carries the service\'s logo and sits at a public address. Does not apply to edits.</string>
     <string name="free_note_images_paid">Image generation is not in the free tier: billing must be enabled</string>
+    <string name="catalog_use_token">Use a token</string>
 </resources>
