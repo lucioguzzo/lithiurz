@@ -3,6 +3,7 @@ package com.lucio.guzzobot.data.agent
 import com.lucio.guzzobot.data.local.ArtifactDao
 import com.lucio.guzzobot.data.local.ArtifactEntity
 import com.lucio.guzzobot.data.local.MessageEntity
+import com.lucio.guzzobot.data.model.Identity
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.Provider
 import com.lucio.guzzobot.data.model.Roles
@@ -263,7 +264,12 @@ class AgentEngine(
             github = github,
             autonomous = settings.autonomousTools,
             limits = run.limits,
-            base = settings.systemPrompt,
+            // Anche qui l'identità va detta: un agente che si presenta col
+            // nome di un altro assistente è peggio di una chat che lo fa.
+            base = Identity.preamble(
+                settings.activeModel,
+                settings.activeProvider?.name.orEmpty(),
+            ) + "\n\n" + settings.systemPrompt,
         )
         return listOf(ApiMessage(Roles.SYSTEM, Content.text(system))) +
             mapped.dropWhile { it.role == Roles.TOOL }

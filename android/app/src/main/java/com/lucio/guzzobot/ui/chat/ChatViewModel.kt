@@ -53,6 +53,7 @@ import com.lucio.guzzobot.data.remote.GoogleImages
 import com.lucio.guzzobot.data.agent.ImageMaker
 import com.lucio.guzzobot.data.agent.ImageTools
 import com.lucio.guzzobot.data.model.ImageApi
+import com.lucio.guzzobot.data.model.Identity
 import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.ProviderCatalog
@@ -1299,6 +1300,15 @@ class ChatViewModel(
             conversations.value.firstOrNull { it.id == conversationId }?.skillId,
         )
         val system = buildString {
+            // Chi è, prima di come deve comportarsi: senza, alla domanda
+            // «come ti chiami» il modello risponde con quello che ha letto.
+            append(
+                Identity.preamble(
+                    model = current.activeModel,
+                    providerName = current.activeProvider?.name.orEmpty(),
+                ),
+            )
+            append("\n\n")
             append(SkillComposer.compose(current.systemPrompt, skill))
             // L'elenco delle competenze non va più nel prompt: quando gli
             // strumenti sono attivi il modello se le carica da sé, e ripeterlo

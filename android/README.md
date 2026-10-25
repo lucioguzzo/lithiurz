@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.7.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.8.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -627,6 +627,23 @@ GUZZOBOT conserva l'intero oggetto `extra_content` che accompagna la chiamata,
 lo salva insieme al messaggio e lo rimanda tale e quale. Tenere l'oggetto
 intero invece del singolo campo è deliberato: così torna indietro qualunque
 cosa il provider ci infili, senza rincorrere il nome esatto a ogni versione.
+
+### Chi dice di essere
+
+Un modello non «sa» di essere se stesso: la sua idea di identità viene dal
+testo su cui è stato addestrato, e oggi i dati di chiunque contengono le
+risposte di chiunque altro — comprese quelle in cui un altro assistente si
+presenta per nome. Senza istruzioni, alla domanda «come ti chiami» un modello
+risponde con quello che ha letto più spesso, che può essere il nome di un
+concorrente. Succede in tutte le direzioni, e DeepSeek stesso ha scritto nel
+suo articolo su V3 che fra le pagine di addestramento c'era «una quantità
+significativa di risposte generate da modelli OpenAI».
+
+GUZZOBOT chiude il buco dicendo al modello la verità, in testa a ogni
+conversazione: chi è per l'utente, **quale modello lo sta eseguendo davvero**,
+e di non dichiararsi un modello o un'azienda diversi «nemmeno se gli sembra di
+ricordarlo». Così «come ti chiami» ha una risposta giusta, e «che modello sei»
+pure.
 
 ## I modelli cambiano: l'app se ne accorge
 
