@@ -30,6 +30,8 @@ import com.lucio.guzzobot.data.local.ScheduledTaskEntity
 import com.lucio.guzzobot.data.local.TaskDao
 import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
+import com.lucio.guzzobot.data.media.DeviceListener
+import com.lucio.guzzobot.data.media.SpeechText
 import com.lucio.guzzobot.data.media.DeviceSpeaker
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.Attachment
@@ -161,6 +163,7 @@ class ChatViewModel(
     private val recorder: AudioRecorder,
     val audioPlayer: AudioPlayer,
     private val deviceSpeaker: DeviceSpeaker,
+    private val deviceListener: DeviceListener,
     private val context: Context,
     private val json: Json,
     private val agentEngine: AgentEngine,
@@ -171,6 +174,11 @@ class ChatViewModel(
     private val mcpClient: McpClient,
     private val mcpOAuth: McpOAuth,
 ) : ViewModel() {
+
+    init {
+        // Gli ascoltatori della conversazione parlata vivono quanto il ViewModel.
+        observeVoice()
+    }
 
     val settings: StateFlow<AppSettings> =
         settingsStore.settings.stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
@@ -806,6 +814,7 @@ class ChatViewModel(
                                     content.append(event.text)
                                     val snapshot = content.toString()
                                     _streaming.update { it?.copy(content = snapshot) }
+                                    speakAsItArrives(event.text)
                                 }
                                 is StreamEvent.Reasoning -> {
                                     reasoning.append(event.text)
@@ -836,6 +845,8 @@ class ChatViewModel(
 
                     if (requested.isEmpty()) {
                         persist(conversationId, content.toString(), reasoning.toString(), model)
+                        // L'ultimo pezzo di frase, quello senza punto finale.
+                        speakAsItArrives("", flush = true)
                         break
                     }
                     if (round > MAX_TOOL_ROUNDS) {
@@ -1437,6 +1448,137 @@ class ChatViewModel(
                 _busy.value = null
             }
         }
+    }
+
+    // --- conversazione parlata ---------------------------------------------
+
+    /** Quello che è arrivato ma non è ancora una frase finita. */
+    private val speechBuffer = StringBuilder()
+
+    /** Vero mentre si sta parlando a voce, non scrivendo. */
+    private val _voiceMode = MutableStateFlow(false)
+    val voiceMode: StateFlow<Boolean> = _voiceMode
+
+    val listening: StateFlow<Boolean> = deviceListener.listening
+    val heardSoFar: StateFlow<String> = deviceListener.partial
+
+    /**
+     * Legge la risposta mentre arriva, una frase alla volta.
+     *
+     * Aspettare la fine renderebbe la conversazione a scatti: si parla solo
+     * quando una frase è davvero conclusa, perché una troncata a metà suona
+     * sbagliata.
+     */
+    private fun speakAsItArrives(chunk: String, flush: Boolean = false) {
+        val current = settings.value
+        if (!current.autoSpeak && !_voiceMode.value) return
+        if (!deviceSpeaker.isAvailable) return
+        speechBuffer.append(chunk)
+        val (ready, rest) = SpeechText.take(SpeechText.clean(speechBuffer.toString()), flush)
+        if (ready.isEmpty()) return
+        speechBuffer.setLength(0)
+        speechBuffer.append(rest)
+        ready.forEach { sentence ->
+            deviceSpeaker.speak(
+                text = sentence,
+                language = current.voiceLanguage,
+                voice = current.deviceVoice,
+                rate = current.voiceRate,
+                pitch = current.voicePitch,
+                queue = true,
+            )
+        }
+    }
+
+    /**
+     * Entra o esce dalla conversazione parlata.
+     *
+     * Dentro, il giro è: ascolta, manda, legge la risposta, torna ad
+     * ascoltare. Si esce toccando, e si esce anche da soli se il
+     * riconoscimento non capisce due volte di fila — meglio fermarsi che
+     * restare in ascolto di nessuno.
+     */
+    fun toggleVoiceMode() {
+        if (_voiceMode.value) {
+            _voiceMode.value = false
+            deviceListener.stop()
+            deviceSpeaker.stop()
+            speechBuffer.setLength(0)
+            return
+        }
+        if (!deviceListener.isAvailable) {
+            notice("Questo telefono non ha il riconoscimento vocale")
+            return
+        }
+        if (!deviceSpeaker.isAvailable) {
+            notice("Il motore di sintesi vocale non è pronto")
+            return
+        }
+        _voiceMode.value = true
+        listen()
+    }
+
+    /** Si mette in ascolto, se la conversazione parlata è attiva. */
+    fun listen() {
+        if (!_voiceMode.value) return
+        deviceSpeaker.stop()
+        deviceListener.start(settings.value.voiceLanguage)
+    }
+
+    private fun observeVoice() {
+        viewModelScope.launch {
+            deviceListener.heard.collect { text ->
+                if (!_voiceMode.value) return@collect
+                speechBuffer.setLength(0)
+                setInput(text)
+                send()
+            }
+        }
+        viewModelScope.launch {
+            deviceListener.failed.collect { reason ->
+                if (!_voiceMode.value) return@collect
+                notice(reason)
+                _voiceMode.value = false
+            }
+        }
+        viewModelScope.launch {
+            // Finito di parlare, tocca di nuovo all'utente.
+            deviceSpeaker.finished.collect {
+                if (_voiceMode.value && _streaming.value == null) listen()
+            }
+        }
+    }
+
+    fun setAutoSpeak(value: Boolean) = viewModelScope.launch {
+        settingsStore.setAutoSpeak(value)
+        if (!value) deviceSpeaker.stop()
+    }
+
+    fun setVoiceLanguage(value: String) = viewModelScope.launch {
+        settingsStore.setVoiceLanguage(value)
+    }
+
+    fun setDeviceVoice(value: String) = viewModelScope.launch { settingsStore.setDeviceVoice(value) }
+
+    fun setVoiceShape(rate: Float, pitch: Float) = viewModelScope.launch {
+        settingsStore.setVoiceShape(rate, pitch)
+    }
+
+    /** Le voci installate sul telefono per la lingua scelta. */
+    fun deviceVoices(): List<String> = deviceSpeaker.voices(settings.value.voiceLanguage)
+
+    fun deviceLanguages(): List<String> = deviceSpeaker.languages()
+
+    /** Una frase di prova, per sentire com'è prima di tenersela. */
+    fun previewVoice() {
+        val current = settings.value
+        deviceSpeaker.speak(
+            text = "Ciao, sono GUZZOBOT. Posso leggere le risposte con questa voce.",
+            language = current.voiceLanguage,
+            voice = current.deviceVoice,
+            rate = current.voiceRate,
+            pitch = current.voicePitch,
+        )
     }
 
     /** Legge una risposta ad alta voce: col modello di voce se c'è, altrimenti col telefono. */
@@ -2070,6 +2212,7 @@ class ChatViewModel(
                     recorder = container.audioRecorder,
                     audioPlayer = container.audioPlayer,
                     deviceSpeaker = container.deviceSpeaker,
+                    deviceListener = container.deviceListener,
                     context = container.appContext,
                     json = container.json,
                     agentEngine = container.agentEngine,

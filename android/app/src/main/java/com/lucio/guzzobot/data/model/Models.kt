@@ -359,6 +359,14 @@ data class AppSettings(
      * diverse, e non è una cosa da far succedere alle spalle di chi usa l'app.
      */
     val imageFallback: Boolean = false,
+    /** Legge le risposte ad alta voce appena arrivano, senza chiederlo. */
+    val autoSpeak: Boolean = false,
+    /** Lingua della voce e dell'ascolto; vuoto significa quella del telefono. */
+    val voiceLanguage: String = "",
+    /** La voce del motore di sintesi, fra quelle installate. */
+    val deviceVoice: String = "",
+    val voiceRate: Float = 1f,
+    val voicePitch: Float = 1f,
     /** Il primo avvio è stato completato (o saltato). */
     val onboardingDone: Boolean = false,
     /** L'avviso sui modelli gratuiti è stato letto. */

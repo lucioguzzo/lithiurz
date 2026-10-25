@@ -57,6 +57,11 @@ class SettingsStore(context: Context, private val json: Json) {
         val mcpServers = stringPreferencesKey("mcp_servers")
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val imageFallback = booleanPreferencesKey("image_fallback")
+        val autoSpeak = booleanPreferencesKey("auto_speak")
+        val voiceLanguage = stringPreferencesKey("voice_language")
+        val deviceVoice = stringPreferencesKey("device_voice")
+        val voiceRate = floatPreferencesKey("voice_rate")
+        val voicePitch = floatPreferencesKey("voice_pitch")
         val freeDisclaimer = booleanPreferencesKey("free_disclaimer")
         val removedProviders = stringSetPreferencesKey("removed_providers")
         val skills = stringPreferencesKey("skills")
@@ -119,6 +124,11 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
             imageFallback = prefs[Keys.imageFallback] ?: false,
+            autoSpeak = prefs[Keys.autoSpeak] ?: false,
+            voiceLanguage = prefs[Keys.voiceLanguage].orEmpty(),
+            deviceVoice = prefs[Keys.deviceVoice].orEmpty(),
+            voiceRate = prefs[Keys.voiceRate] ?: 1f,
+            voicePitch = prefs[Keys.voicePitch] ?: 1f,
             onboardingDone = prefs[Keys.onboardingDone] ?: false,
             skills = SkillCatalog.merge(
                 stored = prefs[Keys.skills]?.let { raw ->
@@ -216,6 +226,17 @@ class SettingsStore(context: Context, private val json: Json) {
     suspend fun completeOnboarding() = store.edit { it[Keys.onboardingDone] = true }
 
     suspend fun setImageFallback(value: Boolean) = store.edit { it[Keys.imageFallback] = value }
+
+    suspend fun setAutoSpeak(value: Boolean) = store.edit { it[Keys.autoSpeak] = value }
+
+    suspend fun setVoiceLanguage(value: String) = store.edit { it[Keys.voiceLanguage] = value }
+
+    suspend fun setDeviceVoice(value: String) = store.edit { it[Keys.deviceVoice] = value }
+
+    suspend fun setVoiceShape(rate: Float, pitch: Float) = store.edit {
+        it[Keys.voiceRate] = rate.coerceIn(0.5f, 2f)
+        it[Keys.voicePitch] = pitch.coerceIn(0.5f, 2f)
+    }
 
     suspend fun saveSkills(skills: List<Skill>) = store.edit {
         it[Keys.skills] = json.encodeToString(skills)

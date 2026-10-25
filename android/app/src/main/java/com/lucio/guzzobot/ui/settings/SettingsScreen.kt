@@ -29,6 +29,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Slider
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -423,6 +424,71 @@ fun SettingsScreen(
             }
 
             Divider()
+            SectionTitle(stringResource(R.string.voice))
+            Text(
+                text = stringResource(R.string.voice_conversation_detail),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 12.dp, top = 10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.voice_auto),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                    Text(
+                        text = stringResource(R.string.voice_auto_detail),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(checked = settings.autoSpeak, onCheckedChange = viewModel::setAutoSpeak)
+            }
+
+            val languages = remember { viewModel.deviceLanguages() }
+            val voices = remember(settings.voiceLanguage) { viewModel.deviceVoices() }
+            ChoiceRow(
+                label = stringResource(R.string.voice_language),
+                value = settings.voiceLanguage.ifBlank {
+                    stringResource(R.string.voice_language_system)
+                },
+                options = listOf("" to stringResource(R.string.voice_language_system)) +
+                    languages.map { it to it },
+                onPick = viewModel::setVoiceLanguage,
+            )
+            ChoiceRow(
+                label = stringResource(R.string.voice_which),
+                value = settings.deviceVoice.ifBlank { stringResource(R.string.voice_default) },
+                options = listOf("" to stringResource(R.string.voice_default)) +
+                    voices.map { it to it },
+                empty = stringResource(R.string.voice_none),
+                onPick = viewModel::setDeviceVoice,
+            )
+            SliderRow(
+                label = stringResource(R.string.voice_rate),
+                value = settings.voiceRate,
+                onChange = { viewModel.setVoiceShape(it, settings.voicePitch) },
+            )
+            SliderRow(
+                label = stringResource(R.string.voice_pitch),
+                value = settings.voicePitch,
+                onChange = { viewModel.setVoiceShape(settings.voiceRate, it) },
+            )
+            TextButton(
+                onClick = viewModel::previewVoice,
+                modifier = Modifier.padding(start = 8.dp),
+            ) {
+                Text(stringResource(R.string.voice_preview))
+            }
+
+            Divider()
             SectionTitle(stringResource(R.string.theme))
             SingleChoiceSegmentedButtonRow(
                 modifier = Modifier
@@ -715,4 +781,72 @@ private fun ModelPickerDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
     )
+}
+
+/** Una scelta fra tante, in un foglio: le voci di un motore possono essere molte. */
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ChoiceRow(
+    label: String,
+    value: String,
+    options: List<Pair<String, String>>,
+    onPick: (String) -> Unit,
+    empty: String? = null,
+) {
+    var open by remember { mutableStateOf(false) }
+    LinkRow(title = label, detail = value, onClick = { open = true })
+    if (open) {
+        ModalBottomSheet(onDismissRequest = { open = false }) {
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 32.dp),
+            ) {
+                if (options.size <= 1 && empty != null) {
+                    Text(
+                        text = empty,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(24.dp),
+                    )
+                }
+                options.forEach { (key, shown) ->
+                    Text(
+                        text = shown,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (shown == value) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onBackground
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onPick(key)
+                                open = false
+                            }
+                            .padding(horizontal = 24.dp, vertical = 14.dp),
+                    )
+                }
+            }
+        }
+    }
+}
+
+/** Velocità e tono: da metà al doppio, come accetta il motore. */
+@Composable
+private fun SliderRow(label: String, value: Float, onChange: (Float) -> Unit) {
+    Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 8.dp)) {
+        Text(
+            text = label + "  " + "%.1f".format(value) + "×",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Slider(
+            value = value,
+            onValueChange = onChange,
+            valueRange = 0.5f..2f,
+            steps = 14,
+        )
+    }
 }

@@ -94,6 +94,9 @@ fun ChatScreen(
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
     val activeSkill by viewModel.activeSkill.collectAsStateWithLifecycle()
+    val voiceMode by viewModel.voiceMode.collectAsStateWithLifecycle()
+    val listening by viewModel.listening.collectAsStateWithLifecycle()
+    val heardSoFar by viewModel.heardSoFar.collectAsStateWithLifecycle()
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val streaming by viewModel.streaming.collectAsStateWithLifecycle()
     val input by viewModel.input.collectAsStateWithLifecycle()
@@ -353,6 +356,21 @@ fun ChatScreen(
                     onRemoveAttachment = viewModel::removeAttachment,
                     onAttach = { showAttachSheet = true },
                     onRecord = ::record,
+                    onVoiceMode = {
+                        // Serve il microfono anche per il riconoscimento vocale.
+                        val granted = ContextCompat.checkSelfPermission(
+                            context,
+                            Manifest.permission.RECORD_AUDIO,
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (granted) {
+                            viewModel.toggleVoiceMode()
+                        } else {
+                            micPermission.launch(Manifest.permission.RECORD_AUDIO)
+                        }
+                    },
+                    voiceMode = voiceMode,
+                    listening = listening,
+                    heard = heardSoFar,
                     recording = recording,
                     onStopRecording = viewModel::stopRecording,
                     onCancelRecording = viewModel::cancelRecording,

@@ -283,4 +283,21 @@
     <string name="image_fallback_detail">If the chosen model is overloaded or out of quota, create the image with Pollinations. No key needed, but the result carries the service\'s logo and sits at a public address. Does not apply to edits.</string>
     <string name="free_note_images_paid">Image generation is not in the free tier: billing must be enabled</string>
     <string name="catalog_use_token">Use a token</string>
+    <string name="voice_mode_stop">Leave the spoken conversation</string>
+    <string name="voice_mode_hint">Hold the microphone to talk</string>
+    <string name="voice_listening">Listening…</string>
+    <string name="voice_speaking">Reading…</string>
+    <string name="voice">Voice</string>
+    <string name="voice_auto">Read answers aloud automatically</string>
+    <string name="voice_auto_detail">As soon as the answer arrives it is read with the phone\'s voice — one sentence at a time, while it is still being written. Costs nothing and works offline.</string>
+    <string name="voice_language">Language for speaking and listening</string>
+    <string name="voice_language_system">The phone\'s own</string>
+    <string name="voice_which">Voice</string>
+    <string name="voice_default">The engine\'s default</string>
+    <string name="voice_rate">Speed</string>
+    <string name="voice_pitch">Pitch</string>
+    <string name="voice_preview">Try the voice</string>
+    <string name="voice_none">No voice installed on this phone for this language</string>
+    <string name="voice_conversation">Spoken conversation</string>
+    <string name="voice_conversation_detail">Hold the microphone in a chat: you talk, GUZZOBOT answers aloud and goes back to listening. Uses Android\'s speech recognition, free and often offline.</string>
 </resources>

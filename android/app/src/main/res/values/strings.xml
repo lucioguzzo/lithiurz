@@ -285,4 +285,21 @@
     <string name="image_fallback_detail">Se il modello scelto è sovraccarico o ha esaurito la quota, crea l\'immagine con Pollinations. Non serve nessuna chiave, ma il risultato porta il logo del servizio e sta a un indirizzo pubblico. Non vale per le modifiche.</string>
     <string name="free_note_images_paid">Generare immagini non è nel piano gratuito: serve la fatturazione attiva</string>
     <string name="catalog_use_token">Usa un token</string>
+    <string name="voice_mode_stop">Esci dalla conversazione parlata</string>
+    <string name="voice_mode_hint">Tieni premuto il microfono per parlare a voce</string>
+    <string name="voice_listening">Ti ascolto…</string>
+    <string name="voice_speaking">Sto leggendo…</string>
+    <string name="voice">Voce</string>
+    <string name="voice_auto">Leggi le risposte da sola</string>
+    <string name="voice_auto_detail">Appena la risposta arriva, viene letta con la voce del telefono — una frase alla volta, mentre si scrive. Non costa niente e funziona offline.</string>
+    <string name="voice_language">Lingua della voce e dell\'ascolto</string>
+    <string name="voice_language_system">Quella del telefono</string>
+    <string name="voice_which">Voce</string>
+    <string name="voice_default">Predefinita del motore</string>
+    <string name="voice_rate">Velocità</string>
+    <string name="voice_pitch">Tono</string>
+    <string name="voice_preview">Prova la voce</string>
+    <string name="voice_none">Nessuna voce installata su questo telefono per questa lingua</string>
+    <string name="voice_conversation">Conversazione parlata</string>
+    <string name="voice_conversation_detail">Tieni premuto il microfono in chat: parli, GUZZOBOT risponde a voce e torna ad ascoltare. Usa il riconoscimento vocale di Android, gratuito e spesso senza rete.</string>
 </resources>

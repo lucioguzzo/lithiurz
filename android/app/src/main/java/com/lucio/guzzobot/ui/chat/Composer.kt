@@ -2,6 +2,9 @@ package com.lucio.guzzobot.ui.chat
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.outlined.RecordVoiceOver
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -52,6 +55,10 @@ fun Composer(
     onRemoveAttachment: (Attachment) -> Unit,
     onAttach: () -> Unit,
     onRecord: () -> Unit,
+    onVoiceMode: () -> Unit,
+    voiceMode: Boolean,
+    listening: Boolean,
+    heard: String,
     recording: Boolean,
     onStopRecording: () -> Unit,
     onCancelRecording: () -> Unit,
@@ -240,18 +247,38 @@ fun Composer(
                     )
                     if (value.isEmpty()) {
                         Text(
-                            text = stringResource(R.string.composer_hint),
+                            text = if (voiceMode && listening) {
+                                heard.ifBlank { stringResource(R.string.voice_listening) }
+                            } else if (voiceMode) {
+                                stringResource(R.string.voice_speaking)
+                            } else {
+                                stringResource(R.string.composer_hint)
+                            },
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (voiceMode) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                             modifier = Modifier.padding(vertical = 9.dp),
                         )
                     }
                 }
                 if (!streaming && value.isBlank() && pending.isEmpty()) {
+                    // Tocco breve: detta un messaggio. Pressione lunga: entra
+                    // nella conversazione parlata e ci resta.
                     RoundAction(
-                        icon = Icons.Outlined.Mic,
-                        label = stringResource(R.string.record_audio),
-                        onClick = onRecord,
+                        icon = if (voiceMode) {
+                            Icons.Outlined.RecordVoiceOver
+                        } else {
+                            Icons.Outlined.Mic
+                        },
+                        label = stringResource(
+                            if (voiceMode) R.string.voice_mode_stop else R.string.record_audio,
+                        ),
+                        onClick = if (voiceMode) onVoiceMode else onRecord,
+                        onLongClick = onVoiceMode,
+                        accent = voiceMode,
                     )
                 } else {
                     SendButton(
@@ -264,23 +291,36 @@ fun Composer(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun RoundAction(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
+    accent: Boolean = false,
 ) {
     Box(
         modifier = Modifier
             .size(38.dp)
             .clip(CircleShape)
-            .clickable(onClick = onClick),
+            .then(
+                if (onLongClick == null) {
+                    Modifier.clickable(onClick = onClick)
+                } else {
+                    Modifier.combinedClickable(onClick = onClick, onLongClick = onLongClick)
+                },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = if (accent) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
             modifier = Modifier.size(22.dp),
         )
     }

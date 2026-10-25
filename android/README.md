@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.5.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.6.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -226,6 +226,35 @@ Il limite non è dell'app ma di Android: un servizio di tipo `dataSync` ha **sei
 ore ogni ventiquattro**, poi il sistema chiama `onTimeout()` e va fermato.
 Un agente che lavora col telefono spento non è possibile da un'app Android:
 servirebbe un server.
+
+## Parlare, invece di scrivere
+
+GUZZOBOT usa il **motore di sintesi di Android** e il suo riconoscimento
+vocale: non costano niente, non consumano crediti e su molti telefoni
+funzionano anche senza rete. Per una conversazione parlata è la scelta giusta,
+non il ripiego.
+
+**Lettura automatica** (*Impostazioni › Voce*): la risposta viene letta
+**mentre arriva**, una frase alla volta, invece che alla fine. Aspettare la
+fine renderebbe tutto a scatti; leggere una frase troncata a metà suonerebbe
+sbagliato — quindi si legge solo ciò che è concluso, e l'ultimo pezzo alla
+chiusura.
+
+Quello che si legge non è il markdown grezzo: i blocchi di codice vengono
+**annunciati e non sillabati** («blocco di codice»), di un link si legge il
+testo e non l'indirizzo, titoli, asterischi ed elenchi spariscono, le tabelle
+si annunciano. E «3.5» resta un numero, non due frasi.
+
+**Conversazione parlata**: tieni premuto il microfono in chat. Parli, GUZZOBOT
+risponde a voce e **torna ad ascoltare** da solo — un giro che continua finché
+non lo fermi con un tocco. Mentre ascolta vedi quello che sta capendo, parola
+per parola. Se il riconoscimento non sente, lo dice ed esce, invece di restare
+in ascolto di nessuno.
+
+Dalle impostazioni scegli **lingua, voce, velocità e tono** fra quelli
+installati sul telefono, con un pulsante per sentirli prima. Resta disponibile
+anche la voce via API (`/audio/speech`), per chi vuole una qualità diversa e
+accetta di pagarla.
 
 ## Multimodale: come funziona davvero
 

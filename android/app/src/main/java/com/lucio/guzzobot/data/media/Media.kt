@@ -5,6 +5,13 @@ import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.os.Build
 import android.speech.tts.TextToSpeech
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.io.File
@@ -118,45 +125,117 @@ class AudioPlayer {
 }
 
 /**
- * Sintesi vocale del telefono: la usiamo quando non è configurato un modello
- * di voce, così "ascolta la risposta" funziona anche offline e senza crediti.
+ * La voce del telefono.
+ *
+ * Il motore di sintesi di Android non costa niente, non consuma crediti e
+ * funziona anche senza rete: per una conversazione parlata è la scelta giusta,
+ * non il ripiego. Qui viene usato in coda, una frase alla volta, perché la
+ * risposta possa essere letta mentre arriva invece che dopo.
  */
 class DeviceSpeaker(context: Context) {
 
     private val _speaking = MutableStateFlow(false)
     val speaking: StateFlow<Boolean> = _speaking
 
+    /** Finito di parlare davvero: serve a sapere quando tornare in ascolto. */
+    private val _finished = MutableSharedFlow<Unit>(extraBufferCapacity = 4)
+    val finished: SharedFlow<Unit> = _finished
+
     private var ready = false
-    private val engine = TextToSpeech(context) { status ->
+    private val pending = java.util.concurrent.atomic.AtomicInteger(0)
+    private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
+    private val listener = object : android.speech.tts.UtteranceProgressListener() {
+        override fun onStart(utteranceId: String?) {
+            _speaking.value = true
+        }
+
+        override fun onDone(utteranceId: String?) = settle()
+
+        @Deprecated("Richiesto dall'interfaccia")
+        override fun onError(utteranceId: String?) = settle()
+
+        override fun onError(utteranceId: String?, errorCode: Int) = settle()
+    }
+
+    private val engine: TextToSpeech = TextToSpeech(context) { status ->
         ready = status == TextToSpeech.SUCCESS
+        if (ready) engine.setOnUtteranceProgressListener(listener)
+    }
+
+    /** Una frase è finita: se era l'ultima della coda, il turno è chiuso. */
+    private fun settle() {
+        if (pending.decrementAndGet() <= 0) {
+            pending.set(0)
+            _speaking.value = false
+            scope.launch { _finished.emit(Unit) }
+        }
     }
 
     val isAvailable: Boolean get() = ready
 
-    fun speak(text: String, locale: Locale = Locale.getDefault()) {
-        if (!ready || text.isBlank()) return
-        engine.language = locale
-        engine.setOnUtteranceProgressListener(
-            object : android.speech.tts.UtteranceProgressListener() {
-                override fun onStart(utteranceId: String?) {
-                    _speaking.value = true
-                }
+    /** Le voci disponibili per una lingua, come le chiama il motore. */
+    fun voices(language: String?): List<String> = runCatching {
+        engine.voices.orEmpty()
+            .filter { voice ->
+                language.isNullOrBlank() ||
+                    voice.locale.language.equals(localeOf(language).language, ignoreCase = true)
+            }
+            .filterNot { it.isNetworkConnectionRequired && it.features.contains("notInstalled") }
+            .map { it.name }
+            .sorted()
+    }.getOrDefault(emptyList())
 
-                override fun onDone(utteranceId: String?) {
-                    _speaking.value = false
-                }
+    /** Le lingue che il motore sa pronunciare. */
+    fun languages(): List<String> = runCatching {
+        engine.availableLanguages.orEmpty().map { it.toLanguageTag() }.sorted()
+    }.getOrDefault(emptyList())
 
-                @Deprecated("Richiesto dall'interfaccia")
-                override fun onError(utteranceId: String?) {
-                    _speaking.value = false
-                }
-            },
+    /**
+     * Legge una frase. Con [queue] la accoda a quelle già in lettura, invece
+     * di interromperle: è così che si legge una risposta mentre arriva.
+     */
+    fun speak(
+        text: String,
+        language: String? = null,
+        voice: String? = null,
+        rate: Float = 1f,
+        pitch: Float = 1f,
+        queue: Boolean = false,
+    ) {
+        if (!ready) return
+        val spoken = text.trim().take(3_500)
+        if (spoken.isEmpty()) return
+        runCatching {
+            engine.language = localeOf(language)
+            voice?.takeIf { it.isNotBlank() }?.let { wanted ->
+                engine.voices.orEmpty().firstOrNull { it.name == wanted }?.let(engine::setVoice)
+            }
+            engine.setSpeechRate(rate.coerceIn(0.5f, 2f))
+            engine.setPitch(pitch.coerceIn(0.5f, 2f))
+        }
+        if (!queue) pending.set(0)
+        pending.incrementAndGet()
+        engine.speak(
+            spoken,
+            if (queue) TextToSpeech.QUEUE_ADD else TextToSpeech.QUEUE_FLUSH,
+            null,
+            "guzzobot-" + System.nanoTime(),
         )
-        engine.speak(text.take(3500), TextToSpeech.QUEUE_FLUSH, null, "guzzobot")
     }
 
     fun stop() {
         runCatching { engine.stop() }
+        pending.set(0)
         _speaking.value = false
     }
+
+    fun shutdown() {
+        runCatching { engine.shutdown() }
+        scope.cancel()
+    }
+
+    private fun localeOf(tag: String?): Locale =
+        tag?.takeIf { it.isNotBlank() }?.let(Locale::forLanguageTag) ?: Locale.getDefault()
 }
+
