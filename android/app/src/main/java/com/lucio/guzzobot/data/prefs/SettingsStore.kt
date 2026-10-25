@@ -56,6 +56,7 @@ class SettingsStore(context: Context, private val json: Json) {
         val modelsRefreshedAt = androidx.datastore.preferences.core.longPreferencesKey("models_at")
         val mcpServers = stringPreferencesKey("mcp_servers")
         val onboardingDone = booleanPreferencesKey("onboarding_done")
+        val imageFallback = booleanPreferencesKey("image_fallback")
         val freeDisclaimer = booleanPreferencesKey("free_disclaimer")
         val removedProviders = stringSetPreferencesKey("removed_providers")
         val skills = stringPreferencesKey("skills")
@@ -117,6 +118,7 @@ class SettingsStore(context: Context, private val json: Json) {
             agentMaxSteps = prefs[Keys.agentMaxSteps] ?: 60,
             agentMaxMinutes = prefs[Keys.agentMaxMinutes] ?: 25,
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
+            imageFallback = prefs[Keys.imageFallback] ?: false,
             onboardingDone = prefs[Keys.onboardingDone] ?: false,
             skills = SkillCatalog.merge(
                 stored = prefs[Keys.skills]?.let { raw ->
@@ -212,6 +214,8 @@ class SettingsStore(context: Context, private val json: Json) {
     suspend fun acceptFreeDisclaimer() = store.edit { it[Keys.freeDisclaimer] = true }
 
     suspend fun completeOnboarding() = store.edit { it[Keys.onboardingDone] = true }
+
+    suspend fun setImageFallback(value: Boolean) = store.edit { it[Keys.imageFallback] = value }
 
     suspend fun saveSkills(skills: List<Skill>) = store.edit {
         it[Keys.skills] = json.encodeToString(skills)

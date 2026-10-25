@@ -1382,35 +1382,33 @@ class ChatViewModel(
                         current.activeModel,
                         titleFrom(prompt),
                     ).also { _conversationId.value = it }
-                val bytes = if (provider.imageApi == ImageApi.POLLINATIONS) {
-                    if (sources.isNotEmpty()) {
+                // Modificare un'immagine non ha ripieghi: solo l'API nativa
+                // di Google lo sa fare, e Pollinations non c'entra.
+                val produced = if (sources.isEmpty()) {
+                    ImageMaker.produce(current, chatApi, secretStore, prompt)
+                } else {
+                    if (provider.imageApi == ImageApi.POLLINATIONS) {
                         throw IllegalStateException(
                             "Pollinations crea immagini ma non le modifica: " +
                                 "per modificarle serve un modello Gemini",
                         )
                     }
-                    chatApi.generatePollinations(
-                        baseUrl = provider.baseUrl,
-                        prompt = prompt,
-                        size = current.imageSize,
-                    )
-                } else if (sources.isEmpty()) {
-                    chatApi.generateImage(
-                        baseUrl = provider.baseUrl,
-                        apiKey = secretStore.apiKey(provider.id),
+                    ImageMaker.Produced(
+                        bytes = chatApi.editImage(
+                            baseUrl = provider.baseUrl,
+                            apiKey = secretStore.apiKey(provider.id),
+                            model = ref.model,
+                            prompt = prompt,
+                            images = sources.mapNotNull(::pictureOf),
+                        ),
                         model = ref.model,
-                        prompt = prompt,
-                        size = current.imageSize,
-                    )
-                } else {
-                    chatApi.editImage(
-                        baseUrl = provider.baseUrl,
-                        apiKey = secretStore.apiKey(provider.id),
-                        model = ref.model,
-                        prompt = prompt,
-                        images = sources.mapNotNull(::pictureOf),
+                        fallback = false,
                     )
                 }
+                if (produced.fallback) {
+                    notice("${ref.model} non era disponibile: ho usato ${produced.model}")
+                }
+                val bytes = produced.bytes
                 _input.value = ""
                 _pending.value = emptyList()
                 repository.addMessage(id, Roles.USER, prompt, attachments = sources)
@@ -1422,7 +1420,7 @@ class ChatViewModel(
                             kind = ArtifactReader.IMAGE,
                             name = prompt.take(60),
                             location = image.path,
-                            detail = ref.model,
+                            detail = produced.model,
                         ),
                     )
                 }
@@ -1430,7 +1428,7 @@ class ChatViewModel(
                     conversationId = id,
                     role = Roles.ASSISTANT,
                     content = "",
-                    model = ref.model,
+                    model = produced.model,
                     attachments = saved,
                 )
             } catch (error: Throwable) {
@@ -1535,6 +1533,9 @@ class ChatViewModel(
     fun setWorkspace(config: WorkspaceConfig) = viewModelScope.launch {
         settingsStore.setWorkspace(config)
     }
+
+    fun setImageFallback(value: Boolean) =
+        viewModelScope.launch { settingsStore.setImageFallback(value) }
 
     fun setAutonomousTools(value: Boolean) = viewModelScope.launch {
         settingsStore.setAutonomousTools(value)

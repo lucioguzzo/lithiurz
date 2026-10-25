@@ -281,4 +281,6 @@
     <string name="free_note_watermark">Le immagini escono col logo del servizio</string>
     <string name="catalog_connect">Collega</string>
     <string name="connector_authorize">Autorizza</string>
+    <string name="image_fallback">Ripiego gratuito</string>
+    <string name="image_fallback_detail">Se il modello scelto è sovraccarico o ha esaurito la quota, crea l\'immagine con Pollinations. Non serve nessuna chiave, ma il risultato porta il logo del servizio e sta a un indirizzo pubblico. Non vale per le modifiche.</string>
 </resources>

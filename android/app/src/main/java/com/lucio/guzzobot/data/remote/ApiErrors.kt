@@ -49,6 +49,21 @@ object ApiErrors {
         }
     }
 
+    /**
+     * Vero se il provider, per ora, non può servire la richiesta: è in coda
+     * oppure la quota è finita. In entrambi i casi insistere con lui non
+     * porta a niente, mentre un altro provider potrebbe rispondere.
+     *
+     * Diverso da [transient]: lì si decide se riprovare *con lo stesso*; qui
+     * se vale la pena provare *con un altro*. Una chiave sbagliata o un
+     * prompt rifiutato non rientrano: cambiare provider non li aggiusta.
+     */
+    fun unavailable(code: Int, message: String?): Boolean {
+        if (transient(code, message)) return true
+        val text = message?.lowercase().orEmpty()
+        return code == 429 && quotaMarkers.any { text.contains(it) }
+    }
+
     /** Il messaggio da mostrare quando anche i ritentativi non sono bastati. */
     fun exhausted(code: Int): String = when (code) {
         429 -> "Il provider sta limitando le richieste: riprova fra qualche minuto"

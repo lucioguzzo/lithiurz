@@ -368,6 +368,29 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 8.dp),
                 )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 20.dp, end = 12.dp, top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.image_fallback),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                        Text(
+                            text = stringResource(R.string.image_fallback_detail),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = settings.imageFallback,
+                        onCheckedChange = viewModel::setImageFallback,
+                    )
+                }
             }
             Row(
                 modifier = Modifier

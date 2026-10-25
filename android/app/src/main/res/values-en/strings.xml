@@ -279,4 +279,6 @@
     <string name="free_note_watermark">Images come out with the service\'s logo</string>
     <string name="catalog_connect">Connect</string>
     <string name="connector_authorize">Authorize</string>
+    <string name="image_fallback">Free fallback</string>
+    <string name="image_fallback_detail">If the chosen model is overloaded or out of quota, create the image with Pollinations. No key needed, but the result carries the service\'s logo and sits at a public address. Does not apply to edits.</string>
 </resources>

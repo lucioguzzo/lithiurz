@@ -322,6 +322,12 @@ data class AppSettings(
     val agentMaxMinutes: Int = 25,
     /** Quando gli elenchi dei modelli sono stati riallineati l'ultima volta. */
     val modelsRefreshedAt: Long = 0L,
+    /**
+     * Se il modello per le immagini non è disponibile, ripiega su un
+     * generatore gratuito. Spento di default: il risultato ha caratteristiche
+     * diverse, e non è una cosa da far succedere alle spalle di chi usa l'app.
+     */
+    val imageFallback: Boolean = false,
     /** Il primo avvio è stato completato (o saltato). */
     val onboardingDone: Boolean = false,
     /** L'avviso sui modelli gratuiti è stato letto. */

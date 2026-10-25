@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.1.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.2.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -378,6 +378,20 @@ dichiarano di essere immagini, così uno spostamento di campo non rompe tutto.
 
 Il risultato finisce in chat e in **Artefatti**, con il modello che l'ha
 prodotto.
+
+**Ripiego gratuito** (*Impostazioni › Multimodale*, spento di default): quando
+il modello scelto è sovraccarico o ha esaurito la quota del giorno, l'immagine
+viene creata con Pollinations invece di restituire un errore. È spento di
+proposito — il risultato porta il logo del servizio e sta a un indirizzo
+pubblico, e non è una cosa da far succedere alle spalle di chi usa l'app —
+e quando scatta te lo dice, con il nome di chi ha prodotto davvero l'immagine
+anche in Artefatti.
+
+Il ripiego distingue due cose che si somigliano: *riprovare con lo stesso*
+(sovraccarico) e *cercare altrove* (sovraccarico **o** quota finita). Una
+chiave sbagliata o un prompt rifiutato non rientrano in nessuna delle due:
+cambiare provider non li aggiusta, e provarci nasconderebbe il motivo vero.
+Alle modifiche non si applica: quelle le sa fare solo l'API nativa di Google.
 
 ### Senza nessuna chiave: Pollinations
 

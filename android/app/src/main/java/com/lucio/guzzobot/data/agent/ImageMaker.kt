@@ -7,6 +7,9 @@ import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.ImageApi
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.prefs.SecretStore
+import com.lucio.guzzobot.data.model.Provider
+import com.lucio.guzzobot.data.remote.ApiErrors
+import com.lucio.guzzobot.data.remote.ApiException
 import com.lucio.guzzobot.data.remote.ChatApi
 import com.lucio.guzzobot.data.repo.ChatRepository
 import com.lucio.guzzobot.data.workspace.ArtifactReader
@@ -20,6 +23,66 @@ import com.lucio.guzzobot.data.workspace.ArtifactReader
  * comportamenti diversi al primo cambiamento.
  */
 object ImageMaker {
+
+
+    /** Un'immagine prodotta, e da chi: il ripiego va detto, non nascosto. */
+    data class Produced(val bytes: List<ByteArray>, val model: String, val fallback: Boolean)
+
+    /**
+     * Genera l'immagine col provider configurato e, se quello non può —
+     * sovraccarico o quota finita — ripiega su quello gratuito, ma solo se
+     * l'utente l'ha chiesto.
+     *
+     * Il ripiego non vale per ogni errore: una chiave sbagliata o un prompt
+     * rifiutato non si aggiustano cambiando provider, e provarci
+     * nasconderebbe il vero motivo.
+     */
+    suspend fun produce(
+        settings: AppSettings,
+        chatApi: ChatApi,
+        secrets: SecretStore,
+        prompt: String,
+    ): Produced {
+        val ref = settings.imageRef ?: throw ApiException("Nessun modello per le immagini")
+        val provider = settings.providers.firstOrNull { it.id == ref.providerId }
+            ?: throw ApiException("Provider non configurato")
+        return try {
+            Produced(call(provider, ref.model, settings, chatApi, secrets, prompt), ref.model, false)
+        } catch (error: ApiException) {
+            val spare = fallbackProvider(settings, provider)
+            if (spare == null || !ApiErrors.unavailable(error.code, error.message)) throw error
+            Produced(
+                bytes = chatApi.generatePollinations(spare.baseUrl, prompt, settings.imageSize),
+                model = spare.name,
+                fallback = true,
+            )
+        }
+    }
+
+    private fun fallbackProvider(settings: AppSettings, current: Provider): Provider? {
+        if (!settings.imageFallback) return null
+        if (current.imageApi == ImageApi.POLLINATIONS) return null
+        return settings.providers.firstOrNull { it.imageApi == ImageApi.POLLINATIONS }
+    }
+
+    private suspend fun call(
+        provider: Provider,
+        model: String,
+        settings: AppSettings,
+        chatApi: ChatApi,
+        secrets: SecretStore,
+        prompt: String,
+    ): List<ByteArray> = if (provider.imageApi == ImageApi.POLLINATIONS) {
+        chatApi.generatePollinations(provider.baseUrl, prompt, settings.imageSize)
+    } else {
+        chatApi.generateImage(
+            baseUrl = provider.baseUrl,
+            apiKey = secrets.apiKey(provider.id),
+            model = model,
+            prompt = prompt,
+            size = settings.imageSize,
+        )
+    }
 
     fun create(
         settings: AppSettings,
@@ -38,18 +101,8 @@ object ImageMaker {
         if (ref.model.isBlank()) return null
 
         return ImageTools.Maker { prompt ->
-            val bytes = if (provider.imageApi == ImageApi.POLLINATIONS) {
-                chatApi.generatePollinations(provider.baseUrl, prompt, settings.imageSize)
-            } else {
-                chatApi.generateImage(
-                    baseUrl = provider.baseUrl,
-                    apiKey = secrets.apiKey(provider.id),
-                    model = ref.model,
-                    prompt = prompt,
-                    size = settings.imageSize,
-                )
-            }
-            val saved = bytes.map { attachments.saveGeneratedImage(it, prompt) }
+            val produced = produce(settings, chatApi, secrets, prompt)
+            val saved = produced.bytes.map { attachments.saveGeneratedImage(it, prompt) }
             saved.forEach { image ->
                 artifacts.insert(
                     ArtifactEntity(
@@ -57,7 +110,7 @@ object ImageMaker {
                         kind = ArtifactReader.IMAGE,
                         name = prompt.take(60),
                         location = image.path,
-                        detail = ref.model,
+                        detail = produced.model,
                         createdAt = System.currentTimeMillis(),
                     ),
                 )
@@ -69,12 +122,18 @@ object ImageMaker {
                     conversationId = conversationId,
                     role = Roles.ASSISTANT,
                     content = "",
-                    model = ref.model,
+                    model = produced.model,
                     attachments = saved,
                 )
             }
-            "Immagine creata e già mostrata all'utente (${saved.size}). " +
-                "Non ridescriverla: la sta vedendo."
+            buildString {
+                append("Immagine creata e già mostrata all'utente (${saved.size}). ")
+                append("Non ridescriverla: la sta vedendo.")
+                if (produced.fallback) {
+                    append(" Il modello scelto non era disponibile: ")
+                    append("è stata creata con ${produced.model}.")
+                }
+            }
         }
     }
 }
