@@ -302,4 +302,9 @@
     <string name="voice_none">Nessuna voce installata su questo telefono per questa lingua</string>
     <string name="voice_conversation">Conversazione parlata</string>
     <string name="voice_conversation_detail">Tieni premuto il microfono in chat: parli, GUZZOBOT risponde a voce e torna ad ascoltare. Usa il riconoscimento vocale di Android, gratuito e spesso senza rete.</string>
+    <string name="voice_install">Scarica altre voci</string>
+    <string name="voice_system_settings">Impostazioni di Android</string>
+    <string name="voice_get_google">Installa il motore di Google</string>
+    <string name="voice_engine_google">Motore in uso: %1$s. Ha le voci neurali — se suonano male, scaricane una migliore per la tua lingua.</string>
+    <string name="voice_engine_other">Motore in uso: %1$s. Le voci di serie di molti telefoni sono meccaniche: quello di Google ha voci neurali, molto più naturali.</string>
 </resources>

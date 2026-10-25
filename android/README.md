@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.6.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.7.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -252,7 +252,19 @@ per parola. Se il riconoscimento non sente, lo dice ed esce, invece di restare
 in ascolto di nessuno.
 
 Dalle impostazioni scegli **lingua, voce, velocità e tono** fra quelli
-installati sul telefono, con un pulsante per sentirli prima. Resta disponibile
+installati sul telefono, con un pulsante per sentirli prima.
+
+**Se la voce di serie è brutta** — e su molti telefoni lo è — le impostazioni
+dicono quale motore stai usando e portano dove si rimedia: *Scarica altre
+voci* apre l'installatore delle voci del motore attivo, *Impostazioni di
+Android* la schermata dove si cambia motore, e se il motore di Google non c'è
+compare un pulsante per installarlo: è quello con le voci neurali.
+
+Non è un link solo, è una scala: l'azione ufficiale di Android, poi le
+impostazioni di sistema (che non fanno parte dell'API pubblica e su qualche
+telefono mancano), poi il Play Store, poi il browser. Si prova la migliore e
+si scende finché una funziona; se non ne funziona nessuna l'app lo dice,
+invece di lasciarti con un pulsante che non fa niente. Resta disponibile
 anche la voce via API (`/audio/speech`), per chi vuole una qualità diversa e
 accetta di pagarla.
 

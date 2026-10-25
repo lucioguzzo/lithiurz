@@ -47,12 +47,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lucio.guzzobot.R
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import com.lucio.guzzobot.data.media.VoiceSetup
 import com.lucio.guzzobot.data.model.ModelCapabilities
 import com.lucio.guzzobot.data.model.ModelRef
 import com.lucio.guzzobot.data.model.ThemeMode
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: com.lucio.guzzobot.ui.chat.ChatViewModel,
@@ -481,11 +484,45 @@ fun SettingsScreen(
                 value = settings.voicePitch,
                 onChange = { viewModel.setVoiceShape(settings.voiceRate, it) },
             )
-            TextButton(
-                onClick = viewModel::previewVoice,
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
                 modifier = Modifier.padding(start = 8.dp),
             ) {
-                Text(stringResource(R.string.voice_preview))
+                TextButton(onClick = viewModel::previewVoice) {
+                    Text(stringResource(R.string.voice_preview))
+                }
+                TextButton(
+                    onClick = { viewModel.openVoiceSetup(VoiceSetup.installVoices()) },
+                ) {
+                    Text(stringResource(R.string.voice_install))
+                }
+                TextButton(
+                    onClick = { viewModel.openVoiceSetup(VoiceSetup.openSettings()) },
+                ) {
+                    Text(stringResource(R.string.voice_system_settings))
+                }
+            }
+            // Il motore conta più della voce: quello di serie di molti
+            // telefoni non ha voci neurali, e nessuna impostazione lo migliora.
+            val engine = remember { viewModel.speechEngine() }
+            val google = remember { viewModel.hasGoogleVoices() }
+            Text(
+                text = if (google) {
+                    stringResource(R.string.voice_engine_google, engine.orEmpty())
+                } else {
+                    stringResource(R.string.voice_engine_other, engine.orEmpty())
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
+            )
+            if (!google) {
+                TextButton(
+                    onClick = { viewModel.openVoiceSetup(VoiceSetup.googleEngine()) },
+                    modifier = Modifier.padding(start = 8.dp),
+                ) {
+                    Text(stringResource(R.string.voice_get_google))
+                }
             }
 
             Divider()

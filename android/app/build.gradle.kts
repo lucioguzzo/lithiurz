@@ -29,8 +29,8 @@ android {
         applicationId = "com.lucio.guzzobot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 27
-        versionName = "5.6"
+        versionCode = 28
+        versionName = "5.7"
     }
 
     signingConfigs {

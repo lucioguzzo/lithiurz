@@ -174,6 +174,21 @@ class DeviceSpeaker(context: Context) {
 
     val isAvailable: Boolean get() = ready
 
+    /** Il motore di sintesi in uso, per dire all'utente chi sta parlando. */
+    fun engineName(): String? = runCatching {
+        val id = engine.defaultEngine ?: return@runCatching null
+        engine.engines.orEmpty().firstOrNull { it.name == id }?.label ?: id
+    }.getOrNull()
+
+    /** Vero se il motore di Google, quello con le voci neurali, è installato. */
+    fun hasGoogleEngine(): Boolean = runCatching {
+        engine.engines.orEmpty().any { it.name == VoiceSetup.GOOGLE_TTS }
+    }.getOrDefault(false)
+
+    /** Vero se è anche quello attivo. */
+    fun usesGoogleEngine(): Boolean =
+        runCatching { engine.defaultEngine == VoiceSetup.GOOGLE_TTS }.getOrDefault(false)
+
     /** Le voci disponibili per una lingua, come le chiama il motore. */
     fun voices(language: String?): List<String> = runCatching {
         engine.voices.orEmpty()

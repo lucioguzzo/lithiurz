@@ -32,6 +32,7 @@ import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
 import com.lucio.guzzobot.data.media.DeviceListener
 import com.lucio.guzzobot.data.media.SpeechText
+import com.lucio.guzzobot.data.media.VoiceSetup
 import com.lucio.guzzobot.data.media.DeviceSpeaker
 import com.lucio.guzzobot.data.model.AppSettings
 import com.lucio.guzzobot.data.model.Attachment
@@ -1568,6 +1569,21 @@ class ChatViewModel(
     fun deviceVoices(): List<String> = deviceSpeaker.voices(settings.value.voiceLanguage)
 
     fun deviceLanguages(): List<String> = deviceSpeaker.languages()
+
+    /** Il motore di sintesi in uso, e se è quello con le voci neurali. */
+    fun speechEngine(): String? = deviceSpeaker.engineName()
+
+    fun hasGoogleVoices(): Boolean = deviceSpeaker.usesGoogleEngine()
+
+    /**
+     * Porta l'utente dove si scaricano voci migliori, provando le strade in
+     * ordine. Se il telefono non ne conosce nessuna, lo dice.
+     */
+    fun openVoiceSetup(steps: List<VoiceSetup.Step>) {
+        if (!VoiceSetup.launch(context, steps)) {
+            notice("Questo telefono non apre le impostazioni di sintesi vocale")
+        }
+    }
 
     /** Una frase di prova, per sentire com'è prima di tenersela. */
     fun previewVoice() {
