@@ -61,7 +61,10 @@ class ModelRefresher(
         if (active != null && active.models.isNotEmpty() &&
             settings.activeModel !in active.models
         ) {
-            ModelCatalog.replacementFor(settings.activeModel, active.models)?.let { replacement ->
+            val curated = Providers.defaults.firstOrNull { it.id == active.id }?.models.orEmpty()
+            val replacement = ModelCatalog.replacementFor(settings.activeModel, active.models)
+                ?: ModelCatalog.preferredChat(active.models, curated)
+            if (replacement != null) {
                 settingsStore.setActiveModel(active.id, replacement)
                 changed = settings.activeModel to replacement
             }

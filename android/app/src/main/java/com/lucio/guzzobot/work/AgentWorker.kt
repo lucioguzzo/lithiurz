@@ -14,6 +14,8 @@ import com.lucio.guzzobot.GuzzoBotApp
 import com.lucio.guzzobot.MainActivity
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.agent.AgentLimits
+import com.lucio.guzzobot.data.skills.SkillCatalog
+import com.lucio.guzzobot.data.skills.SkillTools
 import com.lucio.guzzobot.data.agent.ImageMaker
 import com.lucio.guzzobot.data.agent.ToolHub
 import com.lucio.guzzobot.data.model.Roles
@@ -76,6 +78,14 @@ class AgentWorker(
                 mcpClient = container.mcpClient,
                 secrets = container.secretStore,
                 json = container.json,
+                skills = settings.skills,
+                skillLoader = SkillTools.Loader { id ->
+                    SkillCatalog.find(settings.skills, id)?.let { skill ->
+                        container.repository.setSkill(conversationId, skill.id)
+                        "Competenza «${skill.name}» attiva. Segui queste istruzioni:\n\n" +
+                            skill.instructions
+                    }
+                },
                 images = ImageMaker.create(
                     settings = settings,
                     conversationId = conversationId,

@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
+import android.net.Uri
 import android.content.pm.PackageManager
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -67,6 +68,7 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.lucio.guzzobot.data.mcp.OAuthInbox
 import com.lucio.guzzobot.R
 import com.lucio.guzzobot.data.local.ConversationEntity
 import com.lucio.guzzobot.data.model.AttachmentKind
@@ -113,6 +115,17 @@ fun ChatScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val clipboard = LocalClipboardManager.current
     val context = LocalContext.current
+
+    // L'autorizzazione di un connettore esce nel browser e rientra da lì.
+    LaunchedEffect(Unit) {
+        viewModel.openUrl.collect { url ->
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        }
+    }
+    val redirect by OAuthInbox.received.collectAsStateWithLifecycle()
+    LaunchedEffect(redirect) {
+        OAuthInbox.consume()?.let(viewModel::completeAuthorization)
+    }
     val listState = rememberLazyListState()
 
     var showModelSheet by remember { mutableStateOf(false) }

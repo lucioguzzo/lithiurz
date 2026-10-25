@@ -12,6 +12,11 @@ import com.lucio.guzzobot.data.agent.AgentEngine
 import com.lucio.guzzobot.data.agent.AgentLimits
 import com.lucio.guzzobot.data.agent.AgentRun
 import com.lucio.guzzobot.data.agent.ToolHub
+import com.lucio.guzzobot.data.mcp.McpOAuth
+import com.lucio.guzzobot.data.mcp.McpUnauthorized
+import com.lucio.guzzobot.data.mcp.OAuthConfig
+import com.lucio.guzzobot.data.mcp.OAuthDiscovery
+import com.lucio.guzzobot.data.mcp.Pkce
 import com.lucio.guzzobot.data.mcp.McpClient
 import com.lucio.guzzobot.data.mcp.McpServer
 import com.lucio.guzzobot.data.files.TextExtractor
@@ -39,6 +44,7 @@ import com.lucio.guzzobot.data.mcp.McpCatalog
 import com.lucio.guzzobot.data.mcp.McpEntry
 import com.lucio.guzzobot.data.skills.Skill
 import com.lucio.guzzobot.data.skills.SkillCatalog
+import com.lucio.guzzobot.data.skills.SkillTools
 import com.lucio.guzzobot.data.skills.SkillComposer
 import com.lucio.guzzobot.data.remote.GoogleImages
 import com.lucio.guzzobot.data.agent.ImageMaker
@@ -47,6 +53,7 @@ import com.lucio.guzzobot.data.model.ImageApi
 import com.lucio.guzzobot.data.model.KeyDetector
 import com.lucio.guzzobot.data.model.ModelCatalog
 import com.lucio.guzzobot.data.model.ProviderCatalog
+import com.lucio.guzzobot.data.model.Providers
 import com.lucio.guzzobot.data.model.Roles
 import com.lucio.guzzobot.data.model.ThemeMode
 import com.lucio.guzzobot.data.prefs.SecretStore
@@ -162,6 +169,7 @@ class ChatViewModel(
     private val modelRefresher: ModelRefresher,
     private val artifactDao: ArtifactDao,
     private val mcpClient: McpClient,
+    private val mcpOAuth: McpOAuth,
 ) : ViewModel() {
 
     val settings: StateFlow<AppSettings> =
@@ -220,6 +228,10 @@ class ChatViewModel(
 
     private val _notices = MutableSharedFlow<String>(extraBufferCapacity = 4)
     val notices: SharedFlow<String> = _notices.asSharedFlow()
+
+    /** Un indirizzo che la schermata deve aprire nel browser (autorizzazioni). */
+    private val _openUrl = MutableSharedFlow<String>(extraBufferCapacity = 2)
+    val openUrl: SharedFlow<String> = _openUrl.asSharedFlow()
 
     val speaking: StateFlow<Boolean> = deviceSpeaker.speaking
 
@@ -786,6 +798,10 @@ class ChatViewModel(
                             tools = hub(current).definitions(agent = false),
                         ).collect { event ->
                             when (event) {
+                                StreamEvent.ToolsDropped -> notice(
+                                    "$model non sa usare gli strumenti: " +
+                                        "rispondo senza",
+                                )
                                 is StreamEvent.Content -> {
                                     content.append(event.text)
                                     val snapshot = content.toString()
@@ -920,6 +936,15 @@ class ChatViewModel(
         secrets = secretStore,
         json = json,
         images = imageMaker(current),
+        skills = current.skills,
+        skillLoader = SkillTools.Loader { id ->
+            val skill = SkillCatalog.find(current.skills, id) ?: return@Loader null
+            // Resta applicata alla conversazione, così vale anche dopo: il
+            // modello non deve ricaricarla a ogni messaggio.
+            _conversationId.value?.let { repository.setSkill(it, skill.id) }
+            "Competenza «${skill.name}» attiva. Segui queste istruzioni:\n\n" +
+                skill.instructions
+        },
     )
 
     /** Lo strumento con cui il modello crea un'immagine da sé. */
@@ -956,7 +981,9 @@ class ChatViewModel(
     fun connectorToken(id: String): String = secretStore.apiKey(McpServer.secretKey(id))
 
     /** Interroga il connettore e salva l'elenco dei suoi strumenti. */
-    fun testConnector(server: McpServer) = viewModelScope.launch {
+    // Il tipo è esplicito perché la funzione richiama se stessa dopo un
+    // rinnovo del token, e l'inferenza non saprebbe da dove cominciare.
+    fun testConnector(server: McpServer): kotlinx.coroutines.Job = viewModelScope.launch {
         _busy.value = "Provo ${server.name}…"
         val token = secretStore.apiKey(McpServer.secretKey(server.id))
         val result = runCatching { mcpClient.listTools(server, token) }
@@ -977,15 +1004,180 @@ class ChatViewModel(
                 },
             )
         }.onFailure { error ->
+            // Un 401 su un connettore OAuth di solito vuol dire solo che il
+            // token è scaduto: si rinnova e si riprova, senza disturbare.
+            if (error is McpUnauthorized && server.usesOAuth && renew(server)) {
+                testConnector(server)
+                return@launch
+            }
             saveConnector(
                 server.copy(
                     lastCheckedAt = System.currentTimeMillis(),
-                    lastError = error.message ?: "Non risponde",
+                    lastError = authError(error, server),
                 ),
             )
-            notice(error.message ?: "Il connettore non risponde")
+            notice(authError(error, server))
         }
     }
+
+    // --- autorizzazione dei connettori -------------------------------------
+
+    /** Il connettore in attesa di tornare dal browser. */
+    private var pendingAuth: PendingAuth? = null
+
+    private data class PendingAuth(
+        val serverId: String,
+        val verifier: String,
+        val state: String,
+        val discovery: McpOAuth.Discovery,
+        val clientId: String,
+    )
+
+    private fun authError(error: Throwable, server: McpServer): String = when {
+        error is McpUnauthorized && server.usesOAuth ->
+            "L'autorizzazione è scaduta: tocca «Autorizza» per rifarla"
+        error is McpUnauthorized -> "Il connettore chiede di autorizzarsi"
+        else -> error.message ?: "Non risponde"
+    }
+
+    /**
+     * Comincia il giro di autorizzazione: scopre chi autorizza, ottiene
+     * un'identità e manda l'utente nel browser. Il resto succede al ritorno.
+     */
+    fun authorizeConnector(server: McpServer) = viewModelScope.launch {
+        _busy.value = "Preparo l'autorizzazione di ${server.name}…"
+        val outcome = runCatching {
+            // Si bussa senza token apposta: è il 401 a dire dove guardare.
+            val challenge = runCatching { mcpClient.listTools(server, "") }
+                .exceptionOrNull()
+                .let { it as? McpUnauthorized }
+                ?.wwwAuthenticate
+            val discovery = mcpOAuth.discover(server.url, challenge)
+            val clientId = server.oauth?.clientId
+                ?: mcpOAuth.register(discovery.authServer, McpOAuth.REDIRECT_URI)
+                    .let { (id, secret) ->
+                        secret?.let {
+                            secretStore.setApiKey(McpServer.clientSecretKey(server.id), it)
+                        }
+                        id
+                    }
+            val verifier = Pkce.verifier()
+            val state = Pkce.state()
+            pendingAuth = PendingAuth(server.id, verifier, state, discovery, clientId)
+            OAuthDiscovery.authorizeUrl(
+                server = discovery.authServer,
+                clientId = clientId,
+                redirectUri = McpOAuth.REDIRECT_URI,
+                state = state,
+                codeChallenge = Pkce.challenge(verifier),
+                resource = discovery.resource,
+                scopes = discovery.scopes,
+            )
+        }
+        _busy.value = null
+        outcome.onSuccess { url -> _openUrl.emit(url) }
+            .onFailure { error -> notice(error.message ?: "Autorizzazione non riuscita") }
+    }
+
+    /** Il browser è tornato: si verifica lo stato e si scambia il codice. */
+    fun completeAuthorization(uri: String) = viewModelScope.launch {
+        val pending = pendingAuth ?: return@launch
+        val callback = OAuthDiscovery.parseCallback(uri)
+        val code = callback.codeFor(pending.state)
+        if (code == null) {
+            pendingAuth = null
+            notice(callback.message ?: "Autorizzazione annullata")
+            return@launch
+        }
+        val server = settings.value.mcpServers.firstOrNull { it.id == pending.serverId }
+            ?: return@launch
+        _busy.value = "Completo l'autorizzazione di ${server.name}…"
+        val outcome = runCatching {
+            mcpOAuth.exchange(
+                authServer = pending.discovery.authServer,
+                clientId = pending.clientId,
+                clientSecret = secretStore.apiKey(McpServer.clientSecretKey(server.id))
+                    .takeIf { it.isNotBlank() },
+                code = code,
+                verifier = pending.verifier,
+                redirectUri = McpOAuth.REDIRECT_URI,
+                resource = pending.discovery.resource,
+            )
+        }
+        pendingAuth = null
+        _busy.value = null
+        outcome.onSuccess { tokens ->
+            store(server, pending.discovery, pending.clientId, tokens)
+            testConnector(
+                server.copy(
+                    oauth = config(pending.discovery, pending.clientId, tokens),
+                    lastError = null,
+                ),
+            )
+        }.onFailure { error ->
+            notice(error.message ?: "Scambio del codice non riuscito")
+        }
+    }
+
+    /** Rinnova il token in silenzio. Vero se ci è riuscito. */
+    private suspend fun renew(server: McpServer): Boolean {
+        val config = server.oauth ?: return false
+        val refresh = secretStore.apiKey(McpServer.refreshKey(server.id)).takeIf { it.isNotBlank() }
+            ?: return false
+        return runCatching {
+            val tokens = mcpOAuth.refresh(
+                authServer = config.authServer(),
+                clientId = config.clientId,
+                clientSecret = secretStore.apiKey(McpServer.clientSecretKey(server.id))
+                    .takeIf { it.isNotBlank() },
+                refreshToken = refresh,
+                resource = config.resource,
+            )
+            secretStore.setApiKey(McpServer.secretKey(server.id), tokens.accessToken)
+            // I token di rinnovo vengono ruotati: si tiene il nuovo.
+            tokens.refreshToken?.let {
+                secretStore.setApiKey(McpServer.refreshKey(server.id), it)
+            }
+            settingsStore.saveMcpServers(
+                settings.value.mcpServers.map { saved ->
+                    if (saved.id == server.id) {
+                        saved.copy(oauth = config.copy(expiresAt = expiry(tokens)))
+                    } else {
+                        saved
+                    }
+                },
+            )
+            true
+        }.getOrDefault(false)
+    }
+
+    private suspend fun store(
+        server: McpServer,
+        discovery: McpOAuth.Discovery,
+        clientId: String,
+        tokens: OAuthDiscovery.Tokens,
+    ) {
+        secretStore.setApiKey(McpServer.secretKey(server.id), tokens.accessToken)
+        tokens.refreshToken?.let { secretStore.setApiKey(McpServer.refreshKey(server.id), it) }
+        saveConnector(server.copy(oauth = config(discovery, clientId, tokens))).join()
+    }
+
+    private fun config(
+        discovery: McpOAuth.Discovery,
+        clientId: String,
+        tokens: OAuthDiscovery.Tokens,
+    ) = OAuthConfig(
+        authorizationEndpoint = discovery.authServer.authorizationEndpoint,
+        tokenEndpoint = discovery.authServer.tokenEndpoint,
+        registrationEndpoint = discovery.authServer.registrationEndpoint,
+        clientId = clientId,
+        resource = discovery.resource,
+        scopes = discovery.scopes,
+        expiresAt = expiry(tokens),
+    )
+
+    private fun expiry(tokens: OAuthDiscovery.Tokens): Long =
+        tokens.expiresInSeconds?.let { System.currentTimeMillis() + it * 1000L } ?: 0L
 
     private fun workspace(current: AppSettings): Workspace? = bundle(current)?.workspace
 
@@ -1096,7 +1288,11 @@ class ChatViewModel(
         )
         val system = buildString {
             append(SkillComposer.compose(current.systemPrompt, skill))
-            if (skill == null) {
+            // L'elenco delle competenze non va più nel prompt: quando gli
+            // strumenti sono attivi il modello se le carica da sé, e ripeterlo
+            // a ogni messaggio costerebbe senza servire. Resta per chi gli
+            // strumenti non ce li ha.
+            if (skill == null && !hub(current).hasTools) {
                 SkillComposer.catalogue(current.skills)?.let { catalogue ->
                     if (isNotEmpty()) append("\n\n")
                     append(catalogue)
@@ -1714,6 +1910,16 @@ class ChatViewModel(
         if (entry.auth == McpAuth.NONE || token.isNotBlank()) testConnector(server)
     }
 
+    /**
+     * Una voce OAuth del catalogo: si registra il connettore e si parte subito
+     * col browser, perché qui non c'è niente da incollare.
+     */
+    fun connectWithOAuth(entry: McpEntry) = viewModelScope.launch {
+        val server = McpCatalog.toServer(entry)
+        saveConnector(server).join()
+        authorizeConnector(server)
+    }
+
     /** Il token GitHub già configurato per l'area di lavoro, se c'è. */
     fun workspaceGitHubToken(): String = secretStore.apiKey(WorkspaceConfig.GITHUB_SECRET)
 
@@ -1748,8 +1954,10 @@ class ChatViewModel(
         // Un provider di sole immagini non può reggere la chat: impostarlo come
         // modello attivo lascerebbe l'utente con una conversazione muta.
         if (!provider.imageOnly) {
-            val model = provider.models.firstOrNull { provider.freeTier?.covers(it) == true }
-                ?: provider.models.firstOrNull()
+            // Non il primo della lista: quello con cui ha senso cominciare.
+            val catalogued = Providers.defaults.firstOrNull { it.id == providerId }?.models.orEmpty()
+            val free = provider.models.filter { provider.freeTier?.covers(it) != false }
+            val model = ModelCatalog.preferredChat(free.ifEmpty { provider.models }, catalogued)
             if (model != null) settingsStore.setActiveModel(providerId, model)
         }
         settingsStore.acceptFreeDisclaimer()
@@ -1857,6 +2065,7 @@ class ChatViewModel(
                     modelRefresher = container.modelRefresher,
                     artifactDao = container.artifactDao,
                     mcpClient = container.mcpClient,
+                    mcpOAuth = container.mcpOAuth,
                 )
             }
         }

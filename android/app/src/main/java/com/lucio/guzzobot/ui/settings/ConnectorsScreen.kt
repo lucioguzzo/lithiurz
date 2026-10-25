@@ -193,6 +193,16 @@ fun ConnectorsScreen(
                                 contentDescription = null,
                                 modifier = Modifier.size(16.dp),
                             )
+                            if (server.usesOAuth) {
+                                Text(
+                                    text = stringResource(R.string.connector_authorize),
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .clickable { viewModel.authorizeConnector(server) }
+                                        .padding(horizontal = 8.dp, vertical = 6.dp),
+                                )
+                            }
                             Text(
                                 text = stringResource(R.string.connector_test),
                                 modifier = Modifier.padding(start = 6.dp),

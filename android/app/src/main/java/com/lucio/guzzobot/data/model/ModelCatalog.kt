@@ -42,6 +42,31 @@ object ModelCatalog {
         "nano-banana", "imagen",
     )
 
+    /**
+     * Il modello con cui conviene partire, fra quelli che un provider serve.
+     *
+     * «Il primo della lista» non è una risposta: l'elenco arriva da /models in
+     * ordine alfabetico, e il primo può essere un'anteprima che non sa usare
+     * gli strumenti — è così che un'installazione nuova è finita su
+     * «antigravity-preview». Vince quindi il primo dei modelli scelti
+     * dall'app che esiste ancora; poi uno normale; e solo in mancanza
+     * d'altro il primo che capita.
+     */
+    fun preferredChat(models: List<String>, curated: List<String> = emptyList()): String? {
+        val usable = chatModels(models)
+        if (usable.isEmpty()) return models.firstOrNull()
+        curated.firstOrNull { it in usable && !isPreview(it) }?.let { return it }
+        curated.firstOrNull { it in usable }?.let { return it }
+        return usable.firstOrNull { !isPreview(it) } ?: usable.first()
+    }
+
+    private val previewMarkers =
+        listOf("preview", "experimental", "-exp", "alpha", "-beta", "-rc", "antigravity")
+
+    /** Vero se il modello è dichiaratamente provvisorio. */
+    fun isPreview(model: String): Boolean =
+        previewMarkers.any { model.contains(it, ignoreCase = true) }
+
     /** I modelli di un elenco capaci di generare immagini. */
     fun imageModels(models: List<String>): List<String> =
         models.filter { model ->

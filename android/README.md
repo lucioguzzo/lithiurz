@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-4.10.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.0.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -433,6 +433,20 @@ Quindici già pronte, divise per ambito:
   in pratica), Dalla foto alla lista, Verbale di riunione.
 - **Analisi** — Riassunto strutturato, Analizza i dati.
 
+### Caricate dal modello, non solo scelte a mano
+
+Una competenza si può ancora applicare dal menù, ma quando gli strumenti sono
+attivi **è il modello a caricarsela** quando riconosce il lavoro. Funziona come
+un indice: gli strumenti dichiarano *quali* competenze esistono e a cosa
+servono, poche righe ciascuna, e solo quando ne carica una riceve le istruzioni
+per esteso — mettere tutto nel prompt costerebbe a ogni messaggio, anche quando
+non serve niente. La competenza caricata **resta applicata** alla conversazione,
+così non va ricaricata a ogni turno.
+
+Richiede un modello che sappia usare gli strumenti. Dove non li sa usare,
+l'elenco delle competenze torna nel prompt di sistema e il modello può
+suggerirtene una.
+
 Ognuna ha il suo segno nell'elenco — scelto per quello che fa — e una
 competenza scritta a mano eredita quello del suo ambito. Ognuna si può
 **modificare**, comprese quelle fornite con l'app: il testo
@@ -476,11 +490,21 @@ quindi resta la stessa a ogni avvio.
 | **Apify** | Estrazione dati dal web | un token |
 | **Tally** | Moduli e risposte | un token |
 
-**Elencati ma non attivabili**: Notion, Linear, Stripe, Sentry. Si autenticano
-con **OAuth 2.1**, cioè un giro di autorizzazione nel browser con registrazione
-dinamica del client, e GUZZOBOT non lo implementa ancora. Stanno nel catalogo
-col loro indirizzo vero e un lucchetto che spiega perché, invece di un pulsante
-che non funziona.
+**Con accesso nel browser**: Notion, Linear, Stripe, Sentry. Si tocca
+*Collega* e l'app fa da sé tutto il giro previsto dalla specifica MCP: chiede
+al connettore chi lo autorizza, legge i metadati del servizio di
+autorizzazione, **si registra come client** (RFC 7591), genera il segreto PKCE
+e apre la pagina di accesso. Tornando, il codice viene scambiato con un token
+che resta cifrato nel Keystore e **si rinnova da solo** quando scade; se il
+rinnovo non basta, il connettore chiede di rifare l'accesso invece di fallire
+in silenzio.
+
+Tre cose che l'app controlla e che vale dire: lo **stato** al ritorno dal
+browser (una risposta che non è nostra viene scartata), che il servizio
+supporti **PKCE con S256** (altrimenti si ferma e lo dice), e che permetta la
+registrazione automatica dei client — senza quella un'app come questa non
+potrebbe collegarsi, e preferiamo dirlo che lasciarti girare a vuoto. La tua
+password non passa mai da GUZZOBOT.
 
 **Zapier è la via d'uscita da quel lucchetto**, e per questo sta in cima: un
 token solo e dentro ci sono Gmail, Calendar, Slack, Fogli e migliaia di altre
@@ -547,6 +571,11 @@ provider:
 - se il provider serve pochi modelli, il suo elenco sostituisce il nostro; se ne
   serve centinaia, come OpenRouter, si tiene la selezione curata togliendo
   quelli che non esistono più;
+- il modello con cui si parte non è «il primo della lista», che arriva in
+  ordine alfabetico e può essere un'anteprima incapace di usare gli strumenti:
+  vince il primo di quelli scelti dall'app che esiste ancora, poi uno normale;
+- se un modello rifiuta gli strumenti, la richiesta viene **rifatta senza**
+  invece di restituire un errore: parlare lo sa comunque, e te lo dice;
 - i modelli che non possono reggere una conversazione — embedding, voce, live,
   immagini — restano nell'elenco del provider, perché sono quelli che servono
   ai ruoli multimodali, ma sono nascosti nel selettore della chat, dove
@@ -675,8 +704,8 @@ estrae il testo, non la formattazione: di un `.xls` si perdono formule (resta il
 valore calcolato) e formati numerici, di un `.ppt` la disposizione delle forme.
 Dei connettori si parla soltanto MCP su HTTP: i server `stdio` (`npx`, `uvx`)
 sono fuori portata per un'app Android, e di un server remoto si usano gli
-strumenti, non le sue risorse o i suoi prompt. L'autenticazione accettata è un
-token in un'intestazione: i connettori OAuth sono nel catalogo ma non
-attivabili. Una competenza è istruzioni, non codice eseguibile.
+strumenti, non le sue risorse o i suoi prompt. L'accesso OAuth richiede che il
+servizio permetta la registrazione automatica dei client. Una competenza è
+istruzioni, non codice eseguibile.
 Nessuna sincronizzazione tra dispositivi, per scelta: se disinstalli l'app, le
 conversazioni se ne vanno con lei.

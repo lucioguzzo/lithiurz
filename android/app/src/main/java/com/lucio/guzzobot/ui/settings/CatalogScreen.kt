@@ -18,7 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Login
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -125,12 +125,17 @@ fun CatalogScreen(
                             context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                         },
                         onStart = {
-                            editing = entry.id
-                            // Il token GitHub dell'area di lavoro vale anche qui.
-                            token = if (entry.id == "github") {
-                                viewModel.workspaceGitHubToken()
+                            if (entry.auth == McpAuth.OAUTH) {
+                                // Niente da incollare: si va nel browser.
+                                viewModel.connectWithOAuth(entry)
                             } else {
-                                ""
+                                editing = entry.id
+                                // Il token GitHub dell'area di lavoro vale anche qui.
+                                token = if (entry.id == "github") {
+                                    viewModel.workspaceGitHubToken()
+                                } else {
+                                    ""
+                                }
                             }
                         },
                         onAdd = {
@@ -201,11 +206,11 @@ private fun EntryRow(
                     modifier = Modifier.size(15.dp),
                 )
             }
-            if (locked) {
+            if (locked && !installed) {
                 Icon(
-                    imageVector = Icons.Outlined.Lock,
+                    imageVector = Icons.Outlined.Login,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(14.dp),
                 )
             }
@@ -224,26 +229,11 @@ private fun EntryRow(
                 },
             ),
             style = MaterialTheme.typography.bodySmall,
-            color = if (locked) {
-                MaterialTheme.colorScheme.error
-            } else {
-                MaterialTheme.colorScheme.onSurfaceVariant
-            },
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 2.dp),
         )
 
         when {
-            locked -> entry.docsUrl?.let { url ->
-                TextButton(onClick = { onOpen(url) }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.OpenInNew,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text("  " + stringResource(R.string.catalog_docs))
-                }
-            }
-
             installed -> TextButton(onClick = onOpenConnectors) {
                 Text(stringResource(R.string.catalog_installed))
             }
@@ -278,7 +268,13 @@ private fun EntryRow(
             }
 
             else -> FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = onStart) { Text(stringResource(R.string.catalog_add)) }
+                TextButton(onClick = onStart) {
+                    Text(
+                        stringResource(
+                            if (locked) R.string.catalog_connect else R.string.catalog_add,
+                        ),
+                    )
+                }
                 entry.docsUrl?.let { url ->
                     TextButton(onClick = { onOpen(url) }) {
                         Text(stringResource(R.string.catalog_docs))

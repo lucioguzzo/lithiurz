@@ -242,20 +242,20 @@
     <string name="onboarding_allow">Consenti</string>
     <string name="onboarding_done">Fine</string>
     <string name="catalog">Catalogo connettori</string>
-    <string name="catalog_hint">Connettori pronti, con indirizzi verificati. Quelli col lucchetto richiedono un accesso OAuth che l\'app non sa ancora fare.</string>
+    <string name="catalog_hint">Connettori pronti, con indirizzi verificati. Alcuni chiedono un token da incollare, altri un accesso nel browser.</string>
     <string name="catalog_add">Aggiungi</string>
     <string name="catalog_installed">Già aggiunto</string>
     <string name="catalog_get_token">Ottieni il token</string>
     <string name="catalog_docs">Documentazione</string>
     <string name="catalog_auth_none">Nessuna autenticazione: funziona subito</string>
     <string name="catalog_auth_token">Serve un token personale, da incollare una volta</string>
-    <string name="catalog_auth_oauth">Richiede OAuth: non ancora attivabile</string>
+    <string name="catalog_auth_oauth">Accesso nel browser, una volta sola</string>
     <string name="catalog_automation">Automazione</string>
     <string name="catalog_dev">Sviluppo</string>
     <string name="catalog_knowledge">Conoscenza e ricerca</string>
     <string name="catalog_productivity">Produttività</string>
     <string name="catalog_business">Affari</string>
-    <string name="catalog_oauth_note">Perché alcuni hanno il lucchetto: i connettori come Notion, Linear o Stripe si autenticano con OAuth, cioè un giro di autorizzazione nel browser con registrazione dinamica del client. GUZZOBOT non lo implementa ancora, quindi sono elencati con l\'indirizzo vero ma non attivabili — invece di un pulsante che non funziona. Zapier è la via d\'uscita: un token solo, e dentro ci sono Gmail, Calendar, Slack, Fogli e migliaia di app, perché l\'accesso a ciascuna lo tiene Zapier.</string>
+    <string name="catalog_oauth_note">Come funziona l\'accesso nel browser: GUZZOBOT chiede al connettore chi lo autorizza, si registra da sé presso quel servizio e ti manda sulla sua pagina di accesso. Tornando, il codice viene scambiato con un token che resta cifrato sul telefono e si rinnova da solo quando scade. Non vediamo mai la tua password. Se un servizio non permette la registrazione automatica dei client, l\'app lo dice invece di fallire in silenzio.</string>
     <string name="skills">Competenze</string>
     <string name="skills_hint">Un modo di lavorare, con un nome. Toccane una per applicarla alla conversazione: le sue istruzioni si aggiungono al tuo prompt di sistema, non lo sostituiscono.</string>
     <string name="skill_active">Attiva in questa conversazione: %1$s</string>
@@ -279,4 +279,6 @@
     <string name="free_note_no_key">Nessuna chiave, nessun account</string>
     <string name="free_note_public">Il risultato sta a un indirizzo pubblico: chi lo ha, rivede l\'immagine</string>
     <string name="free_note_watermark">Le immagini escono col logo del servizio</string>
+    <string name="catalog_connect">Collega</string>
+    <string name="connector_authorize">Autorizza</string>
 </resources>

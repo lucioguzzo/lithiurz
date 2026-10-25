@@ -19,6 +19,16 @@ import java.util.concurrent.TimeUnit
 class McpException(message: String) : Exception(message)
 
 /**
+ * Il server chiede di autorizzarsi. L'intestazione dice dove sono i suoi
+ * metadati, e senza di essa il giro di OAuth non può nemmeno cominciare: per
+ * questo è un'eccezione a parte e non un messaggio qualunque.
+ */
+class McpUnauthorized(
+    val wwwAuthenticate: String?,
+    message: String = "Il connettore chiede di autorizzarsi",
+) : Exception(message)
+
+/**
  * Client MCP sul trasporto HTTP: una richiesta JSON-RPC per volta, con la
  * risposta che può arrivare come JSON o come flusso di eventi. Ogni operazione
  * apre la sua sessione, perché da un telefono una connessione tenuta aperta
@@ -164,9 +174,12 @@ class McpClient(private val json: Json) {
             val returnedSession = response.header("Mcp-Session-Id") ?: sessionId
             val raw = response.body?.string().orEmpty()
             if (!response.isSuccessful) {
+                if (response.code == 401) {
+                    throw McpUnauthorized(response.header("WWW-Authenticate"))
+                }
                 throw McpException(
                     when (response.code) {
-                        401, 403 -> "Il connettore ha rifiutato le credenziali"
+                        403 -> "Il connettore ha rifiutato le credenziali"
                         404 -> "Indirizzo del connettore non valido"
                         else -> "HTTP ${response.code}${raw.take(200).let { if (it.isBlank()) "" else ": $it" }}"
                     },

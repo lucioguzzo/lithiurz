@@ -80,6 +80,13 @@ class AgentEngine(
                         tools = definitions,
                     ).collect { event ->
                         when (event) {
+                            // Senza strumenti l'agente non può fare niente:
+                            // continuare vorrebbe dire bruciare il budget per
+                            // arrivare allo stesso punto, ma senza dire perché.
+                            StreamEvent.ToolsDropped -> run.blocked(
+                                "Il modello scelto non sa usare gli strumenti: " +
+                                    "scegline un altro per l'agente",
+                            )
                             is StreamEvent.Content -> {
                                 content.append(event.text)
                                 onChunk(content.toString(), reasoning.toString())

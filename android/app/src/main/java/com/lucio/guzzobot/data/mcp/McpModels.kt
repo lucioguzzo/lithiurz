@@ -22,11 +22,54 @@ data class McpServer(
     val tools: List<McpTool> = emptyList(),
     val lastCheckedAt: Long = 0,
     val lastError: String? = null,
+    /** Presente se il connettore si autentica con OAuth invece che con un token. */
+    val oauth: OAuthConfig? = null,
 ) {
+    val usesOAuth: Boolean get() = oauth != null
+
     companion object {
-        /** Chiave con cui il token del connettore viene custodito, cifrato. */
+        /**
+         * Chiave con cui il token del connettore viene custodito, cifrato.
+         * Vale sia per un token personale sia per un token OAuth: il client
+         * manda comunque `Authorization: Bearer`, e questo evita due strade.
+         */
         fun secretKey(id: String) = "mcp_$id"
+
+        /** Il token di rinnovo, custodito a parte. */
+        fun refreshKey(id: String) = "mcp_${id}_refresh"
+
+        /** Il segreto del client, se il server di autorizzazione ne ha dato uno. */
+        fun clientSecretKey(id: String) = "mcp_${id}_client"
     }
+}
+
+/**
+ * Quello che resta da sapere dopo essersi autorizzati: dove chiedere un token
+ * nuovo e con quale identità. I token veri non stanno qui — stanno cifrati nel
+ * portachiavi — perché queste impostazioni finiscono in chiaro in DataStore.
+ */
+@Serializable
+data class OAuthConfig(
+    val authorizationEndpoint: String,
+    val tokenEndpoint: String,
+    val registrationEndpoint: String? = null,
+    val clientId: String,
+    /** L'identificativo con cui il token è legato a questo server. */
+    val resource: String,
+    val scopes: List<String> = emptyList(),
+    /** Quando il token scade, se il server l'ha detto. */
+    val expiresAt: Long = 0,
+) {
+    fun authServer() = OAuthDiscovery.AuthServer(
+        issuer = tokenEndpoint,
+        authorizationEndpoint = authorizationEndpoint,
+        tokenEndpoint = tokenEndpoint,
+        registrationEndpoint = registrationEndpoint,
+    )
+
+    /** Si rinnova in anticipo: un token che scade a metà richiesta è un errore. */
+    fun expiringSoon(now: Long = System.currentTimeMillis()): Boolean =
+        expiresAt > 0 && now > expiresAt - 60_000
 }
 
 @Serializable

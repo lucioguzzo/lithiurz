@@ -240,20 +240,20 @@
     <string name="onboarding_allow">Allow</string>
     <string name="onboarding_done">Done</string>
     <string name="catalog">Connector catalog</string>
-    <string name="catalog_hint">Ready-made connectors with verified addresses. The locked ones need OAuth sign-in, which the app cannot do yet.</string>
+    <string name="catalog_hint">Ready-made connectors with verified addresses. Some want a token pasted in, others a browser sign-in.</string>
     <string name="catalog_add">Add</string>
     <string name="catalog_installed">Already added</string>
     <string name="catalog_get_token">Get the token</string>
     <string name="catalog_docs">Documentation</string>
     <string name="catalog_auth_none">No authentication: works right away</string>
     <string name="catalog_auth_token">Needs a personal token, pasted once</string>
-    <string name="catalog_auth_oauth">Requires OAuth: cannot be enabled yet</string>
+    <string name="catalog_auth_oauth">Browser sign-in, once</string>
     <string name="catalog_automation">Automation</string>
     <string name="catalog_dev">Development</string>
     <string name="catalog_knowledge">Knowledge and research</string>
     <string name="catalog_productivity">Productivity</string>
     <string name="catalog_business">Business</string>
-    <string name="catalog_oauth_note">Why some are locked: connectors like Notion, Linear or Stripe authenticate with OAuth — a browser authorization round with dynamic client registration. GUZZOBOT does not implement it yet, so they are listed with their real address but cannot be enabled, instead of offering a button that does nothing. Zapier is the way around it: one token, and inside you get Gmail, Calendar, Slack, Sheets and thousands of apps, because Zapier holds the access to each.</string>
+    <string name="catalog_oauth_note">How the browser sign-in works: GUZZOBOT asks the connector who authorizes it, registers itself with that service, and sends you to its sign-in page. On the way back the code is exchanged for a token that stays encrypted on the phone and renews itself when it expires. We never see your password. If a service does not allow automatic client registration, the app says so instead of failing silently.</string>
     <string name="skills">Skills</string>
     <string name="skills_hint">A way of working, with a name. Tap one to apply it to the conversation: its instructions are added to your system prompt, not substituted for it.</string>
     <string name="skill_active">Active in this conversation: %1$s</string>
@@ -277,4 +277,6 @@
     <string name="free_note_no_key">No key, no account</string>
     <string name="free_note_public">The result sits at a public address: anyone with it sees the image</string>
     <string name="free_note_watermark">Images come out with the service\'s logo</string>
+    <string name="catalog_connect">Connect</string>
+    <string name="connector_authorize">Authorize</string>
 </resources>

@@ -26,6 +26,9 @@ sealed interface StreamEvent {
 
     /** Il modello chiede di eseguire degli strumenti prima di rispondere. */
     data class ToolRequests(val calls: List<ToolCall>) : StreamEvent
+
+    /** Il modello non sa usare strumenti: si è riprovato senza. */
+    data object ToolsDropped : StreamEvent
 }
 
 /** Una chiamata a uno strumento, ricomposta dai frammenti dello streaming. */
@@ -66,59 +69,40 @@ class ChatApi(private val json: Json) {
             maxTokens = maxTokens?.takeIf { it > 0 },
             tools = tools,
         )
-        val request = Request.Builder()
+        fun request(withTools: kotlinx.serialization.json.JsonArray?) = Request.Builder()
             .url(endpoint(baseUrl, "chat/completions"))
             .headers(headers(apiKey, accept = "text/event-stream"))
-            .post(json.encodeToString(payload).toRequestBody(JSON_MEDIA))
+            .post(
+                json.encodeToString(payload.copy(tools = withTools)).toRequestBody(JSON_MEDIA),
+            )
             .build()
 
-        val call = client.newCall(request)
+        var call = client.newCall(request(tools))
         launch(Dispatchers.IO) {
             try {
                 call.execute().use { response ->
                     if (!response.isSuccessful) {
-                        throw ApiException(errorMessage(response.code, response.body?.string()))
-                    }
-                    val source = response.body?.source() ?: throw ApiException("Risposta vuota")
-                    // I frammenti di una chiamata a strumento arrivano spezzati:
-                    // si ricompongono per indice prima di consegnarli.
-                    val pendingTools = linkedMapOf<Int, PartialToolCall>()
-                    while (!source.exhausted()) {
-                        val line = source.readUtf8Line() ?: break
-                        val data = when {
-                            line.startsWith("data:") -> line.removePrefix("data:").trim()
-                            line.isBlank() -> continue
-                            // Alcuni gateway rispondono in JSON semplice su errore.
-                            line.startsWith("{") -> line
-                            else -> continue
-                        }
-                        if (data.isEmpty() || data == "[DONE]") continue
-                        val chunk = runCatching { json.decodeFromString<ChatChunk>(data) }.getOrNull()
-                            ?: continue
-                        chunk.error?.let { throw ApiException(it.message ?: "Errore del provider") }
-                        val delta = chunk.choices.firstOrNull()?.delta ?: continue
-                        // send() e non trySend(): se la UI è in ritardo i token
-                        // aspettano invece di essere scartati.
-                        (delta.reasoningContent ?: delta.reasoning)?.takeIf { it.isNotEmpty() }?.let {
-                            send(StreamEvent.Reasoning(it))
-                        }
-                        delta.content?.takeIf { it.isNotEmpty() }?.let {
-                            send(StreamEvent.Content(it))
-                        }
-                        delta.toolCalls?.forEach { fragment ->
-                            val slot = pendingTools.getOrPut(fragment.index ?: pendingTools.size) {
-                                PartialToolCall()
+                        val body = response.body?.string()
+                        // Alcuni modelli — quasi tutti quelli gratuiti più
+                        // piccoli — non sanno usare strumenti. Rispondere
+                        // «errore» sarebbe assurdo: sanno comunque parlare.
+                        if (tools != null && ApiErrors.toolsUnsupported(body)) {
+                            send(StreamEvent.ToolsDropped)
+                            call = client.newCall(request(null))
+                            call.execute().use { retry ->
+                                if (!retry.isSuccessful) {
+                                    throw ApiException(
+                                        errorMessage(retry.code, retry.body?.string()),
+                                    )
+                                }
+                                stream(retry, this@callbackFlow)
                             }
-                            fragment.id?.let { slot.id = it }
-                            fragment.function?.name?.let { slot.name = it }
-                            fragment.function?.arguments?.let { slot.arguments.append(it) }
-                            fragment.extraContent?.let { slot.extra = it }
+                            close()
+                            return@launch
                         }
+                        throw ApiException(errorMessage(response.code, body))
                     }
-                    val requested = pendingTools.values
-                        .filter { it.name.isNotBlank() }
-                        .map { StreamEventToolCall(it) }
-                    if (requested.isNotEmpty()) send(StreamEvent.ToolRequests(requested))
+                    stream(response, this@callbackFlow)
                 }
                 close()
             } catch (e: Throwable) {
@@ -127,6 +111,60 @@ class ChatApi(private val json: Json) {
             }
         }
         awaitClose { call.cancel() }
+    }
+
+
+    /**
+     * Legge il flusso di eventi e consegna quello che arriva.
+     *
+     * Sta in una funzione a parte perché si usa due volte: al primo tentativo
+     * e, quando il modello rifiuta gli strumenti, a quello senza.
+     */
+    private suspend fun stream(
+        response: okhttp3.Response,
+        scope: kotlinx.coroutines.channels.ProducerScope<StreamEvent>,
+    ) {
+                val source = response.body?.source() ?: throw ApiException("Risposta vuota")
+                // I frammenti di una chiamata a strumento arrivano spezzati:
+                // si ricompongono per indice prima di consegnarli.
+                val pendingTools = linkedMapOf<Int, PartialToolCall>()
+                while (!source.exhausted()) {
+                    val line = source.readUtf8Line() ?: break
+                    val data = when {
+                        line.startsWith("data:") -> line.removePrefix("data:").trim()
+                        line.isBlank() -> continue
+                        // Alcuni gateway rispondono in JSON semplice su errore.
+                        line.startsWith("{") -> line
+                        else -> continue
+                    }
+                    if (data.isEmpty() || data == "[DONE]") continue
+                    val chunk = runCatching { json.decodeFromString<ChatChunk>(data) }.getOrNull()
+                        ?: continue
+                    chunk.error?.let { throw ApiException(it.message ?: "Errore del provider") }
+                    val delta = chunk.choices.firstOrNull()?.delta ?: continue
+                    // send() e non trySend(): se la UI è in ritardo i token
+                    // aspettano invece di essere scartati.
+                    (delta.reasoningContent ?: delta.reasoning)?.takeIf { it.isNotEmpty() }?.let {
+                        scope.send(StreamEvent.Reasoning(it))
+                    }
+                    delta.content?.takeIf { it.isNotEmpty() }?.let {
+                        scope.send(StreamEvent.Content(it))
+                    }
+                    delta.toolCalls?.forEach { fragment ->
+                        val slot = pendingTools.getOrPut(fragment.index ?: pendingTools.size) {
+                            PartialToolCall()
+                        }
+                        fragment.id?.let { slot.id = it }
+                        fragment.function?.name?.let { slot.name = it }
+                        fragment.function?.arguments?.let { slot.arguments.append(it) }
+                        fragment.extraContent?.let { slot.extra = it }
+                    }
+                }
+                val requested = pendingTools.values
+                    .filter { it.name.isNotBlank() }
+                    .map { StreamEventToolCall(it) }
+                if (requested.isNotEmpty()) scope.send(StreamEvent.ToolRequests(requested))
+
     }
 
     /** Chiamata singola senza streaming: la usiamo per far descrivere le immagini. */
