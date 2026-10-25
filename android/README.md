@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.2.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-5.3.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -104,7 +104,7 @@ Nessuna carta di credito, in nessuno dei casi.
 
 | Provider | Cosa dà di gratuito |
 |---|---|
-| **Google AI Studio (Gemini)** | L'unico gratuito che **vede le immagini** e l'unico che le **genera** (`/images/generations`, lo stesso endpoint compatibile OpenAI). Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
+| **Google AI Studio (Gemini)** | L'unico gratuito che **vede** le immagini. **Generarle no**: nessun modello di immagini di Google è nel piano gratuito. Fuori da UE/UK/SEE i prompt del piano gratuito vengono usati per addestrare |
 | **Groq** | 30 richieste al minuto e `/audio/transcriptions`: è l'unico gratuito che **trascrive gli audio** |
 | **Cerebras** | 30 richieste al minuto, latenza bassissima, finestra ridotta rispetto al piano a pagamento |
 | **OpenRouter** | I modelli con il suffisso `:free` — 20 richieste al minuto, 50 al giorno |
@@ -365,11 +365,23 @@ Le due strade tecniche però sono diverse, e vale saperlo perché cambia chi pu�
 farle:
 
 - **Creare** passa da `/images/generations`, l'endpoint compatibile con l'API
-  OpenAI: funziona con Gemini (nel piano **gratuito**), con `gpt-image-1` di
-  OpenAI e con `grok-2-image` di xAI.
+  OpenAI: funziona con i modelli immagine di Gemini, con `gpt-image-1` di
+  OpenAI e con `grok-2-image` di xAI — **tutti a pagamento**. L'unico
+  davvero gratuito è **Pollinations**, che non chiede nemmeno una chiave.
 - **Modificare** quella strada non la può fare: accetta solo testo. Serve l'API
-  nativa di Google, che prende prompt e immagine insieme — quindi al momento la
-  modifica è possibile **solo con una chiave Gemini**.
+  nativa di Google, che prende prompt e immagine insieme — quindi la modifica
+  è possibile solo con Gemini, e **solo con la fatturazione attiva**.
+
+> **Una correzione.** Fino alla 5.2 questo documento diceva che Gemini
+> generava immagini gratis, e l'app sceglieva da sé un suo modello immagini
+> appena salvavi la chiave. Era sbagliato: la
+> [pagina dei prezzi di Google](https://ai.google.dev/gemini-api/docs/pricing)
+> dà **tutti** i suoi modelli di immagini fuori dal piano gratuito, e quello
+> che l'app proponeva (`gemini-2.5-flash-image`) è stato dismesso il 2 ottobre
+> 2026. Da lì venivano i `503` che sembravano un sovraccarico perenne. Ora
+> l'app non sceglie mai da sola un motore a pagamento: con una chiave Gemini
+> il ruolo immagini va su Pollinations, e i modelli di Gemini restano
+> selezionabili a mano da chi la fatturazione ce l'ha.
 
 Delle due forme di richiesta che Google espone l'app prova la corrente e, se
 risponde che non esiste, la precedente. E l'immagine nella risposta non viene

@@ -200,7 +200,7 @@
     <string name="free_models">Free models</string>
     <string name="free_models_detail">Use the app without paying: %1$d providers with a free tier</string>
     <string name="free_disclaimer_title">Free, with real limits</string>
-    <string name="free_disclaimer_body">Free tiers are for trying things out, not for working. They answer worse than paid models and have per-minute and per-day limits that an agent goal or a scheduled task burns through fast. Among these providers only Gemini sees images; only Groq transcribes audio; image generation and read-aloud are free nowhere, so those features stay off. Tool calling is uneven, so the agent and connectors may misfire. None of these endpoints works without a credential: what is free is the sign-up, not the key — and where marked, your prompts are used to train the models.</string>
+    <string name="free_disclaimer_body">Free tiers are for trying things out, not for working. They answer worse than paid models and have per-minute and per-day limits that an agent goal or a scheduled task burns through fast. Among these providers only Gemini sees images; only Groq transcribes audio. Generating images is free nowhere — not even with Gemini, which charges for all of them — except with Pollinations, with the limits noted beside it. Tool calling is uneven, so the agent and connectors may misfire. None of these endpoints works without a credential: what is free is the sign-up, not the key — and where marked, your prompts are used to train the models.</string>
     <string name="free_get_key">Get a free key</string>
     <string name="free_paste_key">Paste the key</string>
     <string name="free_activate">Activate</string>
@@ -281,4 +281,5 @@
     <string name="connector_authorize">Authorize</string>
     <string name="image_fallback">Free fallback</string>
     <string name="image_fallback_detail">If the chosen model is overloaded or out of quota, create the image with Pollinations. No key needed, but the result carries the service\'s logo and sits at a public address. Does not apply to edits.</string>
+    <string name="free_note_images_paid">Image generation is not in the free tier: billing must be enabled</string>
 </resources>

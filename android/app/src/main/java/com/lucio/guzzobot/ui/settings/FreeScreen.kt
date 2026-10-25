@@ -287,6 +287,7 @@ private fun NoteRow(note: FreeNote) {
             FreeNote.NO_KEY -> R.string.free_note_no_key
             FreeNote.PUBLIC_RESULTS -> R.string.free_note_public
             FreeNote.WATERMARK -> R.string.free_note_watermark
+            FreeNote.IMAGES_PAID -> R.string.free_note_images_paid
         },
     )
     Text(

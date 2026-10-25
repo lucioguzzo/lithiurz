@@ -20,6 +20,13 @@ data class Provider(
     val imageApi: ImageApi = ImageApi.OPENAI,
     /** Un provider che fa solo immagini non va mostrato fra i modelli di chat. */
     val imageOnly: Boolean = false,
+    /**
+     * Vero se generare immagini richiede la fatturazione attiva, anche quando
+     * la chat è gratuita. Google è così: nessun suo modello di immagini sta
+     * nel piano gratuito. Serve a non sceglierli da soli, lasciando l'utente
+     * davanti a un errore che sembra un guasto.
+     */
+    val imagesNeedPayment: Boolean = false,
     /** Se il provider ha un piano gratuito vero, cosa offre e cosa chiede. */
     val freeTier: FreeTier? = null,
     /**
@@ -95,6 +102,8 @@ enum class FreeNote(val warning: Boolean) {
     NEEDS_LOCAL_MACHINE(true),
     /** Solo una parte del catalogo è gratis. */
     PARTIAL_CATALOG(true),
+    /** La chat è gratis, le immagini no. */
+    IMAGES_PAID(true),
 }
 
 object Providers {
@@ -207,20 +216,23 @@ object Providers {
                 "gemini-3.8-flash",
                 "gemini-3.6-flash",
                 "gemini-3.5-flash-lite",
-                // Generano immagini su /images/generations, lo stesso endpoint
-                // compatibile con l'API OpenAI: nel piano gratuito.
-                "gemini-2.5-flash-image",
-                "gemini-3-pro-image-preview",
+                // Generano immagini sullo stesso endpoint compatibile con
+                // l'API OpenAI, ma NON sono nel piano gratuito: servono a chi
+                // ha attivato la fatturazione. Il vecchio gemini-2.5-flash-image
+                // non c'è più, dismesso il 2 ottobre 2026.
+                "gemini-3.1-flash-image",
+                "gemini-3-pro-image",
             ),
             keyUrl = "https://aistudio.google.com/apikey",
             builtIn = true,
+            imagesNeedPayment = true,
             freeTier = FreeTier(
                 signupUrl = "https://aistudio.google.com/apikey",
                 limits = "limiti per progetto, visibili su aistudio.google.com/rate-limit",
                 notes = listOf(
                     FreeNote.NO_CARD,
                     FreeNote.SEES_IMAGES,
-                    FreeNote.CREATES_IMAGES,
+                    FreeNote.IMAGES_PAID,
                     FreeNote.TRAINS_ON_DATA,
                 ),
             ),

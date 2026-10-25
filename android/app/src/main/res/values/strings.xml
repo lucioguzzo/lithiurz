@@ -202,7 +202,7 @@
     <string name="free_models">Modelli gratuiti</string>
     <string name="free_models_detail">Usare l\'app senza spendere: %1$d provider con piano gratuito</string>
     <string name="free_disclaimer_title">Gratis, ma con dei limiti veri</string>
-    <string name="free_disclaimer_body">I piani gratuiti servono a provare, non a lavorare. Rispondono peggio dei modelli a pagamento e hanno limiti al minuto e al giorno, che un obiettivo dell\'agente o un compito pianificato bruciano in fretta. Fra questi provider solo Gemini vede le immagini; la trascrizione degli audio la fa solo Groq; generare immagini e leggere ad alta voce non è gratis da nessuna parte, quindi quelle funzioni restano spente. Il tool calling è irregolare, quindi agente e connettori possono sbagliare. Nessuno di questi endpoint funziona senza credenziale: quello che è gratis è l\'iscrizione, non la chiave — e dove è segnato, i tuoi prompt vengono usati per addestrare i modelli.</string>
+    <string name="free_disclaimer_body">I piani gratuiti servono a provare, non a lavorare. Rispondono peggio dei modelli a pagamento e hanno limiti al minuto e al giorno, che un obiettivo dell\'agente o un compito pianificato bruciano in fretta. Fra questi provider solo Gemini vede le immagini; la trascrizione degli audio la fa solo Groq. Generare immagini non è gratis da nessuna parte — nemmeno con Gemini, che le fa pagare tutte — tranne che con Pollinations, con i limiti scritti accanto. Il tool calling è irregolare, quindi agente e connettori possono sbagliare. Nessuno di questi endpoint funziona senza credenziale: quello che è gratis è l\'iscrizione, non la chiave — e dove è segnato, i tuoi prompt vengono usati per addestrare i modelli.</string>
     <string name="free_get_key">Ottieni una chiave gratis</string>
     <string name="free_paste_key">Incolla la chiave</string>
     <string name="free_activate">Attiva</string>
@@ -283,4 +283,5 @@
     <string name="connector_authorize">Autorizza</string>
     <string name="image_fallback">Ripiego gratuito</string>
     <string name="image_fallback_detail">Se il modello scelto è sovraccarico o ha esaurito la quota, crea l\'immagine con Pollinations. Non serve nessuna chiave, ma il risultato porta il logo del servizio e sta a un indirizzo pubblico. Non vale per le modifiche.</string>
+    <string name="free_note_images_paid">Generare immagini non è nel piano gratuito: serve la fatturazione attiva</string>
 </resources>

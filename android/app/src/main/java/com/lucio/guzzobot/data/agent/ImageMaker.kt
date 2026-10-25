@@ -50,7 +50,12 @@ object ImageMaker {
             Produced(call(provider, ref.model, settings, chatApi, secrets, prompt), ref.model, false)
         } catch (error: ApiException) {
             val spare = fallbackProvider(settings, provider)
-            if (spare == null || !ApiErrors.unavailable(error.code, error.message)) throw error
+            if (spare == null || !ApiErrors.unavailable(error.code, error.message)) {
+                // Senza il nome del modello un errore del provider è
+                // indistinguibile da un guasto dell'app: va detto chi ha
+                // risposto così.
+                throw ApiException("${ref.model}: ${error.message}", error.code)
+            }
             Produced(
                 bytes = chatApi.generatePollinations(spare.baseUrl, prompt, settings.imageSize),
                 model = spare.name,

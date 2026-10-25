@@ -1875,19 +1875,31 @@ class ChatViewModel(
      * immagini, trascrivere. Se il ruolo è vuoto e il provider sa farlo, si
      * riempie — senza mai sovrascrivere una scelta già fatta.
      */
+    /** Il generatore di immagini che non chiede né chiave né fatturazione. */
+    private fun keylessImageRef(current: AppSettings): ModelRef? =
+        current.providers.firstOrNull { it.imageApi == ImageApi.POLLINATIONS }
+            ?.let { spare -> spare.models.firstOrNull()?.let { ModelRef(spare.id, it) } }
+
     private suspend fun fillEmptyRoles(providerId: String) {
         val current = settings.value
         val provider = current.providers.firstOrNull { it.id == providerId } ?: return
         if (current.imageRef == null) {
-            // Di un provider di sole immagini vale qualunque suo modello.
-            val candidates = if (provider.imageOnly) {
-                provider.models
-            } else {
-                ModelCatalog.imageModels(provider.models)
+            val chosen = when {
+                // Di un provider di sole immagini vale qualunque suo modello.
+                provider.imageOnly -> provider.models.firstOrNull()
+                    ?.let { ModelRef(providerId, it) }
+
+                // I modelli immagine di Google si pagano tutti: sceglierne uno
+                // da soli vorrebbe dire preparare un errore a chi ha solo il
+                // piano gratuito. Si ripiega su quello che gratuito lo è
+                // davvero, che l'utente potrà sempre cambiare.
+                provider.imagesNeedPayment -> keylessImageRef(current)
+
+                else -> ModelCatalog.imageModels(provider.models).firstOrNull()
+                    ?.let { ModelRef(providerId, it) }
+                    ?: keylessImageRef(current)
             }
-            candidates.firstOrNull()?.let { model ->
-                settingsStore.setImageRef(ModelRef(providerId, model))
-            }
+            chosen?.let { settingsStore.setImageRef(it) }
         }
         if (current.transcribeRef == null) {
             ModelCatalog.transcribeModels(provider.models).firstOrNull()?.let { model ->
