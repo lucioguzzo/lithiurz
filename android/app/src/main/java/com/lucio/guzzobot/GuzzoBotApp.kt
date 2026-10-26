@@ -22,7 +22,10 @@ import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import kotlinx.serialization.json.Json
 
 /** Dipendenze costruite a mano: l'app è piccola e non serve un framework DI. */
-class AppContainer(private val app: Application) {
+class AppContainer(
+    private val app: Application,
+    val secretStore: SecretStore = SecretStore(app),
+) {
     val appContext: android.content.Context get() = app
 
     val json: Json = Json {
@@ -37,7 +40,6 @@ class AppContainer(private val app: Application) {
     val projectDao = database.projectDao()
     val artifactDao = database.artifactDao()
     val settingsStore = SettingsStore(app, json)
-    val secretStore = SecretStore(app)
     val chatApi = ChatApi(json)
     val attachmentStore = AttachmentStore(app)
     val audioRecorder = AudioRecorder(app)
@@ -50,7 +52,7 @@ class AppContainer(private val app: Application) {
     val mcpOAuth = McpOAuth(json)
 }
 
-class GuzzoBotApp : Application() {
+open class GuzzoBotApp : Application() {
     lateinit var container: AppContainer
         private set
 
@@ -63,7 +65,14 @@ class GuzzoBotApp : Application() {
         CrashGuard.install(crashes)
         // Carica i font che PDFBox usa per estrarre il testo dai PDF.
         PDFBoxResourceLoader.init(this)
-        container = AppContainer(this)
+        container = createContainer()
+        scheduleWork()
+    }
+
+    /** Aperti perché i test possano avviare l'app senza Keystore né WorkManager. */
+    protected open fun createContainer(): AppContainer = AppContainer(this)
+
+    protected open fun scheduleWork() {
         // Gli elenchi dei modelli invecchiano: una volta a settimana si ricontrollano.
         ModelRefreshWorker.ensureScheduled(this)
     }

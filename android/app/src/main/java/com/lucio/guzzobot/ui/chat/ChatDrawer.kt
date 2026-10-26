@@ -95,82 +95,88 @@ fun ChatDrawer(
     }
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            GuzzoBotLogo(size = 32.dp)
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
-
-        DrawerRow(Icons.Outlined.Add, stringResource(R.string.new_chat), onNewChat, accent = true)
-        DrawerRow(
-            icon = Icons.Outlined.AutoAwesome,
-            label = stringResource(R.string.agent_bot),
-            onClick = onOpenAgent,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.Code,
-            label = stringResource(R.string.code),
-            onClick = onOpenCode,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.GraphicEq,
-            label = stringResource(R.string.voice_conversation),
-            onClick = onOpenVoice,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.School,
-            label = stringResource(R.string.skills),
-            detail = activeSkill,
-            onClick = onOpenSkills,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.Inventory2,
-            label = stringResource(R.string.artifacts),
-            onClick = onOpenArtifacts,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.FolderOpen,
-            label = stringResource(R.string.workspace),
-            detail = workspaceLabel.ifBlank { stringResource(R.string.workspace_none) },
-            onClick = onOpenWorkspace,
-        )
-        DrawerRow(
-            icon = Icons.Outlined.Schedule,
-            label = stringResource(R.string.tasks),
-            onClick = onOpenTasks,
-        )
-
-        HorizontalDivider(
-            color = MaterialTheme.colorScheme.outlineVariant,
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = { query = it },
-            placeholder = { Text(stringResource(R.string.search_chats)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Search,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                )
-            },
-            singleLine = true,
-            shape = RoundedCornerShape(14.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 4.dp),
-        )
-
         LazyColumn(modifier = Modifier.weight(1f)) {
+            // Le voci fisse scorrono insieme alle chat: su un telefono piccolo,
+            // o coi caratteri grandi, altrimenti schiaccerebbero l'elenco a
+            // zero e spingerebbero Impostazioni fuori dallo schermo.
+            item("menu") {
+                Column {
+                    Row(
+                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 22.dp, bottom = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        GuzzoBotLogo(size = 32.dp)
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.onBackground,
+                        )
+                    }
+
+                    DrawerRow(Icons.Outlined.Add, stringResource(R.string.new_chat), onNewChat, accent = true)
+                    DrawerRow(
+                        icon = Icons.Outlined.AutoAwesome,
+                        label = stringResource(R.string.agent_bot),
+                        onClick = onOpenAgent,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.Code,
+                        label = stringResource(R.string.code),
+                        onClick = onOpenCode,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.GraphicEq,
+                        label = stringResource(R.string.voice_conversation),
+                        onClick = onOpenVoice,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.School,
+                        label = stringResource(R.string.skills),
+                        detail = activeSkill,
+                        onClick = onOpenSkills,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.Inventory2,
+                        label = stringResource(R.string.artifacts),
+                        onClick = onOpenArtifacts,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.FolderOpen,
+                        label = stringResource(R.string.workspace),
+                        detail = workspaceLabel.ifBlank { stringResource(R.string.workspace_none) },
+                        onClick = onOpenWorkspace,
+                    )
+                    DrawerRow(
+                        icon = Icons.Outlined.Schedule,
+                        label = stringResource(R.string.tasks),
+                        onClick = onOpenTasks,
+                    )
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant,
+                        modifier = Modifier.padding(vertical = 8.dp),
+                    )
+
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        placeholder = { Text(stringResource(R.string.search_chats)) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Outlined.Search,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp),
+                            )
+                        },
+                        singleLine = true,
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                    )
+                }
+            }
             if (sections.pinned.isNotEmpty()) {
                 item("pinned-title") { SectionLabel(stringResource(R.string.pinned)) }
                 items(sections.pinned.size, key = { "p-${sections.pinned[it].id}" }) { index ->

@@ -1,5 +1,6 @@
 package com.lucio.guzzobot.ui.components
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,9 @@ fun LocalImage(
     maxSide: Int = 1024,
     contentScale: ContentScale = ContentScale.Crop,
 ) {
+    // Il valore è assegnato: la regola di lint non lo vede quando passa da
+    // withContext, e segnala un errore che non c'è.
+    @SuppressLint("ProduceStateDoesNotAssignValue")
     val bitmap by produceState<ImageBitmap?>(initialValue = null, path, maxSide) {
         value = withContext(Dispatchers.IO) {
             decode(path, maxSide)?.asImageBitmap()

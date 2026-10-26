@@ -227,6 +227,10 @@ class SettingsStore(context: Context, private val json: Json) {
 
     suspend fun completeOnboarding() = store.edit { it[Keys.onboardingDone] = true }
 
+    /** Solo per i test: il DataStore è unico per processo e sopravvive da un test all'altro. */
+    @androidx.annotation.VisibleForTesting
+    suspend fun clearAll() = store.edit { it.clear() }
+
     suspend fun setImageFallback(value: Boolean) = store.edit { it[Keys.imageFallback] = value }
 
     suspend fun setAutoSpeak(value: Boolean) = store.edit { it[Keys.autoSpeak] = value }

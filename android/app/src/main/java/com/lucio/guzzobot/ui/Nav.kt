@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.lucio.guzzobot.ui.chat.ChatScreen
@@ -48,8 +49,8 @@ fun GuzzoBotNavHost(
     sharedText: String?,
     sharedFile: Pair<Uri, String>? = null,
     openFree: Boolean = false,
+    navController: NavHostController = rememberNavController(),
 ) {
-    val navController = rememberNavController()
 
     LaunchedEffect(sharedText) {
         if (!sharedText.isNullOrBlank()) viewModel.setInput(sharedText)

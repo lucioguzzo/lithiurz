@@ -29,8 +29,8 @@ android {
         applicationId = "com.lucio.guzzobot"
         minSdk = 26
         targetSdk = 35
-        versionCode = 34
-        versionName = "6.3"
+        versionCode = 35
+        versionName = "6.4"
     }
 
     signingConfigs {
@@ -74,6 +74,15 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.all { test ->
+            // Le prove d'interfaccia girano una volta sola, in debug: è lì che
+            // c'è l'activity vuota che le ospita, e ripeterle in release non
+            // proverebbe niente di diverso.
+            if (test.name == "testReleaseUnitTest") test.exclude("**/stress/**")
+        }
+    }
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
@@ -107,4 +116,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.kotlinx.coroutines.test)
+    // Robolectric fa girare le schermate vere sulla JVM: qui non c'è un
+    // emulatore, e i crash di navigazione si vedono solo avviandole.
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.work.testing)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
 }

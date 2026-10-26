@@ -12,20 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
  * con una chiave custodita dal Keystore hardware di Android. Non lasciano il
  * telefono se non nella chiamata diretta al provider scelto.
  */
-class SecretStore(context: Context) {
+class SecretStore(private val prefs: SharedPreferences) {
 
-    private val prefs: SharedPreferences = run {
-        val masterKey = MasterKey.Builder(context)
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
-            .build()
-        EncryptedSharedPreferences.create(
-            context,
-            "guzzobot_secure_keys",
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
-        )
-    }
+    constructor(context: Context) : this(encrypted(context))
 
     private val revision = MutableStateFlow(0)
 
@@ -44,4 +33,33 @@ class SecretStore(context: Context) {
     }
 
     private fun key(providerId: String) = "api_key_$providerId"
+
+    companion object {
+        private const val FILE = "guzzobot_secure_keys"
+
+        /**
+         * Se il Keystore non riesce più a decifrare il file — succede dopo
+         * certi ripristini o aggiornamenti di sistema — l'app non deve
+         * morire a ogni avvio: si butta il file illeggibile e si riparte
+         * senza chiavi. Perderle è brutto; non poter più aprire l'app è peggio.
+         */
+        private fun encrypted(context: Context): SharedPreferences =
+            runCatching { open(context) }.getOrElse {
+                context.deleteSharedPreferences(FILE)
+                open(context)
+            }
+
+        private fun open(context: Context): SharedPreferences {
+            val masterKey = MasterKey.Builder(context)
+                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
+                .build()
+            return EncryptedSharedPreferences.create(
+                context,
+                FILE,
+                masterKey,
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
+            )
+        }
+    }
 }

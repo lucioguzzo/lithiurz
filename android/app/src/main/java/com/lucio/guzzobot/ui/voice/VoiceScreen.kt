@@ -1,5 +1,9 @@
 package com.lucio.guzzobot.ui.voice
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.BackHandler
@@ -93,9 +97,13 @@ fun VoiceScreen(viewModel: ChatViewModel, onClose: () -> Unit) {
     BackHandler(enabled = true) { leave() }
 
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+        // Scorrevole se lo schermo non basta: «Esci» non deve mai finire fuori.
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
                 .clickable(
                     // Un tocco qualunque zittisce la voce e ridà il turno.
                     indication = null,
@@ -187,6 +195,7 @@ fun VoiceScreen(viewModel: ChatViewModel, onClose: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+        }
         }
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GUZZOBOT</string>
+    <string name="app_name" translatable="false">GUZZOBOT</string>
 
     <string name="new_chat">Nuova chat</string>
     <string name="recents">Recenti</string>

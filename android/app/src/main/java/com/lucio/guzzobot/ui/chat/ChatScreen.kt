@@ -1,5 +1,9 @@
 package com.lucio.guzzobot.ui.chat
 
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.BoxWithConstraints
 import android.Manifest
 import android.app.Activity
 import android.content.Context
@@ -627,9 +631,14 @@ private fun EmptyState(onSuggestion: (String) -> Unit, onStartFree: (() -> Unit)
         }
     }
     val suggestions = listOf(R.string.suggestion_1, R.string.suggestion_2, R.string.suggestion_3)
+    // Centrato se c'è posto, scorrevole se non c'è: su un telefono piccolo o
+    // coi caratteri grandi gli ultimi suggerimenti finirebbero fuori schermo.
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .heightIn(min = maxHeight)
             .padding(horizontal = 28.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -686,6 +695,7 @@ private fun EmptyState(onSuggestion: (String) -> Unit, onStartFree: (() -> Unit)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
             )
         }
+    }
     }
 }
 

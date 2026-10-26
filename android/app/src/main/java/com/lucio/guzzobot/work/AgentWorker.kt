@@ -1,5 +1,8 @@
 package com.lucio.guzzobot.work
 
+import androidx.core.content.ContextCompat
+import android.content.pm.PackageManager
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -131,6 +134,14 @@ class AgentWorker(
             .setAutoCancel(true)
             .setContentIntent(open)
             .build()
+        // Da Android 13 le notifiche sono un permesso: chi l'ha negato trova
+        // comunque il risultato nell'elenco delle attività.
+        val allowed = Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+            ContextCompat.checkSelfPermission(
+                applicationContext,
+                Manifest.permission.POST_NOTIFICATIONS,
+            ) == PackageManager.PERMISSION_GRANTED
+        if (!allowed) return
         runCatching {
             NotificationManagerCompat.from(applicationContext).notify(title.hashCode(), notification)
         }
