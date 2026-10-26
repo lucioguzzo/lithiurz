@@ -298,20 +298,20 @@
     <string name="voice_pitch">Pitch</string>
     <string name="voice_preview">Try the voice</string>
     <string name="voice_none">No voice installed on this phone for this language</string>
-    <string name="voice_conversation">Spoken conversation</string>
-    <string name="voice_conversation_detail">Hold the microphone in a chat: you talk, GUZZOBOT answers aloud and goes back to listening. Uses Android\'s speech recognition, free and often offline.</string>
+    <string name="voice_conversation">JARVIS mode</string>
+    <string name="voice_conversation_detail">Open JARVIS mode and talk: GUZZOBOT answers aloud and goes back to listening by itself, and you can cut in by speaking over it. Uses Android\'s speech recognition, free and often offline.</string>
     <string name="voice_install">Download more voices</string>
     <string name="voice_system_settings">Android settings</string>
     <string name="voice_get_google">Install Google\'s engine</string>
     <string name="voice_engine_google">Engine in use: %1$s. It has neural voices — if they sound poor, download a better one for your language.</string>
     <string name="voice_engine_other">Engine in use: %1$s. The stock voices on many phones are robotic: Google\'s engine has neural voices, far more natural.</string>
     <string name="voice_thinking">Thinking…</string>
-    <string name="voice_off">Conversation paused</string>
+    <string name="voice_off">JARVIS paused</string>
     <string name="voice_leave">Leave</string>
     <string name="voice_barge_on">You can cut in by speaking: the microphone stays open while I read. Tap the screen to silence me at once.</string>
     <string name="voice_barge_off">I wait until I finish reading before listening again. Tap the screen to silence me at once.</string>
     <string name="voice_barge_disable">Don\'t let me be cut off</string>
     <string name="voice_barge_enable">Let me be cut off by speaking</string>
     <string name="voice_needs_permission">The microphone permission is needed</string>
-    <string name="voice_conversation_open">Conversation</string>
+    <string name="voice_conversation_open">JARVIS mode</string>
 </resources>

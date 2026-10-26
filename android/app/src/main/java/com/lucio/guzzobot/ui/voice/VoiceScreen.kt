@@ -106,6 +106,13 @@ fun VoiceScreen(viewModel: ChatViewModel, onClose: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
+            Text(
+                text = stringResource(R.string.voice_conversation),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 28.dp),
+            )
+
             Pulse(stage)
 
             Text(

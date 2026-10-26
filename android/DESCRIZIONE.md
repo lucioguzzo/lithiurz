@@ -42,6 +42,16 @@ E perché un agente che lavora da solo non faccia paura:
 - **Lavori ricorrenti**: se una cosa va fatta ogni lunedì, la pianifichi una
   volta sola.
 
+### Modalità JARVIS
+
+Apri la modalità JARVIS e parla. GUZZOBOT risponde a voce e **torna ad
+ascoltare da solo**: fra un turno e l'altro non si preme niente. E lo puoi
+**interrompere parlandoci sopra**, perché il microfono resta aperto anche
+mentre legge — come faresti con una persona.
+
+Usa il motore di sintesi e il riconoscimento vocale di Android: non costano
+niente, non consumano crediti e su molti telefoni funzionano anche senza rete.
+
 ### E poi
 
 - **Multimodale sul serio.** PDF, Word, Excel, PowerPoint — compresi i vecchi

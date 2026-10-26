@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-6.0.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-6.1.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -245,9 +245,10 @@ Quello che si legge non è il markdown grezzo: i blocchi di codice vengono
 testo e non l'indirizzo, titoli, asterischi ed elenchi spariscono, le tabelle
 si annunciano. E «3.5» resta un numero, non due frasi.
 
-### Modalità conversazione
+### Modalità JARVIS
 
-Dal pannello laterale, o toccando il microfono in chat, si apre una schermata
+Dal pannello laterale — voce **Modalità JARVIS** — o toccando il microfono in
+chat, si apre una schermata
 che non ha niente da leggere e niente da premere: dice solo **di chi è il
 turno** — *ti ascolto*, *ci penso*, *sto leggendo* — perché parlando è l'unica
 cosa che serve sapere. Mentre ascolta vedi scorrere quello che sta capendo.
