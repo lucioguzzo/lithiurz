@@ -12,6 +12,11 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <!-- Da Android 11 il riconoscimento vocale resta invisibile se non
+             lo si dichiara qui: isRecognitionAvailable() direbbe sempre no. -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
     </queries>
 
     <application

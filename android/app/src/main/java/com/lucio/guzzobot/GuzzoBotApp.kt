@@ -2,6 +2,8 @@ package com.lucio.guzzobot
 
 import android.app.Application
 import com.lucio.guzzobot.data.agent.AgentEngine
+import com.lucio.guzzobot.data.crash.CrashGuard
+import com.lucio.guzzobot.data.crash.CrashStore
 import com.lucio.guzzobot.data.model.ModelRefresher
 import com.lucio.guzzobot.work.ModelRefreshWorker
 import com.lucio.guzzobot.data.files.AttachmentStore
@@ -52,8 +54,13 @@ class GuzzoBotApp : Application() {
     lateinit var container: AppContainer
         private set
 
+    /** L'ultimo crash, se c'è stato: lo si offre da condividere al lancio dopo. */
+    val crashes: CrashStore by lazy { CrashStore(java.io.File(filesDir, "crash/ultimo.txt")) }
+
     override fun onCreate() {
         super.onCreate()
+        // Per primo: un crash in quello che segue va annotato anche lui.
+        CrashGuard.install(crashes)
         // Carica i font che PDFBox usa per estrarre il testo dai PDF.
         PDFBoxResourceLoader.init(this)
         container = AppContainer(this)

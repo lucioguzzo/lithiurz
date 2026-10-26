@@ -160,6 +160,9 @@ fun GuzzoBotNavHost(
                 onStarted = { navController.popBackStack(Routes.CHAT, inclusive = false) },
             )
         }
+        composable(Routes.VOICE) {
+            VoiceScreen(viewModel = viewModel, onClose = { navController.popBackStack() })
+        }
         composable(Routes.TASKS) {
             TasksScreen(viewModel = viewModel, onBack = { navController.popBackStack() })
         }

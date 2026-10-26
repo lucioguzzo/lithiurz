@@ -314,4 +314,9 @@
     <string name="voice_barge_enable">Let me be cut off by speaking</string>
     <string name="voice_needs_permission">The microphone permission is needed</string>
     <string name="voice_conversation_open">JARVIS mode</string>
+    <string name="crash_title">GUZZOBOT closed unexpectedly</string>
+    <string name="crash_body">Last time the app crashed. The report says exactly where: sending it to the developer is the fastest way to get it fixed. It holds technical details about the code and the phone; you can read it before sending.</string>
+    <string name="crash_share">Share the report</string>
+    <string name="crash_dismiss">Ignore</string>
+    <string name="crash_subject">GUZZOBOT crash report</string>
 </resources>

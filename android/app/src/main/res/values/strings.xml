@@ -316,4 +316,9 @@
     <string name="voice_barge_enable">Fammi interrompere parlando</string>
     <string name="voice_needs_permission">Serve il permesso del microfono</string>
     <string name="voice_conversation_open">Modalità JARVIS</string>
+    <string name="crash_title">GUZZOBOT si è chiuso all\'improvviso</string>
+    <string name="crash_body">L\'ultima volta l\'app è andata in crash. Il rapporto dice esattamente dove: mandarlo a chi la sviluppa è il modo più rapido per farlo correggere. Contiene dati tecnici sul punto del codice e sul telefono; puoi rileggerlo prima di inviarlo.</string>
+    <string name="crash_share">Condividi il rapporto</string>
+    <string name="crash_dismiss">Ignora</string>
+    <string name="crash_subject">Rapporto crash GUZZOBOT</string>
 </resources>
