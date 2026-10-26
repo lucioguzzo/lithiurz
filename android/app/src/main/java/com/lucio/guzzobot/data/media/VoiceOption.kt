@@ -42,3 +42,18 @@ data class VoiceOption(
         }
     }
 }
+
+/** A che punto è la conversazione parlata. */
+enum class VoiceStage {
+    /** Spenta. */
+    OFF,
+
+    /** Microfono aperto, aspetta che l'utente parli. */
+    LISTENING,
+
+    /** Ha sentito, sta aspettando la risposta del modello. */
+    THINKING,
+
+    /** Sta leggendo la risposta — e resta in ascolto, per poter essere interrotta. */
+    SPEAKING,
+}

@@ -31,6 +31,8 @@ import com.lucio.guzzobot.data.local.TaskDao
 import com.lucio.guzzobot.data.media.AudioPlayer
 import com.lucio.guzzobot.data.media.AudioRecorder
 import com.lucio.guzzobot.data.media.DeviceListener
+import com.lucio.guzzobot.data.media.EchoGuard
+import com.lucio.guzzobot.data.media.VoiceStage
 import com.lucio.guzzobot.data.media.SpeechText
 import com.lucio.guzzobot.data.media.VoiceOption
 import com.lucio.guzzobot.data.media.VoiceSetup
@@ -1471,6 +1473,10 @@ class ChatViewModel(
     private val _voiceMode = MutableStateFlow(false)
     val voiceMode: StateFlow<Boolean> = _voiceMode
 
+    /** A che punto è la conversazione: lo mostra la schermata dedicata. */
+    private val _stage = MutableStateFlow(VoiceStage.OFF)
+    val stage: StateFlow<VoiceStage> = _stage
+
     val listening: StateFlow<Boolean> = deviceListener.listening
     val heardSoFar: StateFlow<String> = deviceListener.partial
 
@@ -1513,6 +1519,7 @@ class ChatViewModel(
     fun toggleVoiceMode() {
         if (_voiceMode.value) {
             _voiceMode.value = false
+            _stage.value = VoiceStage.OFF
             deviceListener.stop()
             deviceSpeaker.stop()
             speechBuffer.setLength(0)
@@ -1530,27 +1537,73 @@ class ChatViewModel(
         listen()
     }
 
-    /** Si mette in ascolto, se la conversazione parlata è attiva. */
-    fun listen() {
+    /**
+     * Si mette in ascolto.
+     *
+     * Con [overSpeech] il microfono resta aperto *mentre* la voce legge: è
+     * così che si può interrompere parlandoci sopra, senza aspettare la fine.
+     */
+    fun listen(overSpeech: Boolean = false) {
         if (!_voiceMode.value) return
-        deviceSpeaker.stop()
+        if (!overSpeech) {
+            deviceSpeaker.stop()
+            _stage.value = VoiceStage.LISTENING
+        }
         deviceListener.start(settings.value.voiceLanguage)
+    }
+
+    /** L'utente ha parlato sopra la voce: si tace e si ascolta lui. */
+    private fun bargeIn() {
+        deviceSpeaker.stop()
+        speechBuffer.setLength(0)
+        _stage.value = VoiceStage.LISTENING
     }
 
     private fun observeVoice() {
         viewModelScope.launch {
             deviceListener.heard.collect { text ->
                 if (!_voiceMode.value) return@collect
+                // Quello che il microfono sente mentre la voce legge può
+                // essere la voce stessa: in quel caso non è un turno.
+                if (deviceSpeaker.speaking.value &&
+                    !EchoGuard.shouldInterrupt(text, deviceSpeaker.saying.value)
+                ) {
+                    listen(overSpeech = true)
+                    return@collect
+                }
+                deviceSpeaker.stop()
                 speechBuffer.setLength(0)
+                _stage.value = VoiceStage.THINKING
                 setInput(text)
                 send()
             }
         }
         viewModelScope.launch {
+            // Inizio di voce mentre si legge: si valuta sul parziale, perché
+            // aspettare la frase intera vorrebbe dire parlarsi addosso.
+            deviceListener.onset.collect {
+                if (!_voiceMode.value || !settings.value.bargeIn) return@collect
+                if (!deviceSpeaker.speaking.value) return@collect
+                val partial = deviceListener.partial.value
+                if (partial.isBlank() ||
+                    EchoGuard.shouldInterrupt(partial, deviceSpeaker.saying.value)
+                ) {
+                    bargeIn()
+                }
+            }
+        }
+        viewModelScope.launch {
             deviceListener.failed.collect { reason ->
                 if (!_voiceMode.value) return@collect
+                // Un silenzio mentre la voce legge non è un problema: si
+                // riapre il microfono e si continua ad ascoltare.
+                if (deviceSpeaker.speaking.value) {
+                    listen(overSpeech = true)
+                    return@collect
+                }
                 notice(reason)
                 _voiceMode.value = false
+                _stage.value = VoiceStage.OFF
             }
         }
         viewModelScope.launch {
@@ -1559,6 +1612,28 @@ class ChatViewModel(
                 if (_voiceMode.value && _streaming.value == null) listen()
             }
         }
+        viewModelScope.launch {
+            // Appena comincia a leggere, il microfono si riapre: è questo che
+            // rende possibile interromperla.
+            deviceSpeaker.speaking.collect { speaking ->
+                if (!_voiceMode.value) return@collect
+                if (speaking) {
+                    _stage.value = VoiceStage.SPEAKING
+                    if (settings.value.bargeIn && !deviceListener.listening.value) {
+                        listen(overSpeech = true)
+                    }
+                }
+            }
+        }
+    }
+
+    fun setBargeIn(value: Boolean) = viewModelScope.launch { settingsStore.setBargeIn(value) }
+
+    /** Zittisce la voce con un tocco, senza uscire dalla conversazione. */
+    fun hush() {
+        deviceSpeaker.stop()
+        speechBuffer.setLength(0)
+        if (_voiceMode.value) listen()
     }
 
     fun setAutoSpeak(value: Boolean) = viewModelScope.launch {

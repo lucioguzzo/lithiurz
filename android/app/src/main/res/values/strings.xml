@@ -307,4 +307,13 @@
     <string name="voice_get_google">Installa il motore di Google</string>
     <string name="voice_engine_google">Motore in uso: %1$s. Ha le voci neurali — se suonano male, scaricane una migliore per la tua lingua.</string>
     <string name="voice_engine_other">Motore in uso: %1$s. Le voci di serie di molti telefoni sono meccaniche: quello di Google ha voci neurali, molto più naturali.</string>
+    <string name="voice_thinking">Ci penso…</string>
+    <string name="voice_off">Conversazione in pausa</string>
+    <string name="voice_leave">Esci</string>
+    <string name="voice_barge_on">Puoi interrompermi parlando: il microfono resta aperto anche mentre leggo. Tocca lo schermo per zittirmi subito.</string>
+    <string name="voice_barge_off">Aspetto che finisca di leggere prima di riascoltarti. Tocca lo schermo per zittirmi subito.</string>
+    <string name="voice_barge_disable">Non interrompermi parlando</string>
+    <string name="voice_barge_enable">Fammi interrompere parlando</string>
+    <string name="voice_needs_permission">Serve il permesso del microfono</string>
+    <string name="voice_conversation_open">Conversazione</string>
 </resources>

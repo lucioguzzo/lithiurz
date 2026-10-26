@@ -7,7 +7,7 @@ conversazioni e gli allegati restano sul telefono.
 
 ## Installare subito
 
-In `android/dist/guzzobot-5.9.apk` c'è l'APK già compilato: un file unico,
+In `android/dist/guzzobot-6.0.apk` c'è l'APK già compilato: un file unico,
 autosufficiente, firmato con la chiave di release del progetto. Scaricalo sul
 telefono, aprilo e consenti l'installazione da origini sconosciute. Richiede
 Android 8.0 o superiore.
@@ -245,11 +245,31 @@ Quello che si legge non è il markdown grezzo: i blocchi di codice vengono
 testo e non l'indirizzo, titoli, asterischi ed elenchi spariscono, le tabelle
 si annunciano. E «3.5» resta un numero, non due frasi.
 
-**Conversazione parlata**: tieni premuto il microfono in chat. Parli, GUZZOBOT
-risponde a voce e **torna ad ascoltare** da solo — un giro che continua finché
-non lo fermi con un tocco. Mentre ascolta vedi quello che sta capendo, parola
-per parola. Se il riconoscimento non sente, lo dice ed esce, invece di restare
-in ascolto di nessuno.
+### Modalità conversazione
+
+Dal pannello laterale, o toccando il microfono in chat, si apre una schermata
+che non ha niente da leggere e niente da premere: dice solo **di chi è il
+turno** — *ti ascolto*, *ci penso*, *sto leggendo* — perché parlando è l'unica
+cosa che serve sapere. Mentre ascolta vedi scorrere quello che sta capendo.
+
+Il giro va avanti da solo: parli, risponde, torna ad ascoltare. Non si preme
+niente fra un turno e l'altro.
+
+**E la puoi interrompere parlandoci sopra.** Il microfono resta aperto *anche
+mentre legge*: se cominci a parlare, tace e ti ascolta — senza aspettare che
+finisca la frase.
+
+Qui c'è un problema vero da risolvere, e vale raccontarlo: il microfono sente
+anche l'altoparlante. Senza un controllo, GUZZOBOT trascriverebbe sé stesso e
+si interromperebbe da solo a ogni frase. Per questo quello che il microfono
+sente viene confrontato con quello che sta leggendo in quel momento: se le
+parole combaciano è eco e si ignora. E una parola sola non basta mai a
+zittirlo — un rumore trascritto come «ah» non deve troncare una risposta.
+
+Non è infallibile: con l'altoparlante a volume alto niente lo è. Per questo
+**un tocco sullo schermo zittisce comunque**, ed è un modo che non può
+sbagliare. E chi preferisce la vecchia regola può spegnere l'interruzione
+vocale dalla schermata stessa: allora si aspetta la fine, come prima.
 
 Dalle impostazioni scegli **lingua, voce, velocità e tono** fra quelli
 installati sul telefono. Le voci non sono elencate col nome del motore —

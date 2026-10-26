@@ -359,6 +359,12 @@ data class AppSettings(
      * diverse, e non è una cosa da far succedere alle spalle di chi usa l'app.
      */
     val imageFallback: Boolean = false,
+    /**
+     * Nella conversazione parlata, il microfono resta aperto mentre la voce
+     * legge, così la si può interrompere parlando. Acceso di default: è il
+     * motivo per cui una conversazione sembra una conversazione.
+     */
+    val bargeIn: Boolean = true,
     /** Legge le risposte ad alta voce appena arrivano, senza chiederlo. */
     val autoSpeak: Boolean = false,
     /** Lingua della voce e dell'ascolto; vuoto significa quella del telefono. */

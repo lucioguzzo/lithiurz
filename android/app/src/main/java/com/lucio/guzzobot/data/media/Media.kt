@@ -137,6 +137,15 @@ class DeviceSpeaker(context: Context) {
     private val _speaking = MutableStateFlow(false)
     val speaking: StateFlow<Boolean> = _speaking
 
+    /**
+     * Quello che sta leggendo in questo momento.
+     *
+     * Serve a riconoscere la propria eco: se il microfono sente le stesse
+     * parole che l'altoparlante sta dicendo, non è l'utente che parla.
+     */
+    private val _saying = MutableStateFlow("")
+    val saying: StateFlow<String> = _saying
+
     /** Finito di parlare davvero: serve a sapere quando tornare in ascolto. */
     private val _finished = MutableSharedFlow<Unit>(extraBufferCapacity = 4)
     val finished: SharedFlow<Unit> = _finished
@@ -176,6 +185,7 @@ class DeviceSpeaker(context: Context) {
         if (pending.decrementAndGet() <= 0) {
             pending.set(0)
             _speaking.value = false
+            _saying.value = ""
             scope.launch { _finished.emit(Unit) }
         }
     }
@@ -251,7 +261,14 @@ class DeviceSpeaker(context: Context) {
             engine.setSpeechRate(rate.coerceIn(0.5f, 2f))
             engine.setPitch(pitch.coerceIn(0.5f, 2f))
         }
-        if (!queue) pending.set(0)
+        if (!queue) {
+            pending.set(0)
+            _saying.value = spoken
+        } else {
+            // In coda si accumula: l'eco può arrivare da qualunque frase
+            // ancora in lettura, non solo dall'ultima.
+            _saying.value = (_saying.value + " " + spoken).trim().takeLast(600)
+        }
         pending.incrementAndGet()
         engine.speak(
             spoken,
@@ -265,6 +282,7 @@ class DeviceSpeaker(context: Context) {
         runCatching { engine.stop() }
         pending.set(0)
         _speaking.value = false
+        _saying.value = ""
     }
 
     fun shutdown() {

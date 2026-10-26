@@ -90,6 +90,7 @@ fun ChatScreen(
     onOpenArtifacts: () -> Unit,
     onOpenFree: () -> Unit,
     onOpenSkills: () -> Unit,
+    onOpenVoice: () -> Unit,
 ) {
     val settings by viewModel.settings.collectAsStateWithLifecycle()
     val conversations by viewModel.conversations.collectAsStateWithLifecycle()
@@ -299,6 +300,10 @@ fun ChatScreen(
                         scope.launch { drawerState.close() }
                         onOpenSkills()
                     },
+                    onOpenVoice = {
+                        scope.launch { drawerState.close() }
+                        onOpenVoice()
+                    },
                     activeSkill = activeSkill?.name,
                     onOpenSettings = {
                         scope.launch { drawerState.close() }
@@ -356,18 +361,9 @@ fun ChatScreen(
                     onRemoveAttachment = viewModel::removeAttachment,
                     onAttach = { showAttachSheet = true },
                     onRecord = ::record,
-                    onVoiceMode = {
-                        // Serve il microfono anche per il riconoscimento vocale.
-                        val granted = ContextCompat.checkSelfPermission(
-                            context,
-                            Manifest.permission.RECORD_AUDIO,
-                        ) == PackageManager.PERMISSION_GRANTED
-                        if (granted) {
-                            viewModel.toggleVoiceMode()
-                        } else {
-                            micPermission.launch(Manifest.permission.RECORD_AUDIO)
-                        }
-                    },
+                    // La conversazione ha una schermata sua: lì si vede di chi
+                    // è il turno, che a voce è l'unica cosa che serve sapere.
+                    onVoiceMode = onOpenVoice,
                     voiceMode = voiceMode,
                     listening = listening,
                     heard = heardSoFar,

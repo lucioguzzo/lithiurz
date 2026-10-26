@@ -18,6 +18,7 @@ import com.lucio.guzzobot.ui.settings.ArtifactsScreen
 import com.lucio.guzzobot.ui.settings.CodeScreen
 import com.lucio.guzzobot.ui.settings.ConnectorsScreen
 import com.lucio.guzzobot.ui.settings.CatalogScreen
+import com.lucio.guzzobot.ui.voice.VoiceScreen
 import com.lucio.guzzobot.ui.settings.FreeScreen
 import com.lucio.guzzobot.ui.settings.SkillsScreen
 import com.lucio.guzzobot.ui.settings.PrivacyScreen
@@ -38,6 +39,7 @@ object Routes {
     const val FREE = "free"
     const val CATALOG = "catalog"
     const val SKILLS = "skills"
+    const val VOICE = "voice"
 }
 
 @Composable
@@ -82,6 +84,7 @@ fun GuzzoBotNavHost(
                 onOpenArtifacts = { navController.navigate(Routes.ARTIFACTS) },
                 onOpenFree = { navController.navigate(Routes.FREE) },
                 onOpenSkills = { navController.navigate(Routes.SKILLS) },
+                onOpenVoice = { navController.navigate(Routes.VOICE) },
             )
         }
         composable(Routes.SETTINGS) {

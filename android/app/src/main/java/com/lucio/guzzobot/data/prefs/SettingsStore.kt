@@ -58,6 +58,7 @@ class SettingsStore(context: Context, private val json: Json) {
         val onboardingDone = booleanPreferencesKey("onboarding_done")
         val imageFallback = booleanPreferencesKey("image_fallback")
         val autoSpeak = booleanPreferencesKey("auto_speak")
+        val bargeIn = booleanPreferencesKey("barge_in")
         val voiceLanguage = stringPreferencesKey("voice_language")
         val deviceVoice = stringPreferencesKey("device_voice")
         val voiceRate = floatPreferencesKey("voice_rate")
@@ -125,6 +126,7 @@ class SettingsStore(context: Context, private val json: Json) {
             modelsRefreshedAt = prefs[Keys.modelsRefreshedAt] ?: 0L,
             imageFallback = prefs[Keys.imageFallback] ?: false,
             autoSpeak = prefs[Keys.autoSpeak] ?: false,
+            bargeIn = prefs[Keys.bargeIn] ?: true,
             voiceLanguage = prefs[Keys.voiceLanguage].orEmpty(),
             deviceVoice = prefs[Keys.deviceVoice].orEmpty(),
             voiceRate = prefs[Keys.voiceRate] ?: 1f,
@@ -228,6 +230,8 @@ class SettingsStore(context: Context, private val json: Json) {
     suspend fun setImageFallback(value: Boolean) = store.edit { it[Keys.imageFallback] = value }
 
     suspend fun setAutoSpeak(value: Boolean) = store.edit { it[Keys.autoSpeak] = value }
+
+    suspend fun setBargeIn(value: Boolean) = store.edit { it[Keys.bargeIn] = value }
 
     suspend fun setVoiceLanguage(value: String) = store.edit { it[Keys.voiceLanguage] = value }
 
