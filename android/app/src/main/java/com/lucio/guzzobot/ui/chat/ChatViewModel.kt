@@ -97,6 +97,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -179,11 +180,6 @@ class ChatViewModel(
     private val mcpClient: McpClient,
     private val mcpOAuth: McpOAuth,
 ) : ViewModel() {
-
-    init {
-        // Gli ascoltatori della conversazione parlata vivono quanto il ViewModel.
-        observeVoice()
-    }
 
     val settings: StateFlow<AppSettings> =
         settingsStore.settings.stateIn(viewModelScope, SharingStarted.Eagerly, AppSettings())
@@ -1615,7 +1611,12 @@ class ChatViewModel(
         viewModelScope.launch {
             // Appena comincia a leggere, il microfono si riapre: è questo che
             // rende possibile interromperla.
-            deviceSpeaker.speaking.collect { speaking ->
+            //
+            // drop(1) salta il valore iniziale: di questo flusso interessa il
+            // passaggio a «sta parlando», non lo stato in cui si trova alla
+            // partenza — che per di più verrebbe consegnato subito, mentre il
+            // ViewModel si sta ancora costruendo.
+            deviceSpeaker.speaking.drop(1).collect { speaking ->
                 if (!_voiceMode.value) return@collect
                 if (speaking) {
                     _stage.value = VoiceStage.SPEAKING
@@ -2306,6 +2307,20 @@ class ChatViewModel(
         super.onCleared()
         audioPlayer.stop()
         deviceSpeaker.stop()
+    }
+
+    /**
+     * Gli ascoltatori della conversazione parlata vivono quanto il ViewModel.
+     *
+     * Questo blocco sta in fondo di proposito, e va lasciato qui: le
+     * inizializzazioni di una classe Kotlin corrono nell'ordine in cui sono
+     * scritte, e uno di questi flussi è uno StateFlow — consegna il valore
+     * corrente *subito*, su questo stesso thread. Messo in cima, il suo
+     * raccoglitore leggerebbe proprietà non ancora costruite, e l'app
+     * morirebbe all'avvio.
+     */
+    init {
+        observeVoice()
     }
 
     companion object {
