@@ -140,6 +140,23 @@ fun FreeScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
+                    // Dove gratis è solo una parte del catalogo, si dice quale:
+                    // «solo alcuni modelli» da solo non aiuta a sceglierli.
+                    val freeLine = when {
+                        tier.freeModels.isNotEmpty() ->
+                            stringResource(R.string.free_models_list, tier.freeModels.joinToString())
+                        tier.freeMarker != null ->
+                            stringResource(R.string.free_models_marker, tier.freeMarker)
+                        else -> null
+                    }
+                    if (freeLine != null) {
+                        Text(
+                            text = freeLine,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(top = 2.dp),
+                        )
+                    }
                     tier.notes.forEach { note -> NoteRow(note) }
 
                     if (editing == provider.id) {

@@ -212,7 +212,7 @@
     <string name="free_note_transcribe">Trascrive gli audio</string>
     <string name="free_note_no_card">Nessuna carta di credito</string>
     <string name="free_note_training">I tuoi prompt vengono usati per addestrare</string>
-    <string name="free_note_local">Serve un computer accesso nella stessa rete</string>
+    <string name="free_note_local">Serve un computer acceso nella stessa rete</string>
     <string name="free_note_partial">Solo una parte dei modelli è gratuita</string>
     <string name="tag_free">gratuito</string>
     <string name="free_start">Nessuna chiave configurata. Si può partire gratis.</string>
@@ -321,4 +321,6 @@
     <string name="crash_share">Condividi il rapporto</string>
     <string name="crash_dismiss">Ignora</string>
     <string name="crash_subject">Rapporto crash GUZZOBOT</string>
+    <string name="free_models_list">Gratis: %1$s</string>
+    <string name="free_models_marker">Gratis: i modelli con «%1$s» nel nome</string>
 </resources>

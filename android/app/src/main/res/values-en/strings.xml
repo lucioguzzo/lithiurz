@@ -319,4 +319,6 @@
     <string name="crash_share">Share the report</string>
     <string name="crash_dismiss">Ignore</string>
     <string name="crash_subject">GUZZOBOT crash report</string>
+    <string name="free_models_list">Free: %1$s</string>
+    <string name="free_models_marker">Free: the models with “%1$s” in their name</string>
 </resources>
