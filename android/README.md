@@ -257,15 +257,20 @@ Il giro va avanti da solo: parli, risponde, torna ad ascoltare. Non si preme
 niente fra un turno e l'altro.
 
 **E la puoi interrompere parlandoci sopra.** Il microfono resta aperto *anche
-mentre legge*: se cominci a parlare, tace e ti ascolta — senza aspettare che
-finisca la frase.
+mentre legge*: appena ha capito tre parole tue, tace e ti ascolta — senza
+aspettare che finisca la frase.
 
 Qui c'è un problema vero da risolvere, e vale raccontarlo: il microfono sente
 anche l'altoparlante. Senza un controllo, GUZZOBOT trascriverebbe sé stesso e
 si interromperebbe da solo a ogni frase. Per questo quello che il microfono
 sente viene confrontato con quello che sta leggendo in quel momento: se le
-parole combaciano è eco e si ignora. E una parola sola non basta mai a
-zittirlo — un rumore trascritto come «ah» non deve troncare una risposta.
+parole combaciano — anche storpiate, come il riconoscimento fa con l'eco — si
+ignora. A decidere sono le parole, mai il semplice inizio di una voce: la
+prima voce che il microfono sente è sempre quella dell'altoparlante. Ne
+servono almeno tre, in maggioranza diverse da quelle lette, perché un rumore
+trascritto come «ah» non deve troncare una risposta. E quando lo interrompi,
+le parole sue rimaste in testa alla tua frase vengono tolte prima di
+mandarla.
 
 Non è infallibile: con l'altoparlante a volume alto niente lo è. Per questo
 **un tocco sullo schermo zittisce comunque**, ed è un modo che non può

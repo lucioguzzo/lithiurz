@@ -1541,6 +1541,7 @@ class ChatViewModel(
      */
     fun listen(overSpeech: Boolean = false) {
         if (!_voiceMode.value) return
+        listeningOverSpeech = overSpeech
         if (!overSpeech) {
             deviceSpeaker.stop()
             _stage.value = VoiceStage.LISTENING
@@ -1548,8 +1549,18 @@ class ChatViewModel(
         deviceListener.start(settings.value.voiceLanguage)
     }
 
+    /**
+     * Quello che la voce stava leggendo quando è stata interrotta: serve a
+     * togliere l'eco dalla frase dell'utente che arriva subito dopo.
+     */
+    private var cutFrom = ""
+
+    /** Se l'ascolto in corso è cominciato mentre la voce leggeva: solo allora può contenere eco. */
+    private var listeningOverSpeech = false
+
     /** L'utente ha parlato sopra la voce: si tace e si ascolta lui. */
     private fun bargeIn() {
+        cutFrom = deviceSpeaker.saying.value
         deviceSpeaker.stop()
         speechBuffer.setLength(0)
         _stage.value = VoiceStage.LISTENING
@@ -1557,14 +1568,29 @@ class ChatViewModel(
 
     private fun observeVoice() {
         viewModelScope.launch {
-            deviceListener.heard.collect { text ->
+            deviceListener.heard.collect { heard ->
                 if (!_voiceMode.value) return@collect
                 // Quello che il microfono sente mentre la voce legge può
                 // essere la voce stessa: in quel caso non è un turno.
                 if (deviceSpeaker.speaking.value &&
-                    !EchoGuard.shouldInterrupt(text, deviceSpeaker.saying.value)
+                    !EchoGuard.shouldInterrupt(heard, deviceSpeaker.saying.value)
                 ) {
                     listen(overSpeech = true)
+                    return@collect
+                }
+                // L'eco va tolta solo se il microfono era aperto mentre la voce
+                // leggeva; dopo, una domanda che ripete una parola della
+                // risposta («Parigi quanti abitanti ha?») va lasciata intera.
+                val said = when {
+                    deviceSpeaker.speaking.value -> deviceSpeaker.saying.value
+                    listeningOverSpeech -> cutFrom.ifEmpty { deviceSpeaker.lastSaid }
+                    else -> ""
+                }
+                cutFrom = ""
+                val text = EchoGuard.withoutEcho(heard, said)
+                if (text.isBlank()) {
+                    // Era tutta eco: niente da mandare, si torna ad ascoltare.
+                    listen()
                     return@collect
                 }
                 deviceSpeaker.stop()
@@ -1575,17 +1601,18 @@ class ChatViewModel(
             }
         }
         viewModelScope.launch {
-            // Inizio di voce mentre si legge: si valuta sul parziale, perché
-            // aspettare la frase intera vorrebbe dire parlarsi addosso.
-            deviceListener.onset.collect {
+            // Mentre la voce legge si decide sul parziale, perché aspettare la
+            // frase intera vorrebbe dire parlarsi addosso. Ma solo sulle
+            // parole: il semplice inizio di una voce non vuol dire niente, la
+            // prima che il microfono sente è quella dell'altoparlante — ed è
+            // così che, prima, la voce si zittiva da sola dopo un istante.
+            //
+            // drop(1): è uno StateFlow, consegnerebbe subito il valore attuale
+            // mentre il ViewModel si sta ancora costruendo.
+            deviceListener.partial.drop(1).collect { partial ->
                 if (!_voiceMode.value || !settings.value.bargeIn) return@collect
                 if (!deviceSpeaker.speaking.value) return@collect
-                val partial = deviceListener.partial.value
-                if (partial.isBlank() ||
-                    EchoGuard.shouldInterrupt(partial, deviceSpeaker.saying.value)
-                ) {
-                    bargeIn()
-                }
+                if (EchoGuard.shouldCutIn(partial, deviceSpeaker.saying.value)) bargeIn()
             }
         }
         viewModelScope.launch {
@@ -1595,6 +1622,13 @@ class ChatViewModel(
                 // riapre il microfono e si continua ad ascoltare.
                 if (deviceSpeaker.speaking.value) {
                     listen(overSpeech = true)
+                    return@collect
+                }
+                // L'ascolto era cominciato sopra la voce, che nel frattempo ha
+                // finito: ha sentito eco o niente, non l'utente che non si fa
+                // capire. Tocca a lui adesso, quindi si riascolta e basta.
+                if (listeningOverSpeech) {
+                    listen()
                     return@collect
                 }
                 notice(reason)

@@ -65,4 +65,70 @@ class EchoGuardTest {
     fun `la normalizzazione tiene solo le parole`() {
         assertEquals("ciao come stai", EchoGuard.normalize("  Ciao, come  stai? "))
     }
+
+    // --- interrompere a frase in corso -------------------------------------
+
+    @Test
+    fun `un parziale vuoto non interrompe mai`() {
+        // Era il guasto: all'inizio di una voce il parziale è sempre vuoto, e
+        // la prima voce che il microfono sente è quella dell'altoparlante.
+        assertFalse(EchoGuard.shouldCutIn("", speaking))
+        assertFalse(EchoGuard.shouldCutIn("   ", speaking))
+    }
+
+    @Test
+    fun `l'eco a meta' frase non interrompe, nemmeno storpiata`() {
+        assertFalse(EchoGuard.shouldCutIn("la capitale della", speaking))
+        // Il riconoscimento sbaglia le desinenze dell'eco.
+        assertFalse(EchoGuard.shouldCutIn("la capitali della francia", speaking))
+        assertFalse(EchoGuard.shouldCutIn("parigino una città di circo", speaking))
+    }
+
+    @Test
+    fun `poche parole non bastano per interrompere a frase in corso`() {
+        assertFalse(EchoGuard.shouldCutIn("basta così", speaking))
+        assertTrue(EchoGuard.shouldCutIn("basta così grazie", speaking))
+    }
+
+    @Test
+    fun `una persona che parla sopra interrompe`() {
+        assertTrue(EchoGuard.shouldCutIn("aspetta dimmi invece di Roma", speaking))
+        assertTrue(EchoGuard.shouldCutIn("fermati un attimo", speaking))
+    }
+
+    @Test
+    fun `senza voce in lettura ogni frase di tre parole e' una persona`() {
+        assertTrue(EchoGuard.shouldCutIn("fermati un attimo", null))
+    }
+
+    // --- togliere l'eco dalla frase dell'utente -----------------------------
+
+    @Test
+    fun `l'eco in testa alla frase si toglie`() {
+        assertEquals(
+            "aspetta dimmi di Roma",
+            EchoGuard.withoutEcho("di circa due milioni aspetta dimmi di Roma", speaking),
+        )
+    }
+
+    @Test
+    fun `una frase tutta eco diventa vuota`() {
+        assertEquals("", EchoGuard.withoutEcho("una città di circa due milioni", speaking))
+    }
+
+    @Test
+    fun `senza eco la frase resta com'e'`() {
+        assertEquals("Che tempo fa a Roma?", EchoGuard.withoutEcho("Che tempo fa a Roma?", speaking))
+        assertEquals("Parigi quanti abitanti ha", EchoGuard.withoutEcho("Parigi quanti abitanti ha", ""))
+        assertEquals("ciao", EchoGuard.withoutEcho("  ciao ", null))
+    }
+
+    @Test
+    fun `si toglie solo la testa, non le parole dell'utente che ripetono la voce`() {
+        // «Parigi» in mezzo alla domanda è dell'utente: resta.
+        assertEquals(
+            "quanti abitanti ha Parigi",
+            EchoGuard.withoutEcho("abitanti quanti abitanti ha Parigi", speaking),
+        )
+    }
 }

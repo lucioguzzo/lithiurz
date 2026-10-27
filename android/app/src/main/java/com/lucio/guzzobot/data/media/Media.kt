@@ -146,6 +146,15 @@ class DeviceSpeaker(context: Context) {
     private val _saying = MutableStateFlow("")
     val saying: StateFlow<String> = _saying
 
+    /**
+     * L'ultima cosa detta, che a differenza di [saying] non si azzera a fine
+     * lettura: il riconoscimento può consegnare l'eco un attimo dopo che la
+     * voce ha smesso, e va riconosciuto lo stesso.
+     */
+    @Volatile
+    var lastSaid: String = ""
+        private set
+
     /** Finito di parlare davvero: serve a sapere quando tornare in ascolto. */
     private val _finished = MutableSharedFlow<Unit>(extraBufferCapacity = 4)
     val finished: SharedFlow<Unit> = _finished
@@ -269,6 +278,7 @@ class DeviceSpeaker(context: Context) {
             // ancora in lettura, non solo dall'ultima.
             _saying.value = (_saying.value + " " + spoken).trim().takeLast(600)
         }
+        lastSaid = _saying.value
         pending.incrementAndGet()
         engine.speak(
             spoken,

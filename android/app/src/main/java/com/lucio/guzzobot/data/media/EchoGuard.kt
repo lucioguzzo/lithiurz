@@ -47,13 +47,64 @@ object EchoGuard {
         return !isEcho(heard, speaking)
     }
 
+    /** Parole che servono per interrompere a frase in corso. */
+    private const val CUT_IN_WORDS = 3
+
+    /** Sotto questa quota di parole in comune con la voce, parla una persona. */
+    private const val CUT_IN_SIMILAR = 0.5
+
+    /**
+     * Vero se, mentre la voce legge, il parziale riconosciuto è una persona
+     * che vuole la parola.
+     *
+     * Più severo di [shouldInterrupt]: si decide su un testo ancora a metà, e
+     * sbagliare vuol dire zittirsi da soli. L'inizio di una voce, da solo, non
+     * basta mai — la prima voce che il microfono sente è sempre quella
+     * dell'altoparlante.
+     */
+    fun shouldCutIn(partial: String, speaking: String?): Boolean {
+        val words = normalize(partial).split(" ").filter { it.isNotEmpty() }
+        if (words.size < CUT_IN_WORDS) return false
+        val voice = normalize(speaking.orEmpty())
+        if (voice.isEmpty()) return true
+        if (voice.contains(words.joinToString(" "))) return false
+        return overlap(words.joinToString(" "), voice) < CUT_IN_SIMILAR
+    }
+
+    /**
+     * Quello che l'utente ha detto, senza l'eco che lo precede.
+     *
+     * Il microfono era aperto mentre la voce leggeva: la frase riconosciuta
+     * può cominciare con le ultime parole dell'app, prima di quelle della
+     * persona che l'ha interrotta. Quelle in testa si tolgono; dal primo
+     * termine estraneo in poi è tutto suo.
+     */
+    fun withoutEcho(heard: String, said: String?): String {
+        val voice = normalize(said.orEmpty()).split(" ").filter { it.isNotEmpty() }.toSet()
+        if (voice.isEmpty()) return heard.trim()
+        val tokens = heard.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+        val first = tokens.indexOfFirst { token ->
+            val word = normalize(token)
+            word.isNotEmpty() && voice.none { same(word, it) }
+        }
+        return if (first < 0) "" else tokens.drop(first).joinToString(" ")
+    }
+
     /** Quanta parte delle parole sentite compare in quelle lette. */
     private fun overlap(heard: String, speaking: String): Double {
         val words = heard.split(" ").filter { it.isNotEmpty() }
         if (words.isEmpty()) return 0.0
         val said = speaking.split(" ").filter { it.isNotEmpty() }.toSet()
-        return words.count { it in said }.toDouble() / words.size
+        return words.count { word -> said.any { same(word, it) } }.toDouble() / words.size
     }
+
+    /**
+     * La stessa parola, anche storpiata: il riconoscimento sbaglia spesso le
+     * desinenze dell'eco («capitali» per «capitale»). Sbagliare qui vuol dire
+     * non interrompere, che è il guaio minore: un tocco zittisce comunque.
+     */
+    private fun same(a: String, b: String): Boolean =
+        a == b || (a.length >= 5 && b.length >= 5 && a.take(4) == b.take(4))
 
     /** Minuscole, senza punteggiatura e senza spazi doppi: resta il parlato. */
     internal fun normalize(text: String): String = text.lowercase()

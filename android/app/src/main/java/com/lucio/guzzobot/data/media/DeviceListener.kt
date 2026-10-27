@@ -40,10 +40,6 @@ class DeviceListener(private val context: Context) {
     private val _failed = MutableSharedFlow<String>(extraBufferCapacity = 4)
     val failed: SharedFlow<String> = _failed
 
-    /** Qualcuno ha cominciato a parlare: è il momento di valutare se zittirsi. */
-    private val _onset = MutableSharedFlow<Unit>(extraBufferCapacity = 4)
-    val onset: SharedFlow<Unit> = _onset
-
     private var recognizer: SpeechRecognizer? = null
 
     val isAvailable: Boolean get() = SpeechRecognizer.isRecognitionAvailable(context)
@@ -86,9 +82,7 @@ class DeviceListener(private val context: Context) {
 
     private val listener = object : RecognitionListener {
         override fun onReadyForSpeech(params: Bundle?) = Unit
-        override fun onBeginningOfSpeech() {
-            _onset.tryEmit(Unit)
-        }
+        override fun onBeginningOfSpeech() = Unit
         override fun onRmsChanged(rmsdB: Float) = Unit
         override fun onBufferReceived(buffer: ByteArray?) = Unit
         override fun onEndOfSpeech() {
