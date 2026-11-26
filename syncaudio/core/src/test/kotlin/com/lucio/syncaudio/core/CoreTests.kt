@@ -183,4 +183,45 @@ class NetworkLoopbackTest {
             receiver.stop(); source.stop()
         }
     }
+    /** Source beacons never arrive (e.g. its broadcasts go out the wrong interface): the receiver's probes must still find it. */
+    @Test
+    fun receiverFindsSourceViaProbeWhenBeaconsAreBlocked() {
+        val ctrl = freePort()
+        val source = SyncSource("src", 48000, 2, { emptyList() }, controlPort = ctrl, discoveryPort = freePort())
+        val receiver = SyncReceiver("rcv", discoveryPort = freePort(),
+            probeTargets = { listOf(InetAddress.getLoopbackAddress()) }, probePort = ctrl)
+        source.start(); receiver.start()
+        try {
+            waitUntil(6000) { receiver.source != null && receiver.clockSync.synced }
+            assertNotNull("attached via probe", receiver.source)
+            assertTrue(receiver.probeReplies.get() > 0)
+            assertEquals(0L, receiver.beaconsSeen.get())
+            waitUntil(3000) { source.peerList.isNotEmpty() }
+            assertEquals(1, source.peerList.size)
+        } finally {
+            receiver.stop(); source.stop()
+        }
+    }
+
+    /** No broadcast at all in either direction: the address typed by the user is enough. */
+    @Test
+    fun manualAddressConnects() {
+        val ctrl = freePort()
+        val source = SyncSource("src", 48000, 2, { emptyList() }, controlPort = ctrl, discoveryPort = freePort())
+        val receiver = SyncReceiver("rcv", discoveryPort = freePort())
+        source.start(); receiver.start()
+        try {
+            receiver.probe("127.0.0.1", ctrl)
+            waitUntil(6000) { receiver.source != null && receiver.clockSync.synced }
+            assertNotNull(receiver.source)
+            assertTrue(receiver.clockSync.synced)
+        } finally {
+            receiver.stop(); source.stop()
+        }
+    }
+
+    private fun waitUntil(ms: Long, cond: () -> Boolean) {
+        val end = System.currentTimeMillis() + ms
+        while (System.currentTimeMillis() < end && !cond()) Thread.sleep(20)
+    }
 }

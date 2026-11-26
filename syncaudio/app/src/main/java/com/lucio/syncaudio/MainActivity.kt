@@ -151,6 +151,8 @@ class MainActivity : ComponentActivity() {
 
             ManualConnect()
 
+            DiagnosticsCard()
+
             Text(
                 "Questo telefono: " + NetUtil.localIPv4().joinToString().ifEmpty { "nessuna rete" },
                 style = MaterialTheme.typography.bodySmall,
@@ -235,6 +237,26 @@ class MainActivity : ComponentActivity() {
                 label = { Text("es. 192.168.1.23") }, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(4.dp))
             OutlinedButton(onClick = { if (host.isNotBlank()) connectTo(host) }) { Text("Connetti") }
+        }
+    }
+
+    @Composable
+    private fun DiagnosticsCard() {
+        var open by remember { mutableStateOf(false) }
+        InfoCard("Diagnostica") {
+            val hints = Diagnostics.hints(this@MainActivity)
+            if (hints.isNotEmpty()) hints.forEach {
+                Text("• $it", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = { open = !open }) { Text(if (open) "Nascondi dettagli" else "Mostra dettagli") }
+                OutlinedButton(onClick = {
+                    val cm = getSystemService(android.content.ClipboardManager::class.java)
+                    cm.setPrimaryClip(android.content.ClipData.newPlainText("SyncAudio", Diagnostics.report(this@MainActivity)))
+                    android.widget.Toast.makeText(this@MainActivity, "Report copiato", android.widget.Toast.LENGTH_SHORT).show()
+                }) { Text("Copia report") }
+            }
+            if (open) Text(Diagnostics.report(this@MainActivity), style = MaterialTheme.typography.bodySmall, fontFamily = FontFamily.Monospace)
         }
     }
 

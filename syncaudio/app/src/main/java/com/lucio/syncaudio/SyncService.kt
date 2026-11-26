@@ -11,6 +11,9 @@ import android.content.pm.ServiceInfo
 import android.media.AudioManager
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Handler
@@ -22,6 +25,7 @@ import android.provider.Settings
 import android.util.Log
 import com.lucio.syncaudio.core.SyncReceiver
 import com.lucio.syncaudio.core.SyncSource
+import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -36,6 +40,9 @@ object SyncController {
     @Volatile var receiver: SyncReceiver? = null
     @Volatile var lastPeak: Int = 0
     @Volatile var warning: String? = null
+    @Volatile var boundToWifi: Boolean = false
+    @Volatile var lastNetError: String? = null
+    @Volatile var nsdStatus: String = "-"
 
     fun prefs(ctx: Context) = ctx.getSharedPreferences("sync", Context.MODE_PRIVATE)
 
@@ -53,7 +60,7 @@ object NetUtil {
                 for (ia in ni.interfaceAddresses) ia.broadcast?.let { out.add(it) }
             }
         } catch (_: Exception) {}
-        out.add(InetAddress.getByName("255.255.255.255"))
+        try { out.add(InetAddress.getByName("255.255.255.255")) } catch (_: Exception) {}
         return out.toList()
     }
 
@@ -62,6 +69,60 @@ object NetUtil {
             .filter { it.isUp && !it.isLoopback }
             .flatMap { ni -> ni.inetAddresses.toList().filterIsInstance<Inet4Address>().map { "${it.hostAddress} (${ni.name})" } }
     } catch (_: Exception) { emptyList() }
+
+    /** The Wi-Fi network this phone is connected to as a client, if any. */
+    @Suppress("DEPRECATION")
+    fun wifiNetwork(ctx: Context): Network? {
+        val cm = ctx.getSystemService(ConnectivityManager::class.java)
+        return cm.allNetworks.firstOrNull { n ->
+            cm.getNetworkCapabilities(n)?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true
+        }
+    }
+
+    /**
+     * Android sends traffic of unbound sockets over the *default* network. When the Wi-Fi has
+     * no internet (typical: the other phone's hotspot with mobile data off) the default is
+     * mobile data, and packets for the other phone are lost. Binding every socket to the
+     * Wi-Fi network fixes that. On the phone that *hosts* the hotspot there is no Wi-Fi
+     * client network and none is needed: the hotspot subnet is always reachable.
+     */
+    fun socketHook(ctx: Context): (DatagramSocket) -> Unit {
+        val wifi = wifiNetwork(ctx)
+        SyncController.boundToWifi = wifi != null
+        return { s -> if (wifi != null) try { wifi.bindSocket(s) } catch (e: Exception) {
+            SyncController.boundToWifi = false
+            SyncController.lastNetError = "bindSocket: ${e.message}"
+        } }
+    }
+
+    @Suppress("DEPRECATION")
+    fun networkReport(ctx: Context): String {
+        val cm = ctx.getSystemService(ConnectivityManager::class.java)
+        val active = cm.activeNetwork
+        val sb = StringBuilder()
+        for (n in cm.allNetworks) {
+            val caps = cm.getNetworkCapabilities(n) ?: continue
+            val lp = cm.getLinkProperties(n)
+            val kind = when {
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN) -> "VPN"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> "Wi-Fi"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> "Dati mobili"
+                caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> "Ethernet"
+                else -> "Altro"
+            }
+            val internet = if (caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) "internet OK" else "senza internet"
+            val def = if (n == active) " [PREDEFINITA]" else ""
+            sb.append("• $kind ${lp?.interfaceName ?: ""} ($internet)$def\n")
+        }
+        if (sb.isEmpty()) sb.append("• nessuna rete attiva\n")
+        return sb.toString()
+    }
+
+    @Suppress("DEPRECATION")
+    fun vpnActive(ctx: Context): Boolean {
+        val cm = ctx.getSystemService(ConnectivityManager::class.java)
+        return cm.allNetworks.any { cm.getNetworkCapabilities(it)?.hasTransport(NetworkCapabilities.TRANSPORT_VPN) == true }
+    }
 }
 
 /**
@@ -95,6 +156,7 @@ class SyncService : Service() {
     private var multicastLock: WifiManager.MulticastLock? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var silentSeconds = 0
+    private var nsd: Nsd? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -122,8 +184,8 @@ class SyncService : Service() {
             ACTION_RECEIVER -> startReceiver()
             ACTION_CONNECT -> {
                 if (SyncController.role != SyncController.Role.RECEIVER) startReceiver()
-                val host = intent.getStringExtra(EXTRA_HOST).orEmpty()
-                try { SyncController.receiver?.connectManual(host) } catch (e: Exception) {
+                val host = intent.getStringExtra(EXTRA_HOST).orEmpty().trim().substringBefore(' ').substringBefore(':')
+                try { SyncController.receiver?.probe(host) } catch (e: Exception) {
                     SyncController.warning = "Indirizzo non valido: $host"
                 }
             }
@@ -156,7 +218,10 @@ class SyncService : Service() {
         projection = mp
 
         val prefs = SyncController.prefs(this)
-        val src = SyncSource(SyncController.deviceName(this), SAMPLE_RATE, CHANNELS, NetUtil::broadcastAddresses)
+        val src = SyncSource(
+            SyncController.deviceName(this), SAMPLE_RATE, CHANNELS, NetUtil::broadcastAddresses,
+            socketHook = NetUtil.socketHook(this),
+        )
         src.baseDelayMs = prefs.getInt("baseDelayMs", 150)
         src.listener = object : SyncSource.Listener {
             override fun onPeersChanged(peers: List<SyncSource.Peer>) {
@@ -174,6 +239,7 @@ class SyncService : Service() {
             stopEverything(); return
         }
         SyncController.source = src
+        nsd = Nsd(this).also { it.advertise(SyncController.deviceName(this), src.localPort) }
         silentSeconds = 0
         SyncController.warning = null
         capture = AudioCapture(mp, src) { peak -> onCapturePeak(peak) }.also { it.start() }
@@ -194,6 +260,7 @@ class SyncService : Service() {
     }
 
     private fun stopSourceParts() {
+        nsd?.stop(); nsd = null
         capture?.stop(); capture = null
         SyncController.source?.stop(); SyncController.source = null
         projection?.let { p -> projection = null; try { p.stop() } catch (_: Exception) {} }
@@ -206,7 +273,11 @@ class SyncService : Service() {
         stopSourceParts()
         if (SyncController.receiver != null) { SyncController.role = SyncController.Role.RECEIVER; return }
         val prefs = SyncController.prefs(this)
-        val rcv = SyncReceiver(SyncController.deviceName(this))
+        val rcv = SyncReceiver(
+            SyncController.deviceName(this),
+            probeTargets = NetUtil::broadcastAddresses,
+            socketHook = NetUtil.socketHook(this),
+        )
         rcv.userOffsetMs = prefs.getInt("userOffsetMs", 0)
         rcv.listener = object : SyncReceiver.Listener {
             override fun onSourceChanged(source: SyncReceiver.SourceInfo?) {
@@ -221,12 +292,14 @@ class SyncService : Service() {
         }
         SyncController.receiver = rcv
         SyncController.warning = null
+        nsd = Nsd(this).also { n -> n.discover { host, port -> ctl.post { try { rcv.probe(host, port) } catch (_: Exception) {} } } }
         player = AudioPlayer { SyncController.receiver?.engine }.also { it.start() }
         SyncController.role = SyncController.Role.RECEIVER
         updateNotification("Cerco una sorgente…")
     }
 
     private fun stopReceiverParts() {
+        if (SyncController.receiver != null) { nsd?.stop(); nsd = null }
         player?.stop(); player = null
         SyncController.receiver?.stop(); SyncController.receiver = null
     }

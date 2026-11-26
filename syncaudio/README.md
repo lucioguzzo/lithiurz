@@ -4,7 +4,7 @@ Due smartphone Android, due casse Bluetooth diverse, la stessa musica a tempo.
 Uno dei due telefoni **cattura l'audio di qualsiasi app** (YouTube, Spotify, RaiPlay, file MP3…) e lo invia
 via Wi-Fi all'altro, che lo riproduce sulla propria cassa. I ruoli si possono scambiare in qualsiasi momento.
 
-> **Stato: prototipo (v0.1).** Il motore di sincronizzazione è testato in simulazione. L'app compila, ma non è
+> **Stato: prototipo (v0.2).** Il motore di sincronizzazione è testato in simulazione. L'app compila, ma non è
 > ancora stata provata su telefoni veri. Il primo obiettivo è proprio questo: vedi "Come provarla".
 
 ---
@@ -67,6 +67,9 @@ telefono emette un "chirp" da ciascuna cassa, lo registra col microfono e misura
                                                  └──────────────────────────────────┘
 ```
 
+- **Scoperta:** tre canali indipendenti: beacon broadcast della sorgente, "probe" broadcast del ricevitore a cui
+  la sorgente risponde in unicast, mDNS/NSD (come le stampanti di rete). In più c'è l'IP manuale. Ogni socket
+  è legato esplicitamente alla Wi-Fi, così Android non devia il traffico sulla rete mobile.
 - **Trasporto:** UDP sulla rete locale. Va bene la stessa Wi-Fi, oppure un telefono che fa da hotspot all'altro
   (serve anche senza internet). La scoperta è automatica via broadcast, con la connessione manuale per IP come
   riserva. I pacchetti sono di 5 ms, in PCM 16 bit stereo a 48 kHz (~1,5 Mbit/s).
@@ -112,6 +115,21 @@ Cose da verificare nel primo test, che mi servono per la fase 2:
 - quali app si catturano (YouTube, Spotify, RaiPlay, il lettore MP3) e quali danno l'avviso "cattura muta";
 - quanto resta indietro B con lo slider al minimo, e se cambia invertendo le casse;
 - se l'audio ha buchi: guarda "Audio mancante" e "Margine dati" nella schermata del ricevitore.
+
+### Se i telefoni non si collegano
+Apri **Diagnostica → Mostra dettagli** su entrambi i telefoni: c'è un elenco di "possibili cause" calcolato dai
+contatori. Con **Copia report** puoi incollare il report in chat. Le cause più frequenti:
+
+| Sintomo nel report | Causa | Rimedio |
+|---|---|---|
+| Wi-Fi "senza internet" e "Dati mobili [PREDEFINITA]" | Android instrada il traffico sulla rete mobile | Risolto dalla v0.2 (socket legati alla Wi-Fi). Se persiste, spegni i dati mobili sul telefono collegato all'hotspot |
+| "Beacon visti: 0" e "risposte ai probe: 0" | La rete isola i dispositivi (Wi-Fi ospiti, pubbliche, alcuni router/mesh) | Usa l'hotspot di uno dei due telefoni |
+| VPN presente nell'elenco reti | La VPN cattura anche il traffico locale | Disattiva la VPN o abilita "consenti rete locale" |
+| Telefoni su reti diverse (IP con prefissi diversi) | Una banda 2.4/5 GHz "ospite" o una rete diversa | Collegali alla stessa rete |
+| "Errori invio" con "Network is unreachable" | Nessuna rete utilizzabile | Attiva Wi-Fi o hotspot |
+
+**Configurazione più affidabile:** il telefono A attiva l'hotspot e il telefono B si collega. Funziona anche
+senza internet, all'aperto.
 
 ---
 
